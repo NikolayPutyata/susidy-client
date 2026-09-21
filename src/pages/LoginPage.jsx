@@ -2,6 +2,11 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { getErrorMessage } from '../lib/errors.js'
+import { Logo } from '../components/Logo.jsx'
+import { SpinnerIcon } from '../components/icons.jsx'
+
+const inputClass =
+  'w-full rounded-xl border border-border bg-surface-raised px-4 py-2.5 text-text placeholder:text-text-subtle outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30'
 
 export const LoginPage = () => {
   const { login } = useAuth()
@@ -32,46 +37,49 @@ export const LoginPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-sm">
-      <h1 className="mb-4 text-2xl font-semibold">Вхід</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="mb-1 block text-sm text-neutral-600">Email</label>
+    <div className="mx-auto max-w-sm py-8">
+      <div className="mb-6 flex justify-center">
+        <Logo className="text-xl" />
+      </div>
+
+      <div className="rounded-2xl border border-border bg-surface p-6">
+        <h1 className="mb-5 text-center text-xl font-bold">Вхід в акаунт</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
             name="email"
             value={form.email}
             onChange={handleChange}
+            placeholder="Email"
             required
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2"
+            className={inputClass}
           />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm text-neutral-600">Пароль</label>
           <input
             type="password"
             name="password"
             value={form.password}
             onChange={handleChange}
+            placeholder="Пароль"
             required
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2"
+            className={inputClass}
           />
-        </div>
-        {error && <p className="text-rose-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded-full bg-neutral-900 px-5 py-2 text-white disabled:opacity-50"
-        >
-          {submitting ? 'Входимо…' : 'Увійти'}
-        </button>
-      </form>
-      <p className="mt-4 text-sm text-neutral-500">
-        Немає акаунта?{' '}
-        <Link to="/register" className="underline">
-          Зареєструватися
-        </Link>
-      </p>
+          {error && <p className="text-sm text-accent">{error}</p>}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
+          >
+            {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
+            {submitting ? 'Входимо…' : 'Увійти'}
+          </button>
+        </form>
+        <p className="mt-4 text-center text-sm text-text-muted">
+          Немає акаунта?{' '}
+          <Link to="/register" className="text-primary-light underline">
+            Зареєструватися
+          </Link>
+        </p>
+      </div>
     </div>
   )
 }

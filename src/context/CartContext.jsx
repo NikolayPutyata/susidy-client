@@ -31,7 +31,11 @@ const CartContext = createContext(null)
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isDrawerOpen, setDrawerOpen] = useState(false)
   const sessionId = useMemo(() => getOrCreateSessionId(), [])
+
+  const openDrawer = useCallback(() => setDrawerOpen(true), [])
+  const closeDrawer = useCallback(() => setDrawerOpen(false), [])
 
   const applyCart = useCallback((data) => {
     setCart(data)
@@ -74,8 +78,9 @@ export const CartProvider = ({ children }) => {
         quantity,
       })
       applyCart(data)
+      openDrawer()
     },
-    [sessionId, applyCart],
+    [sessionId, applyCart, openDrawer],
   )
 
   const updateItem = useCallback(
@@ -112,6 +117,12 @@ export const CartProvider = ({ children }) => {
     [sessionId, applyCart],
   )
 
+  const getItemQuantity = useCallback(
+    (productId) =>
+      cart?.items?.find((item) => item.product_id === productId)?.quantity || 0,
+    [cart],
+  )
+
   const itemsCount =
     cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0
   const total =
@@ -128,8 +139,25 @@ export const CartProvider = ({ children }) => {
       updateItem,
       removeItem,
       checkout,
+      getItemQuantity,
+      isDrawerOpen,
+      openDrawer,
+      closeDrawer,
     }),
-    [cart, loading, itemsCount, total, addItem, updateItem, removeItem, checkout],
+    [
+      cart,
+      loading,
+      itemsCount,
+      total,
+      addItem,
+      updateItem,
+      removeItem,
+      checkout,
+      getItemQuantity,
+      isDrawerOpen,
+      openDrawer,
+      closeDrawer,
+    ],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

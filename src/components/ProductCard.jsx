@@ -2,56 +2,88 @@ import { useState } from 'react'
 import { useCart } from '../context/CartContext.jsx'
 import { CATEGORY_LABELS } from '../lib/constants.js'
 import { getErrorMessage } from '../lib/errors.js'
+import { QuantityStepper } from './QuantityStepper.jsx'
+import { SpinnerIcon } from './icons.jsx'
 
 export const ProductCard = ({ product }) => {
-  const { addItem } = useCart()
-  const [adding, setAdding] = useState(false)
+  const { addItem, updateItem, removeItem, getItemQuantity } = useCart()
+  const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
-  const handleAdd = async () => {
-    setAdding(true)
+  const quantity = getItemQuantity(product._id)
+
+  const withBusy = async (action) => {
+    setBusy(true)
     setError('')
     try {
-      await addItem(product, 1)
+      await action()
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {
-      setAdding(false)
+      setBusy(false)
     }
   }
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-      <div className="aspect-square bg-neutral-100">
-        {product.images?.[0] && (
+    <div className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface transition hover:border-border-strong">
+      <div className="relative aspect-square bg-black">
+        {product.images?.[0] ? (
           <img
             src={product.images[0]}
             alt={product.name}
-            className="h-full w-full object-cover"
+            loading="lazy"
+            className="h-full w-full object-contain transition duration-300 group-hover:scale-105"
           />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-text-subtle">
+            <span className="text-3xl">🍣</span>
+          </div>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-1 p-3">
-        <span className="text-xs uppercase text-neutral-400">
+
+      <div className="flex flex-1 flex-col gap-1 p-4">
+        <span className="text-xs font-medium uppercase tracking-wide text-primary-light">
           {CATEGORY_LABELS[product.category] || product.category}
         </span>
-        <h3 className="font-medium text-neutral-900">{product.name}</h3>
+        <h3 className="font-semibold text-text">{product.name}</h3>
         {product.description && (
-          <p className="line-clamp-2 text-sm text-neutral-500">
+          <p className="line-clamp-2 text-sm text-text-muted">
             {product.description}
           </p>
         )}
-        <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="font-semibold">{product.priceKiev} грн</span>
-          <button
-            onClick={handleAdd}
-            disabled={adding}
-            className="rounded-full bg-neutral-900 px-3 py-1.5 text-sm text-white disabled:opacity-50"
-          >
-            {adding ? '...' : 'В кошик'}
-          </button>
+
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <span className="text-lg font-extrabold text-accent">
+            {product.priceKiev} ₴
+          </span>
+
+          {quantity === 0 ? (
+            <button
+              onClick={() => withBusy(() => addItem(product, 1))}
+              disabled={busy}
+              className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
+            >
+              {busy && <SpinnerIcon className="h-3.5 w-3.5 animate-spin" />}
+              В кошик
+            </button>
+          ) : (
+            <QuantityStepper
+              size="sm"
+              quantity={quantity}
+              disabled={busy}
+              onDecrease={() =>
+                withBusy(() =>
+                  quantity <= 1
+                    ? removeItem(product._id)
+                    : updateItem(product._id, quantity - 1),
+                )
+              }
+              onIncrease={() => withBusy(() => updateItem(product._id, quantity + 1))}
+            />
+          )}
         </div>
-        {error && <p className="text-xs text-rose-600">{error}</p>}
+
+        {error && <p className="text-xs text-accent">{error}</p>}
       </div>
     </div>
   )

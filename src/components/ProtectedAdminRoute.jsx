@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { SpinnerIcon } from './icons.jsx'
 
 export const ProtectedAdminRoute = () => {
   const { isAdmin, isAuthenticated, initializing } = useAuth()
@@ -7,7 +8,10 @@ export const ProtectedAdminRoute = () => {
 
   if (initializing) {
     return (
-      <div className="p-8 text-center text-neutral-500">Завантаження…</div>
+      <div className="flex items-center justify-center gap-2 py-16 text-text-muted">
+        <SpinnerIcon className="h-5 w-5 animate-spin" />
+        Завантаження…
+      </div>
     )
   }
 

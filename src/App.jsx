@@ -1,5 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import { Header } from './components/Header.jsx'
+import { Footer } from './components/Footer.jsx'
+import { CartDrawer } from './components/CartDrawer.jsx'
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute.jsx'
 import { CatalogPage } from './pages/CatalogPage.jsx'
 import { CartPage } from './pages/CartPage.jsx'
@@ -7,6 +9,7 @@ import { CheckoutPage } from './pages/CheckoutPage.jsx'
 import { OrderSuccessPage } from './pages/OrderSuccessPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
 import { RegisterPage } from './pages/RegisterPage.jsx'
+import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { AdminLayout } from './pages/admin/AdminLayout.jsx'
 import { AdminProductsPage } from './pages/admin/AdminProductsPage.jsx'
 import { AdminUsersPage } from './pages/admin/AdminUsersPage.jsx'
@@ -14,9 +17,9 @@ import { AdminOrdersPage } from './pages/admin/AdminOrdersPage.jsx'
 
 function App() {
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-50">
+    <div className="flex min-h-screen flex-col bg-bg text-text">
       <Header />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
         <Routes>
           <Route path="/" element={<CatalogPage />} />
           <Route path="/cart" element={<CartPage />} />
@@ -33,8 +36,12 @@ function App() {
               <Route path="users" element={<AdminUsersPage />} />
             </Route>
           </Route>
+
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
+      <Footer />
+      <CartDrawer />
     </div>
   )
 }

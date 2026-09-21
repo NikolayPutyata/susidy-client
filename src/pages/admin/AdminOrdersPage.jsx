@@ -1,40 +1,50 @@
 import { useEffect, useState } from 'react'
 import { fetchTodayOrders, searchAdminOrders } from '../../api/admin.js'
 import { getErrorMessage } from '../../lib/errors.js'
+import { SearchIcon, SpinnerIcon } from '../../components/icons.jsx'
 
 const OrdersTable = ({ orders }) => {
   if (orders.length === 0) {
-    return <p className="text-neutral-500">Немає замовлень.</p>
+    return (
+      <div className="rounded-2xl border border-border bg-surface p-8 text-center text-text-muted">
+        Немає замовлень.
+      </div>
+    )
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
+    <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-neutral-200 text-neutral-500">
-          <tr>
-            <th className="p-3">Час</th>
-            <th className="p-3">Клієнт</th>
-            <th className="p-3">Телефон</th>
-            <th className="p-3">Товари</th>
-            <th className="p-3">Доставка</th>
-            <th className="p-3 text-right">Сума</th>
+        <thead>
+          <tr className="border-b border-border text-text-subtle">
+            <th className="p-3 font-medium">Час</th>
+            <th className="p-3 font-medium">Клієнт</th>
+            <th className="p-3 font-medium">Телефон</th>
+            <th className="p-3 font-medium">Товари</th>
+            <th className="p-3 font-medium">Доставка</th>
+            <th className="p-3 text-right font-medium">Сума</th>
           </tr>
         </thead>
         <tbody>
           {orders.map((order) => (
-            <tr key={order._id} className="border-b border-neutral-100 last:border-0">
-              <td className="whitespace-nowrap p-3">
+            <tr
+              key={order._id}
+              className="border-b border-border last:border-0 hover:bg-surface-hover"
+            >
+              <td className="whitespace-nowrap p-3 text-text-muted">
                 {new Date(order.createdAt).toLocaleString('uk-UA')}
               </td>
-              <td className="p-3">{order.name}</td>
-              <td className="p-3">{order.phoneNumber}</td>
-              <td className="p-3">
+              <td className="p-3 font-medium">{order.name}</td>
+              <td className="p-3 text-text-muted">{order.phoneNumber}</td>
+              <td className="p-3 text-text-muted">
                 {order.items
                   .map((item) => `${item.productName} ×${item.quantity}`)
                   .join(', ')}
               </td>
-              <td className="p-3">{order.delivery || '—'}</td>
-              <td className="p-3 text-right font-medium">{order.total} грн</td>
+              <td className="p-3 text-text-muted">{order.delivery || '—'}</td>
+              <td className="p-3 text-right font-semibold text-accent">
+                {order.total} ₴
+              </td>
             </tr>
           ))}
         </tbody>
@@ -42,6 +52,19 @@ const OrdersTable = ({ orders }) => {
     </div>
   )
 }
+
+const TabButton = ({ active, onClick, children }) => (
+  <button
+    onClick={onClick}
+    className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+      active
+        ? 'bg-primary text-black'
+        : 'bg-surface text-text-muted hover:bg-surface-hover hover:text-text'
+    }`}
+  >
+    {children}
+  </button>
+)
 
 export const AdminOrdersPage = () => {
   const [tab, setTab] = useState('today')
@@ -76,42 +99,47 @@ export const AdminOrdersPage = () => {
 
   return (
     <div>
+      <h1 className="mb-4 text-2xl font-extrabold">Замовлення</h1>
+
       <div className="mb-4 flex gap-2">
-        <button
-          onClick={() => setTab('today')}
-          className={`rounded-full px-4 py-1.5 text-sm ${
-            tab === 'today' ? 'bg-neutral-900 text-white' : 'bg-neutral-200'
-          }`}
-        >
-          Сьогодні ({todayOrders.length})
-        </button>
-        <button
-          onClick={() => setTab('search')}
-          className={`rounded-full px-4 py-1.5 text-sm ${
-            tab === 'search' ? 'bg-neutral-900 text-white' : 'bg-neutral-200'
-          }`}
-        >
+        <TabButton active={tab === 'today'} onClick={() => setTab('today')}>
+          Сьогодні · {todayOrders.length}
+        </TabButton>
+        <TabButton active={tab === 'search'} onClick={() => setTab('search')}>
           Пошук за телефоном
-        </button>
+        </TabButton>
       </div>
 
-      {error && <p className="mb-4 text-rose-600">{error}</p>}
+      {error && (
+        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-accent">
+          {error}
+        </p>
+      )}
 
       {tab === 'today' &&
-        (loading ? <p>Завантаження…</p> : <OrdersTable orders={todayOrders} />)}
+        (loading ? (
+          <p className="flex items-center gap-2 text-text-muted">
+            <SpinnerIcon className="h-4 w-4 animate-spin" /> Завантаження…
+          </p>
+        ) : (
+          <OrdersTable orders={todayOrders} />
+        ))}
 
       {tab === 'search' && (
         <div>
           <form onSubmit={handleSearch} className="mb-4 flex gap-2">
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Номер телефону"
-              className="w-64 rounded-lg border border-neutral-300 px-3 py-2"
-            />
+            <div className="relative w-64">
+              <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Номер телефону"
+                className="w-full rounded-xl border border-border bg-surface-raised py-2 pl-9 pr-3 text-text placeholder:text-text-subtle outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
             <button
               type="submit"
-              className="rounded-lg bg-neutral-900 px-4 py-2 text-white"
+              className="rounded-xl bg-primary px-4 py-2 font-semibold text-black transition hover:bg-primary-light"
             >
               Знайти
             </button>

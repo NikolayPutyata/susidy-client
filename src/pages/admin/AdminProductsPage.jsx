@@ -5,8 +5,9 @@ import {
   deleteAdminProduct,
   updateAdminProduct,
 } from '../../api/admin.js'
-import { CATEGORIES } from '../../lib/constants.js'
+import { CATEGORIES, CATEGORY_LABELS } from '../../lib/constants.js'
 import { getErrorMessage } from '../../lib/errors.js'
+import { SpinnerIcon, TrashIcon, UploadIcon } from '../../components/icons.jsx'
 
 const emptyForm = {
   name: '',
@@ -16,6 +17,9 @@ const emptyForm = {
   description: '',
 }
 
+const inputClass =
+  'w-full rounded-xl border border-border bg-surface-raised px-3.5 py-2 text-text placeholder:text-text-subtle outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30'
+
 export const AdminProductsPage = () => {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -24,6 +28,7 @@ export const AdminProductsPage = () => {
   const [form, setForm] = useState(emptyForm)
   const [files, setFiles] = useState([])
   const [saving, setSaving] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
 
   const load = () => {
     setLoading(true)
@@ -45,6 +50,7 @@ export const AdminProductsPage = () => {
       description: product.description || '',
     })
     setFiles([])
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const resetForm = () => {
@@ -83,147 +89,177 @@ export const AdminProductsPage = () => {
 
   const handleDelete = async (id) => {
     if (!confirm('Видалити товар?')) return
+    setDeletingId(id)
     setError('')
     try {
       await deleteAdminProduct(id)
       setProducts((prev) => prev.filter((p) => p._id !== id))
     } catch (err) {
       setError(getErrorMessage(err))
+    } finally {
+      setDeletingId(null)
     }
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-      <form
-        onSubmit={handleSubmit}
-        className="h-fit space-y-3 rounded-2xl border border-neutral-200 bg-white p-4"
-      >
-        <h2 className="font-medium">
-          {editingId ? 'Редагувати товар' : 'Новий товар'}
-        </h2>
+    <div>
+      <h1 className="mb-4 text-2xl font-extrabold">Товари</h1>
 
-        <input
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          placeholder="Назва"
-          required
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2"
-        />
-        <div className="flex gap-2">
-          <input
-            name="priceKiev"
-            type="number"
-            value={form.priceKiev}
-            onChange={handleChange}
-            placeholder="Ціна, Київ"
-            required
-            className="w-1/2 rounded-lg border border-neutral-300 px-3 py-2"
-          />
-          <input
-            name="priceKharkov"
-            type="number"
-            value={form.priceKharkov}
-            onChange={handleChange}
-            placeholder="Ціна, Харків"
-            required
-            className="w-1/2 rounded-lg border border-neutral-300 px-3 py-2"
-          />
-        </div>
-        <select
-          name="category"
-          value={form.category}
-          onChange={handleChange}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2"
+      {error && (
+        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-accent">
+          {error}
+        </p>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+        <form
+          onSubmit={handleSubmit}
+          className="h-fit space-y-3 rounded-2xl border border-border bg-surface p-4"
         >
-          {CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Опис"
-          rows={3}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2"
-        />
-        <div>
-          <label className="mb-1 block text-sm text-neutral-600">
-            Фото {editingId && '(лишіть порожнім, щоб не змінювати)'}
-          </label>
+          <h2 className="font-semibold">
+            {editingId ? 'Редагувати товар' : 'Новий товар'}
+          </h2>
+
           <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => setFiles(Array.from(e.target.files))}
-            className="w-full text-sm"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Назва"
+            required
+            className={inputClass}
           />
-        </div>
-
-        {error && <p className="text-rose-600">{error}</p>}
-
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={saving}
-            className="flex-1 rounded-lg bg-neutral-900 px-4 py-2 text-white disabled:opacity-50"
+          <div className="flex gap-2">
+            <input
+              name="priceKiev"
+              type="number"
+              value={form.priceKiev}
+              onChange={handleChange}
+              placeholder="Ціна, Київ"
+              required
+              className={inputClass}
+            />
+            <input
+              name="priceKharkov"
+              type="number"
+              value={form.priceKharkov}
+              onChange={handleChange}
+              placeholder="Ціна, Харків"
+              required
+              className={inputClass}
+            />
+          </div>
+          <select
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            className={inputClass}
           >
-            {saving ? 'Зберігаємо…' : editingId ? 'Зберегти' : 'Додати товар'}
-          </button>
-          {editingId && (
+            {CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Опис"
+            rows={3}
+            className={inputClass}
+          />
+
+          <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border-strong px-4 py-3 text-sm text-text-muted transition hover:border-primary hover:text-text">
+            <UploadIcon className="h-4 w-4" />
+            {files.length > 0
+              ? `Обрано файлів: ${files.length}`
+              : 'Фото товару (до 10)'}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => setFiles(Array.from(e.target.files))}
+              className="hidden"
+            />
+          </label>
+          {editingId && files.length === 0 && (
+            <p className="text-xs text-text-subtle">
+              Фото не обрано — старі зображення залишаться без змін.
+            </p>
+          )}
+
+          <div className="flex gap-2 pt-1">
             <button
-              type="button"
-              onClick={resetForm}
-              className="rounded-lg bg-neutral-200 px-4 py-2"
+              type="submit"
+              disabled={saving}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
             >
-              Скасувати
+              {saving && <SpinnerIcon className="h-4 w-4 animate-spin" />}
+              {saving ? 'Зберігаємо…' : editingId ? 'Зберегти' : 'Додати товар'}
             </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="rounded-xl bg-surface-raised px-4 py-2.5 font-medium text-text-muted transition hover:text-text"
+              >
+                Скасувати
+              </button>
+            )}
+          </div>
+        </form>
+
+        <div>
+          {loading ? (
+            <p className="flex items-center gap-2 text-text-muted">
+              <SpinnerIcon className="h-4 w-4 animate-spin" /> Завантаження…
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {products.map((product) => (
+                <div
+                  key={product._id}
+                  className="overflow-hidden rounded-2xl border border-border bg-surface"
+                >
+                  <div className="aspect-square bg-black">
+                    {product.images?.[0] && (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="h-full w-full object-contain"
+                      />
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <span className="text-xs uppercase text-primary-light">
+                      {CATEGORY_LABELS[product.category] || product.category}
+                    </span>
+                    <p className="truncate font-medium">{product.name}</p>
+                    <p className="text-sm font-semibold text-accent">
+                      {product.priceKiev} ₴
+                    </p>
+                    <div className="mt-2 flex gap-3 text-sm">
+                      <button
+                        onClick={() => startEdit(product)}
+                        className="text-primary-light underline underline-offset-2"
+                      >
+                        Редагувати
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product._id)}
+                        disabled={deletingId === product._id}
+                        className="flex items-center gap-1 text-accent underline underline-offset-2 disabled:opacity-50"
+                      >
+                        <TrashIcon className="h-3.5 w-3.5" />
+                        Видалити
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
-      </form>
-
-      <div>
-        {loading ? (
-          <p>Завантаження…</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {products.map((product) => (
-              <div
-                key={product._id}
-                className="rounded-2xl border border-neutral-200 bg-white p-3"
-              >
-                <div className="mb-2 aspect-square overflow-hidden rounded-xl bg-neutral-100">
-                  {product.images?.[0] && (
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="h-full w-full object-cover"
-                    />
-                  )}
-                </div>
-                <p className="font-medium">{product.name}</p>
-                <p className="text-sm text-neutral-500">{product.priceKiev} грн</p>
-                <div className="mt-2 flex gap-2 text-sm">
-                  <button
-                    onClick={() => startEdit(product)}
-                    className="text-neutral-700 underline"
-                  >
-                    Редагувати
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product._id)}
-                    className="text-rose-600 underline"
-                  >
-                    Видалити
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   )

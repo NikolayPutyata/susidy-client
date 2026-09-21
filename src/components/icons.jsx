@@ -1,0 +1,115 @@
+export const CartIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+    <path
+      d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.3a2 2 0 0 0 2-1.6L20 8H6.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="9.5" cy="20" r="1.4" fill="currentColor" stroke="none" />
+    <circle cx="17" cy="20" r="1.4" fill="currentColor" stroke="none" />
+  </svg>
+)
+
+export const CloseIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+    <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+  </svg>
+)
+
+export const MenuIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+    <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+  </svg>
+)
+
+export const MinusIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
+    <path d="M5 12h14" strokeLinecap="round" />
+  </svg>
+)
+
+export const PlusIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
+    <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+  </svg>
+)
+
+export const TrashIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+    <path
+      d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0-.8 12a2 2 0 0 1-2 1.9H9.8a2 2 0 0 1-2-1.9L7 7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
+export const CheckCircleIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <circle cx="12" cy="12" r="9.2" />
+    <path d="m8 12.5 2.5 2.5L16 9.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
+export const ReceiptIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z" strokeLinejoin="round" />
+    <path d="M9 8h6M9 12h6" strokeLinecap="round" />
+  </svg>
+)
+
+export const BoxIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <path
+      d="M21 8v8a1 1 0 0 1-.5.87l-8 4.5a1 1 0 0 1-1 0l-8-4.5A1 1 0 0 1 3 16V8a1 1 0 0 1 .5-.87l8-4.5a1 1 0 0 1 1 0l8 4.5a1 1 0 0 1 .5.87Z"
+      strokeLinejoin="round"
+    />
+    <path d="M3.3 7.3 12 12l8.7-4.7M12 12v9" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
+export const UsersIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <circle cx="9" cy="8" r="3.2" />
+    <path
+      d="M3.5 19c.6-3 2.7-4.7 5.5-4.7s4.9 1.7 5.5 4.7M16 8.3a3 3 0 1 1 2 5.6M18.5 19c-.3-1.7-1-3-2.3-3.9"
+      strokeLinecap="round"
+    />
+  </svg>
+)
+
+export const UploadIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <path
+      d="M12 15V4m0 0 4 4m-4-4-4 4M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
+export const SearchIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+    <circle cx="10.5" cy="10.5" r="6.5" />
+    <path d="m20 20-4.5-4.5" strokeLinecap="round" />
+  </svg>
+)
+
+export const SpinnerIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" {...props}>
+    <circle
+      cx="12"
+      cy="12"
+      r="9"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeOpacity="0.2"
+    />
+    <path
+      d="M21 12a9 9 0 0 0-9-9"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+    />
+  </svg>
+)
