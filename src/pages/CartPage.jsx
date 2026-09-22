@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useCart } from '../hooks/useCart.js'
 import { CartItemsList } from '../components/CartItemsList.jsx'
 import { CartIcon } from '../components/icons.jsx'
+import { OrderTotal } from '../components/OrderTotal.jsx'
 
 export const CartPage = () => {
   const { cart, loading, total } = useCart()
@@ -43,10 +44,7 @@ export const CartPage = () => {
       </div>
 
       <div className="h-fit rounded-2xl border border-border bg-surface p-5 lg:sticky lg:top-24">
-        <div className="flex items-center justify-between text-text-muted">
-          <span>Разом</span>
-          <span className="text-2xl font-extrabold text-text">{total} ₴</span>
-        </div>
+        <OrderTotal total={total} size="lg" />
         <button
           onClick={() => navigate('/checkout')}
           className="mt-4 w-full rounded-full bg-accent py-3 font-semibold text-black transition hover:bg-accent-light"

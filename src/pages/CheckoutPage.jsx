@@ -4,6 +4,7 @@ import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { SpinnerIcon } from '../components/icons.jsx'
+import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
 
 const Field = ({ label, children }) => (
   <div>
@@ -18,6 +19,7 @@ const inputClass =
 export const CheckoutPage = () => {
   const { cart, total, checkout } = useCart()
   const { user } = useAuth()
+  const { discounted } = useDiscountedTotal(total)
   const navigate = useNavigate()
   const [form, setForm] = useState({
     name: user?.name || '',
@@ -113,7 +115,7 @@ export const CheckoutPage = () => {
             className="flex w-full items-center justify-center gap-2 rounded-full bg-accent py-3 font-semibold text-black transition hover:bg-accent-light disabled:opacity-60 lg:hidden"
           >
             {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
-            {submitting ? 'Оформлюємо…' : `Підтвердити замовлення · ${total} ₴`}
+            {submitting ? 'Оформлюємо…' : `Підтвердити замовлення · ${discounted} ₴`}
           </button>
         </form>
       </div>
@@ -135,9 +137,8 @@ export const CheckoutPage = () => {
             </li>
           ))}
         </ul>
-        <div className="flex items-center justify-between border-t border-border pt-3">
-          <span className="text-text-muted">Разом</span>
-          <span className="text-2xl font-extrabold">{total} ₴</span>
+        <div className="border-t border-border pt-3">
+          <OrderTotal total={total} size="lg" />
         </div>
         <button
           type="submit"

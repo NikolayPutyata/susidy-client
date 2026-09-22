@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
 import { CartItemsList } from './CartItemsList.jsx'
 import { CartIcon, CloseIcon } from './icons.jsx'
+import { OrderTotal } from './OrderTotal.jsx'
 
 export const CartDrawer = () => {
   const { cart, loading, isDrawerOpen, closeDrawer, total } = useCart()
@@ -78,10 +79,7 @@ export const CartDrawer = () => {
         {items.length > 0 && (
           <div className="space-y-3 border-t border-border px-5 py-4">
             {error && <p className="text-sm text-accent">{error}</p>}
-            <div className="flex items-center justify-between text-base">
-              <span className="text-text-muted">Разом</span>
-              <span className="text-xl font-extrabold">{total} ₴</span>
-            </div>
+            <OrderTotal total={total} />
             <button
               onClick={goToCheckout}
               className="w-full rounded-full bg-accent py-3 text-center font-semibold text-black transition hover:bg-accent-light"
