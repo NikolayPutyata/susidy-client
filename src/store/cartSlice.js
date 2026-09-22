@@ -3,6 +3,7 @@ import {
   addToCartRequest,
   checkoutRequest,
   fetchCart,
+  fetchMyCart,
   removeCartItemRequest,
   updateCartItemRequest,
 } from '../api/cart.js'
@@ -50,17 +51,33 @@ const initialState = {
   error: null,
 }
 
-export const loadCart = createAsyncThunk('cart/load', async () => {
-  const cartId = localStorage.getItem(CART_ID_KEY)
-  if (!cartId) return null
+export const loadCart = createAsyncThunk(
+  'cart/load',
+  async (_, { getState }) => {
+    // An authenticated user's cart lives by user_id, not by whatever cart
+    // id happens to be cached locally (that id could be a stale guest
+    // cart, or belong to nothing after a login-time merge) — fetch it by
+    // account instead.
+    if (getState().user.user) {
+      try {
+        const data = await fetchMyCart()
+        return Array.isArray(data) ? null : data
+      } catch {
+        return null
+      }
+    }
 
-  try {
-    const data = await fetchCart(cartId)
-    return Array.isArray(data) ? null : data
-  } catch {
-    return null
-  }
-})
+    const cartId = localStorage.getItem(CART_ID_KEY)
+    if (!cartId) return null
+
+    try {
+      const data = await fetchCart(cartId)
+      return Array.isArray(data) ? null : data
+    } catch {
+      return null
+    }
+  },
+)
 
 export const addItem = createAsyncThunk(
   'cart/addItem',

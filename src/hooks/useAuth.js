@@ -9,6 +9,7 @@ import {
   selectIsAuthenticated,
   selectUser,
 } from '../store/userSlice.js'
+import { loadCart } from '../store/cartSlice.js'
 
 export const useAuth = () => {
   const dispatch = useAppDispatch()
@@ -18,7 +19,13 @@ export const useAuth = () => {
   const initializing = useAppSelector(selectAuthInitializing)
 
   const login = useCallback(
-    (payload) => dispatch(loginThunk(payload)).unwrap(),
+    async (payload) => {
+      const loggedInUser = await dispatch(loginThunk(payload)).unwrap()
+      // Picks up whatever the server-side login-time merge did to the
+      // guest cart (reassigned or merged into an existing account cart).
+      dispatch(loadCart())
+      return loggedInUser
+    },
     [dispatch],
   )
 

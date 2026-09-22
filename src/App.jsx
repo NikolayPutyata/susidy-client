@@ -26,8 +26,16 @@ function App() {
     // Якщо в userSlice/cartSlice захардкоджений initialUser/initialCart —
     // не перетираємо його реальним (майже напевно невдалим у цьому режимі)
     // зверненням до бекенду.
-    if (!hasHardcodedUser) dispatch(restoreSession())
-    if (!hasHardcodedCart) dispatch(loadCart())
+    const bootstrap = async () => {
+      // loadCart() decides guest-vs-account lookup based on the user
+      // already being in the store, so it must wait for restoreSession()
+      // to settle first — otherwise a page reload while logged in would
+      // still fetch the cart the guest way.
+      if (!hasHardcodedUser) await dispatch(restoreSession())
+      if (!hasHardcodedCart) dispatch(loadCart())
+    }
+
+    bootstrap()
   }, [dispatch])
 
   return (

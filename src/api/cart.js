@@ -3,6 +3,9 @@ import { apiClient } from './client.js'
 export const fetchCart = (cartId) =>
   apiClient.get(`/cart/${cartId}`).then((r) => r.data.data)
 
+export const fetchMyCart = () =>
+  apiClient.get('/cart/me').then((r) => r.data.data)
+
 export const addToCartRequest = (payload) =>
   apiClient.post('/cart/add', payload).then((r) => r.data.data)
 
