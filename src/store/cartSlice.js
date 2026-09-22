@@ -36,6 +36,11 @@ const persistCartId = (cart) => {
 // }
 const initialCart = null
 
+// Якщо initialCart заповнений — це значить розробник свідомо захардкодив
+// кошик для верстки, і App.jsx не повинен одразу перетирати його спробою
+// звернутись до реального бекенду.
+export const hasHardcodedCart = initialCart !== null
+
 const initialState = {
   cart: initialCart,
   loading: initialCart === null,

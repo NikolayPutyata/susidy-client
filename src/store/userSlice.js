@@ -14,6 +14,11 @@ import { toSerializableError } from '../lib/errors.js'
 // const initialUser = { _id: '1', name: 'Тест', phoneNumber: '0991234567', role: 'admin', discount: 10 }
 const initialUser = null
 
+// Якщо initialUser заповнений — це значить розробник свідомо захардкодив
+// юзера для верстки, і App.jsx не повинен одразу перетирати його спробою
+// звернутись до реального бекенду.
+export const hasHardcodedUser = initialUser !== null
+
 const initialState = {
   user: initialUser,
   initializing: initialUser === null,

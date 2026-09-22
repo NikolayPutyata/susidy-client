@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { useAppDispatch } from './store/hooks.js'
-import { restoreSession } from './store/userSlice.js'
-import { loadCart } from './store/cartSlice.js'
+import { hasHardcodedUser, restoreSession } from './store/userSlice.js'
+import { hasHardcodedCart, loadCart } from './store/cartSlice.js'
 import { Header } from './components/Header.jsx'
 import { Footer } from './components/Footer.jsx'
 import { CartDrawer } from './components/CartDrawer.jsx'
@@ -23,8 +23,11 @@ function App() {
   const dispatch = useAppDispatch()
 
   useEffect(() => {
-    dispatch(restoreSession())
-    dispatch(loadCart())
+    // Якщо в userSlice/cartSlice захардкоджений initialUser/initialCart —
+    // не перетираємо його реальним (майже напевно невдалим у цьому режимі)
+    // зверненням до бекенду.
+    if (!hasHardcodedUser) dispatch(restoreSession())
+    if (!hasHardcodedCart) dispatch(loadCart())
   }, [dispatch])
 
   return (
