@@ -7,6 +7,7 @@ import {
   updateCartItemRequest,
 } from '../api/cart.js'
 import { toSerializableError } from '../lib/errors.js'
+import { logout } from './userSlice.js'
 
 const SESSION_ID_KEY = 'susidy_session_id'
 const CART_ID_KEY = 'susidy_cart_id'
@@ -170,6 +171,15 @@ const cartSlice = createSlice({
       })
       .addCase(checkout.fulfilled, (state) => {
         state.cart = null
+        persistCartId(null)
+      })
+      .addCase(logout.fulfilled, (state) => {
+        // The cart we had was tied to this account (user_id server-side),
+        // not to our session_id — after logout there's nothing left to
+        // show, and re-fetching it by the old cart _id would leak the
+        // previous account's cart into an anonymous session.
+        state.cart = null
+        state.isDrawerOpen = false
         persistCartId(null)
       })
   },

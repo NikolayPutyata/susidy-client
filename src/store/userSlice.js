@@ -65,8 +65,13 @@ export const registerUser = createAsyncThunk(
 )
 
 export const logout = createAsyncThunk('user/logout', async () => {
+  // Always clear local session state, even if telling the server about it
+  // fails (offline, server down) — the user still expects to be logged
+  // out on their end, and the access token is dropped either way.
   try {
     await logoutRequest()
+  } catch (err) {
+    console.error('Failed to notify server of logout', err)
   } finally {
     setAccessToken(null)
   }
