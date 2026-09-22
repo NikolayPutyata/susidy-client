@@ -12,7 +12,7 @@ export const LoginPage = () => {
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState({ phoneNumber: '', password: '' })
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -46,12 +46,12 @@ export const LoginPage = () => {
         <h1 className="mb-5 text-center text-xl font-bold">Вхід в акаунт</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            type="email"
-            name="email"
-            value={form.email}
+            name="phoneNumber"
+            value={form.phoneNumber}
             onChange={handleChange}
-            placeholder="Email"
             required
+            pattern="[0-9]{10}"
+            placeholder="Телефон, 0991234567"
             className={inputClass}
           />
           <input

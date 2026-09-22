@@ -109,7 +109,6 @@ export const AdminUsersPage = () => {
               <tr className="border-b border-border text-text-subtle">
                 <th className="p-3 font-medium">Ім'я</th>
                 <th className="p-3 font-medium">Телефон</th>
-                <th className="p-3 font-medium">Email</th>
                 <th className="p-3 font-medium">Роль</th>
                 <th className="p-3 font-medium">Знижка, %</th>
               </tr>
@@ -122,7 +121,6 @@ export const AdminUsersPage = () => {
                 >
                   <td className="p-3 font-medium">{u.name}</td>
                   <td className="p-3 text-text-muted">{u.phoneNumber}</td>
-                  <td className="p-3 text-text-muted">{u.email || '—'}</td>
                   <td className="p-3">
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${

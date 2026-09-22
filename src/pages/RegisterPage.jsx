@@ -14,7 +14,6 @@ export const RegisterPage = () => {
   const [form, setForm] = useState({
     name: '',
     phoneNumber: '',
-    email: '',
     password: '',
     city: '',
   })
@@ -30,7 +29,7 @@ export const RegisterPage = () => {
     setError('')
     try {
       await register(form)
-      await login({ email: form.email, password: form.password })
+      await login({ phoneNumber: form.phoneNumber, password: form.password })
       navigate('/', { replace: true })
     } catch (err) {
       setError(getErrorMessage(err))
@@ -64,15 +63,6 @@ export const RegisterPage = () => {
             required
             pattern="[0-9]{10}"
             placeholder="Телефон, 0991234567"
-            className={inputClass}
-          />
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-            required
             className={inputClass}
           />
           <input

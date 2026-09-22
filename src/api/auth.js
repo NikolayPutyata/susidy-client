@@ -12,9 +12,3 @@ export const refreshRequest = () =>
   apiClient.post('/auth/refresh').then((r) => r.data.data)
 
 export const fetchMe = () => apiClient.get('/auth/me').then((r) => r.data.data)
-
-export const requestResetEmail = (email) =>
-  apiClient.post('/auth/request-reset-email', { email })
-
-export const resetPasswordRequest = (payload) =>
-  apiClient.post('/auth/reset-password', payload)
