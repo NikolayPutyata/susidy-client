@@ -1,7 +1,9 @@
 import { apiClient } from './client.js'
 
-export const fetchCart = (cartId) =>
-  apiClient.get(`/cart/${cartId}`).then((r) => r.data.data)
+export const fetchCart = (cartId, sessionId) =>
+  apiClient
+    .get(`/cart/${cartId}`, { params: { session_id: sessionId } })
+    .then((r) => r.data.data)
 
 export const fetchMyCart = () =>
   apiClient.get('/cart/me').then((r) => r.data.data)

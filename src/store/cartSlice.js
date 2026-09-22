@@ -71,7 +71,7 @@ export const loadCart = createAsyncThunk(
     if (!cartId) return null
 
     try {
-      const data = await fetchCart(cartId)
+      const data = await fetchCart(cartId, getState().cart.sessionId)
       return Array.isArray(data) ? null : data
     } catch {
       return null
