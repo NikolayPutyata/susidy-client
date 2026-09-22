@@ -1,3 +1,13 @@
+// Axios errors carry circular refs (request/config) and aren't plain
+// objects, so Redux Toolkit's serializability check rejects them if passed
+// to rejectWithValue as-is. Keep only what getErrorMessage() needs.
+export const toSerializableError = (error) => ({
+  message: error?.message,
+  response: error?.response
+    ? { status: error.response.status, data: error.response.data }
+    : undefined,
+})
+
 export const getErrorMessage = (error) => {
   const payload = error?.response?.data
 

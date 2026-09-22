@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useCart } from '../context/CartContext.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useCart } from '../hooks/useCart.js'
+import { useAuth } from '../hooks/useAuth.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { SpinnerIcon } from '../components/icons.jsx'
 

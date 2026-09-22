@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { useCart } from '../context/CartContext.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useCart } from '../hooks/useCart.js'
+import { useAuth } from '../hooks/useAuth.js'
 import { Logo } from './Logo.jsx'
 import { CartIcon, CloseIcon, MenuIcon } from './icons.jsx'
 

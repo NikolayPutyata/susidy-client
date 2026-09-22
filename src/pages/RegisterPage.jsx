@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../hooks/useAuth.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { Logo } from '../components/Logo.jsx'
 import { SpinnerIcon } from '../components/icons.jsx'

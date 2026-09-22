@@ -1,4 +1,8 @@
+import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
+import { useAppDispatch } from './store/hooks.js'
+import { restoreSession } from './store/userSlice.js'
+import { loadCart } from './store/cartSlice.js'
 import { Header } from './components/Header.jsx'
 import { Footer } from './components/Footer.jsx'
 import { CartDrawer } from './components/CartDrawer.jsx'
@@ -16,6 +20,13 @@ import { AdminUsersPage } from './pages/admin/AdminUsersPage.jsx'
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage.jsx'
 
 function App() {
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    dispatch(restoreSession())
+    dispatch(loadCart())
+  }, [dispatch])
+
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text">
       <Header />

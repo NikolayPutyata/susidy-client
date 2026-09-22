@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useCart } from '../context/CartContext.jsx'
+import { useCart } from '../hooks/useCart.js'
 import { CATEGORY_LABELS } from '../lib/constants.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { QuantityStepper } from './QuantityStepper.jsx'

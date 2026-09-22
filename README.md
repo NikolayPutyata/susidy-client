@@ -4,7 +4,7 @@
 
 ## Стек
 
-React 19, Vite, React Router, Axios, Tailwind CSS.
+React 19, Vite, React Router, Redux Toolkit, Axios, Tailwind CSS.
 
 ## Запуск
 
@@ -19,8 +19,9 @@ npm run dev
 ## Структура
 
 - `src/api/` — тонкі обгортки над axios для кожної групи ендпоінтів (`auth`, `products`, `cart`, `admin`). `client.js` — спільний інстанс axios: підставляє `Authorization: Bearer`, при 401 сам викликає `/auth/refresh` і повторює запит.
-- `src/context/AuthContext.jsx` — сесія користувача. При завантаженні застосунку мовчки викликає `/auth/refresh` (кукі), щоб відновити сесію після перезавантаження сторінки; `accessToken` живе лише в пам'яті (не в localStorage) — так безпечніше при XSS.
-- `src/context/CartContext.jsx` — кошик гостя/користувача. `session_id` (UUID) генерується і зберігається в `localStorage`; `_id` кошика з відповіді бекенду теж кешується локально, щоб відновлювати кошик при перезавантаженні сторінки (бекенд віддає кошик лише по його власному `_id`, не по `session_id`).
+- `src/store/` — Redux Toolkit. `userSlice.js` і `cartSlice.js` — стан + `createAsyncThunk` для звернень до API (`restoreSession`, `login`, `registerUser`, `logout` / `loadCart`, `addItem`, `updateItem`, `removeItem`, `checkout`). `index.js` — `configureStore`.
+- `src/hooks/useAuth.js`, `src/hooks/useCart.js` — тонкі хуки над стором (`useSelector`/`useDispatch`), які й використовують сторінки/компоненти — самого Redux в компонентах не видно.
+- **Захардкодити дані для верстки/демо без бекенду:** у `userSlice.js` та `cartSlice.js` є закоментований `initialUser`/`initialCart` на самому верху файлу — розкоментуй, підстав свої дані, і стор стартує з ними одразу, без жодного запиту на сервер. Або викликай `dispatch(setUser(...))` / `dispatch(setCart(...))` (експортовані reducer-екшени) з будь-якого місця в рантаймі.
 - `src/pages/` — публічні сторінки (каталог, кошик, чекаут, логін/реєстрація) і `src/pages/admin/` — адмінка, захищена `ProtectedAdminRoute` (пускає лише `role: "admin"`).
 
 ## Відомі спрощення (свідомо, на цьому етапі)
