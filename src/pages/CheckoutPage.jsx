@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useCity } from '../hooks/useCity.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { LOCATIONS } from '../lib/constants.js'
-import { SpinnerIcon } from '../components/icons.jsx'
+import { AppleIcon, SpinnerIcon } from '../components/icons.jsx'
 import { QuantityStepper } from '../components/QuantityStepper.jsx'
 import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
 
@@ -40,6 +40,7 @@ export const CheckoutPage = () => {
     building: '',
     apartment: '',
     isPrivateHouse: false,
+    pickupAddress: '',
     cutlery: 1,
     details: '',
     noCallback: false,
@@ -47,7 +48,18 @@ export const CheckoutPage = () => {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  const pickupPoint = LOCATIONS.find((l) => l.city === city)
+  const pickupOptions = LOCATIONS.filter((l) => l.city === city)
+
+  // Дефолтна точка самовивозу — перша для обраного міста, і перемикається
+  // разом з ним, якщо юзер поміняв місто просто на цій сторінці.
+  useEffect(() => {
+    setForm((prev) =>
+      pickupOptions.some((p) => p.address === prev.pickupAddress)
+        ? prev
+        : { ...prev, pickupAddress: pickupOptions[0]?.address || '' },
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [city])
 
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target
@@ -161,14 +173,32 @@ export const CheckoutPage = () => {
         </div>
 
         {form.fulfillment === 'pickup' ? (
-          <div className="rounded-xl bg-surface-raised px-4 py-3 text-sm text-text-muted">
-            Точка самовивозу: <span className="text-text">{pickupPoint?.address}</span>
-            {pickupPoint?.phone && (
-              <>
-                {' '}
-                · <span className="text-text">{pickupPoint.phone}</span>
-              </>
-            )}
+          <div>
+            <label className="mb-1.5 block text-sm text-text-muted">
+              Точка самовивозу
+            </label>
+            <div className="space-y-2">
+              {pickupOptions.map((point) => (
+                <label
+                  key={point.id}
+                  className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm transition ${
+                    form.pickupAddress === point.address
+                      ? 'border-primary bg-primary/10 text-text'
+                      : 'border-border bg-surface-raised text-text-muted hover:text-text'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="pickupAddress"
+                    value={point.address}
+                    checked={form.pickupAddress === point.address}
+                    onChange={handleChange}
+                    className="h-4 w-4 accent-primary"
+                  />
+                  {point.address}
+                </label>
+              ))}
+            </div>
           </div>
         ) : (
           <>
@@ -257,11 +287,11 @@ export const CheckoutPage = () => {
 
         {error && <p className="text-accent">{error}</p>}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+        <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
           <button
             type="submit"
             disabled={submitting}
-            className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 font-semibold text-black transition hover:bg-accent-light disabled:opacity-60"
+            className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light disabled:opacity-60"
           >
             {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
             {submitting ? 'Оформлюємо…' : `Сплачу при отриманні · ${discounted} ₴`}
@@ -271,12 +301,24 @@ export const CheckoutPage = () => {
             type="button"
             disabled
             title="Незабаром"
-            className="flex items-center justify-center gap-2 rounded-full border border-border bg-surface-raised py-3 font-semibold text-text-subtle opacity-60"
+            className="flex items-center justify-center gap-1.5 rounded-full bg-black py-3 text-sm font-semibold text-white opacity-60"
           >
-            Оплатити онлайн
-            <span className="text-xs">(Незабаром)</span>
+            <AppleIcon className="h-4 w-4" />
+            Pay
+          </button>
+
+          <button
+            type="button"
+            disabled
+            title="Незабаром"
+            className="flex items-center justify-center gap-1.5 rounded-full bg-[#6c5ce7] py-3 text-sm font-semibold text-white opacity-60"
+          >
+            WayForPay
           </button>
         </div>
+        <p className="text-center text-xs text-text-subtle sm:text-right">
+          Онлайн-оплата — незабаром
+        </p>
       </form>
     </div>
   )

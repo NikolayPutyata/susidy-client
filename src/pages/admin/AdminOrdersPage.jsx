@@ -6,7 +6,9 @@ import { SearchIcon, SpinnerIcon } from '../../components/icons.jsx'
 
 const formatFulfillment = (order) => {
   const city = CITY_LABELS[order.city] || order.city || '—'
-  if (order.fulfillment === 'pickup') return `Самовивіз, ${city}`
+  if (order.fulfillment === 'pickup') {
+    return `Самовивіз, ${city}${order.pickupAddress ? `, ${order.pickupAddress}` : ''}`
+  }
   if (!order.street) return city
 
   const apartment = order.isPrivateHouse ? 'приватний будинок' : `кв. ${order.apartment}`

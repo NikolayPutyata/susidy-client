@@ -29,8 +29,16 @@ export const SOCIAL_LINKS = {
   facebook: '#',
 }
 
-// TODO: підставити реальні адреси й телефони точок.
+export const WORKING_HOURS = '11:00 – 22:00'
+
 export const LOCATIONS = [
-  { city: 'kyiv', label: 'Київ', address: 'Адреса уточнюється', phone: '' },
-  { city: 'kharkiv', label: 'Харків', address: 'Адреса уточнюється', phone: '' },
+  { id: 'kyiv-berestejskyi', city: 'kyiv', address: 'просп. Берестейський, 9' },
+  { id: 'kyiv-dragomanova', city: 'kyiv', address: 'вул. Драгоманова, 2А' },
+  { id: 'kharkiv-valentynivska', city: 'kharkiv', address: 'вул. Валентинівська, 31В' },
+  {
+    id: 'kharkiv-divisions',
+    city: 'kharkiv',
+    address: 'вул. Харківських дивізій, 11/2',
+  },
+  { id: 'kharkiv-svobody', city: 'kharkiv', address: 'просп. Людвіга Свободи, 33' },
 ]

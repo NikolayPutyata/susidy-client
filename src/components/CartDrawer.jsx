@@ -36,7 +36,7 @@ export const CartDrawer = () => {
         className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in"
       />
 
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col border-l border-border bg-surface shadow-2xl">
+      <aside className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col border-l border-border bg-surface shadow-2xl animate-slide-in-right">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="flex items-center gap-2 text-lg font-bold">
             <CartIcon className="h-5 w-5 text-accent" />
