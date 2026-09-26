@@ -160,7 +160,7 @@ export const Header = () => {
         <button
           onClick={() => setMenuOpen(true)}
           aria-label="Меню"
-          className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-md transition hover:bg-black/70"
+          className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-md transition hover:bg-black/70 mt-2"
         >
           <MenuIcon className="h-5 w-5" />
         </button>
@@ -169,7 +169,7 @@ export const Header = () => {
           <button
             onClick={openDrawer}
             aria-label="Відкрити кошик"
-            className="pointer-events-auto relative flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-md transition hover:bg-black/70"
+            className="pointer-events-auto relative flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-md transition hover:bg-black/70 mt-2"
           >
             <CartIcon className="h-5 w-5" />
             <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-black ring-2 ring-black">

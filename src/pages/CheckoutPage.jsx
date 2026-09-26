@@ -287,7 +287,7 @@ export const CheckoutPage = () => {
 
         {error && <p className="text-accent">{error}</p>}
 
-        <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 pt-1 md:mx-15">
           <button
             type="submit"
             disabled={submitting}
@@ -316,9 +316,7 @@ export const CheckoutPage = () => {
             WayForPay
           </button>
         </div>
-        <p className="text-center text-xs text-text-subtle sm:text-right">
-          Онлайн-оплата — незабаром
-        </p>
+        
       </form>
     </div>
   )

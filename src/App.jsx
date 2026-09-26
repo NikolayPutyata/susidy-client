@@ -48,7 +48,7 @@ function App() {
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text">
       <Header />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-20">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-8">
         <Routes>
           <Route path="/" element={<CatalogPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />

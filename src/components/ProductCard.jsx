@@ -54,8 +54,8 @@ export const ProductCard = ({ product }) => {
           {product.description || ''}
         </p>
 
-        <div className="mt-2 flex items-center justify-between gap-2">
-          <span className="text-lg font-extrabold text-accent">{price} ₴</span>
+        <div className="mt-2 sm:mx-2 sm:my-2 flex items-center justify-between gap-2">
+          <span className="text-lg md:text-xl font-extrabold text-accent">{price} ₴</span>
 
           {quantity === 0 ? (
             <button
