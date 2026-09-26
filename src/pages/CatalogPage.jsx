@@ -8,11 +8,8 @@ import { getErrorMessage } from '../lib/errors.js'
 // TODO: замінити --hero-bg на реальне фото (наразі — абстрактний градієнт-заглушка).
 const Hero = () => (
   <section
-    className="relative left-1/2 right-1/2 -mt-20 mb-10 -ml-[50vw] -mr-[50vw] flex h-[70vh] min-h-[420px] w-screen items-center justify-center overflow-hidden bg-cover bg-center text-center"
-    style={{
-      backgroundImage:
-        'radial-gradient(ellipse at 30% 20%, rgba(0,157,181,0.35), transparent 55%), radial-gradient(ellipse at 75% 75%, rgba(255,133,98,0.3), transparent 55%), #0a0a0c',
-    }}
+    className="relative left-1/2 right-1/2 -mt-8 mb-10 -ml-[50vw] -mr-[50vw] flex h-[70vh] min-h-[420px] w-screen items-center justify-center overflow-hidden bg-cover bg-center text-center"
+    style={{ backgroundImage: "url('/fon.jpg')" }}
   >
     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
 
