@@ -5,7 +5,7 @@ export const Footer = () => (
     <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-10 text-center sm:flex-row sm:justify-between sm:text-left">
       <Logo />
       <p className="text-sm text-text-subtle">
-        © {new Date().getFullYear()} Susidy. Суші та роли з доставкою.
+        © {new Date().getFullYear()} Susidy
       </p>
     </div>
   </footer>

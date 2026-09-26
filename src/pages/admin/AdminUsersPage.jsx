@@ -169,9 +169,8 @@ export const AdminUsersPage = () => {
           )}
           Вивантажити список клієнтів
         </button>
-        <p className="text-xs text-text-subtle">
-          Без дат — за весь час. CSV: Ім'я, номер, місто.
-        </p>
+        
+        
       </div>
 
       {error && (

@@ -57,9 +57,7 @@ const MobileMenu = ({ open, onClose }) => {
         </div>
 
         <nav className="flex flex-col gap-1 px-3 py-3">
-          <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-text-subtle">
-            Меню
-          </p>
+          
           <button onClick={() => goToCategory('all')} className={`${menuLinkClass} text-left`}>
             Все меню
           </button>
