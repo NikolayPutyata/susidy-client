@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import { fetchMyOrders } from '../api/orders.js'
 import { fetchAllProducts } from '../api/products.js'
 import { useCart } from '../hooks/useCart.js'
+import { useCity } from '../hooks/useCity.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { ReceiptIcon, SpinnerIcon } from '../components/icons.jsx'
 
 export const MyOrdersPage = () => {
   const { addItems } = useCart()
+  const { getPrice } = useCity()
   const navigate = useNavigate()
   const [orders, setOrders] = useState([])
   const [products, setProducts] = useState([])
@@ -34,7 +36,9 @@ export const MyOrdersPage = () => {
       const toAdd = order.items
         .map((item) => {
           const product = products.find((p) => p._id === item.product_id)
-          return product ? { product, quantity: item.quantity } : null
+          return product
+            ? { product, quantity: item.quantity, price: getPrice(product) }
+            : null
         })
         .filter(Boolean)
 
@@ -44,7 +48,7 @@ export const MyOrdersPage = () => {
       }
 
       await addItems(toAdd)
-      navigate('/cart')
+      navigate('/checkout')
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {

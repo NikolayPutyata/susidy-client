@@ -15,6 +15,7 @@ const emptyForm = {
   priceKharkov: '',
   category: 'other',
   description: '',
+  weight: '',
 }
 
 const inputClass =
@@ -48,6 +49,7 @@ export const AdminProductsPage = () => {
       priceKharkov: product.priceKharkov,
       category: product.category,
       description: product.description || '',
+      weight: product.weight || '',
     })
     setFiles([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -147,6 +149,15 @@ export const AdminProductsPage = () => {
             className={inputClass}
           />
         </div>
+        <input
+          name="weight"
+          type="number"
+          min="0"
+          value={form.weight}
+          onChange={handleChange}
+          placeholder="Вага, г"
+          className={inputClass}
+        />
         <select
           name="category"
           value={form.category}
@@ -241,7 +252,14 @@ export const AdminProductsPage = () => {
                         )}
                       </div>
                       <div className="p-3">
-                        <p className="truncate font-medium">{product.name}</p>
+                        <p className="truncate font-medium">
+                          {product.name}
+                          {product.weight > 0 && (
+                            <span className="ml-1.5 text-xs font-normal text-text-subtle">
+                              {product.weight} г
+                            </span>
+                          )}
+                        </p>
                         <p className="text-sm font-semibold text-accent">
                           {product.priceKiev} ₴
                         </p>

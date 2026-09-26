@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react'
 import { fetchTodayOrders, searchAdminOrders } from '../../api/admin.js'
 import { getErrorMessage } from '../../lib/errors.js'
+import { CITY_LABELS } from '../../lib/constants.js'
 import { SearchIcon, SpinnerIcon } from '../../components/icons.jsx'
+
+const formatFulfillment = (order) => {
+  const city = CITY_LABELS[order.city] || order.city || '—'
+  if (order.fulfillment === 'pickup') return `Самовивіз, ${city}`
+  if (!order.street) return city
+
+  const apartment = order.isPrivateHouse ? 'приватний будинок' : `кв. ${order.apartment}`
+  return `${city}, вул. ${order.street}, буд. ${order.building}, ${apartment}`
+}
 
 const OrdersTable = ({ orders }) => {
   if (orders.length === 0) {
@@ -41,7 +51,7 @@ const OrdersTable = ({ orders }) => {
                   .map((item) => `${item.productName} ×${item.quantity}`)
                   .join(', ')}
               </td>
-              <td className="p-3 text-text-muted">{order.delivery || '—'}</td>
+              <td className="p-3 text-text-muted">{formatFulfillment(order)}</td>
               <td className="p-3 text-right font-semibold text-accent">
                 {order.total} ₴
               </td>
