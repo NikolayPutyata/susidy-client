@@ -75,6 +75,19 @@ body {
   animation: slide-in-left 0.25s ease-out;
 }
 
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.25s ease-out;
+}
+
 /* react-datepicker: підлаштовуємо стандартну (світлу) тему під темний дизайн. */
 .react-datepicker {
   font-family: var(--font-sans);

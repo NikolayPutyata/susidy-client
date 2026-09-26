@@ -1,6 +1,6 @@
 import { Logo } from './Logo.jsx'
-import { LOCATIONS, SOCIAL_LINKS } from '../lib/constants.js'
-import { FacebookIcon, InstagramIcon, MapPinIcon, PhoneIcon } from './icons.jsx'
+import { CITIES, LOCATIONS, SOCIAL_LINKS, WORKING_HOURS } from '../lib/constants.js'
+import { FacebookIcon, InstagramIcon, MapPinIcon } from './icons.jsx'
 
 export const Footer = () => (
   <footer className="mt-16 border-t border-border">
@@ -9,22 +9,17 @@ export const Footer = () => (
         <Logo />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {LOCATIONS.map((location) => (
-            <div key={location.city} className="text-sm text-text-muted">
-              <p className="mb-1.5 font-semibold text-text">{location.label}</p>
-              <p className="flex items-start gap-1.5">
-                <MapPinIcon className="mt-0.5 h-4 w-4 shrink-0 text-text-subtle" />
-                {location.address}
-              </p>
-              {location.phone && (
-                <a
-                  href={`tel:${location.phone}`}
-                  className="mt-1 flex items-center gap-1.5 hover:text-text"
-                >
-                  <PhoneIcon className="h-4 w-4 shrink-0 text-text-subtle" />
-                  {location.phone}
-                </a>
-              )}
+          {CITIES.map((city) => (
+            <div key={city.value} className="text-sm text-text-muted">
+              <p className="mb-1.5 font-semibold text-text">{city.label}</p>
+              <ul className="space-y-1">
+                {LOCATIONS.filter((l) => l.city === city.value).map((location) => (
+                  <li key={location.id} className="flex items-start gap-1.5">
+                    <MapPinIcon className="mt-0.5 h-4 w-4 shrink-0 text-text-subtle" />
+                    {location.address}
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
@@ -51,9 +46,10 @@ export const Footer = () => (
         </div>
       </div>
 
-      <p className="mt-8 text-center text-sm text-text-subtle sm:text-left">
-        © {new Date().getFullYear()} Susidy
-      </p>
+      <div className="mt-8 flex flex-col items-center gap-1 text-center text-sm text-text-subtle sm:flex-row sm:justify-between sm:text-left">
+        <p>Час роботи: {WORKING_HOURS}</p>
+        <p>© {new Date().getFullYear()} Susidy</p>
+      </div>
     </div>
   </footer>
 )
