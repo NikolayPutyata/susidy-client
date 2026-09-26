@@ -6,11 +6,9 @@ import { CartIcon, CloseIcon } from './icons.jsx'
 import { OrderTotal } from './OrderTotal.jsx'
 
 export const CartDrawer = () => {
-  const { cart, loading, isDrawerOpen, closeDrawer, total } = useCart()
+  const { items, loading, isDrawerOpen, closeDrawer, total } = useCart()
   const navigate = useNavigate()
   const [error, setError] = useState('')
-
-  const items = cart?.items || []
 
   useEffect(() => {
     if (!isDrawerOpen) return

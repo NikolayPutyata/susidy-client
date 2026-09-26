@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import {
   addToCartRequest,
   checkoutRequest,
-  fetchCart,
   fetchMyCart,
   removeCartItemRequest,
   updateCartItemRequest,
@@ -10,119 +9,100 @@ import {
 import { toSerializableError } from '../lib/errors.js'
 import { logout } from './userSlice.js'
 
-const SESSION_ID_KEY = 'susidy_session_id'
-const CART_ID_KEY = 'susidy_cart_id'
+// Гостьовий кошик живе виключно в localStorage — бекенд про нього нічого не
+// знає до чекауту. Кошик залогіненого юзера — в БД (по одному на user_id).
+const GUEST_CART_KEY = 'susidy_guest_cart'
 
-const getOrCreateSessionId = () => {
-  let sessionId = localStorage.getItem(SESSION_ID_KEY)
-  if (!sessionId) {
-    sessionId = crypto.randomUUID()
-    localStorage.setItem(SESSION_ID_KEY, sessionId)
+const readLocalCart = () => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(GUEST_CART_KEY))
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
   }
-  return sessionId
 }
 
-const persistCartId = (cart) => {
-  if (cart?._id) {
-    localStorage.setItem(CART_ID_KEY, cart._id)
-  } else {
-    localStorage.removeItem(CART_ID_KEY)
+const writeLocalCart = (items) => {
+  try {
+    localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items))
+  } catch {
+    // localStorage недоступний (приватний режим, квота) — кошик просто не
+    // переживе перезавантаження сторінки.
+  }
+}
+
+const clearLocalCart = () => {
+  try {
+    localStorage.removeItem(GUEST_CART_KEY)
+  } catch {
+    /* ignore */
   }
 }
 
 // Щоб захардкодити кошик для верстки без бекенду — заповни цей масив
-// (форма як cart.items з бекенду) і постав loading: false нижче.
-// const initialCart = {
-//   _id: 'demo',
-//   items: [{ product_id: '1', productName: 'Філадельфія', quantity: 2, price: 189 }],
-// }
-const initialCart = null
+// (форма як items з бекенду) і постав loading: false нижче.
+// const initialItems = [{ product_id: '1', productName: 'Філадельфія', quantity: 2, price: 189, image: '' }]
+const initialItems = null
 
-// Якщо initialCart заповнений — це значить розробник свідомо захардкодив
+// Якщо initialItems заповнений — це значить розробник свідомо захардкодив
 // кошик для верстки, і App.jsx не повинен одразу перетирати його спробою
 // звернутись до реального бекенду.
-export const hasHardcodedCart = initialCart !== null
+export const hasHardcodedCart = initialItems !== null
 
 const initialState = {
-  cart: initialCart,
-  loading: initialCart === null,
+  items: initialItems ?? readLocalCart(),
+  loading: false,
   isDrawerOpen: false,
-  sessionId: getOrCreateSessionId(),
   error: null,
 }
 
-export const loadCart = createAsyncThunk(
-  'cart/load',
-  async (_, { getState }) => {
-    // An authenticated user's cart lives by user_id, not by whatever cart
-    // id happens to be cached locally (that id could be a stale guest
-    // cart, or belong to nothing after a login-time merge) — fetch it by
-    // account instead.
-    if (getState().user.user) {
-      try {
-        const data = await fetchMyCart()
-        return Array.isArray(data) ? null : data
-      } catch {
-        return null
-      }
-    }
+// ---- Кошик залогіненого юзера — завжди через сервер ----
 
-    const cartId = localStorage.getItem(CART_ID_KEY)
-    if (!cartId) return null
+export const loadMyCart = createAsyncThunk('cart/loadMy', async () => {
+  try {
+    const data = await fetchMyCart()
+    return Array.isArray(data) ? data : data?.items || []
+  } catch {
+    return []
+  }
+})
 
+export const addItemRemote = createAsyncThunk(
+  'cart/addItemRemote',
+  async ({ product, quantity }, { rejectWithValue }) => {
     try {
-      const data = await fetchCart(cartId, getState().cart.sessionId)
-      return Array.isArray(data) ? null : data
-    } catch {
-      return null
-    }
-  },
-)
-
-export const addItem = createAsyncThunk(
-  'cart/addItem',
-  async ({ product, quantity = 1 }, { getState, rejectWithValue }) => {
-    try {
-      return await addToCartRequest({
-        session_id: getState().cart.sessionId,
+      const cart = await addToCartRequest({
         product_id: product._id,
         productName: product.name,
         price: product.priceKiev,
+        image: product.images?.[0] || '',
         quantity,
       })
+      return cart.items || []
     } catch (err) {
       return rejectWithValue(toSerializableError(err))
     }
   },
 )
 
-export const updateItem = createAsyncThunk(
-  'cart/updateItem',
-  async ({ productId, quantity }, { getState, rejectWithValue }) => {
-    const { cart, sessionId } = getState().cart
-    if (!cart?._id) return rejectWithValue({ message: 'No active cart' })
+export const updateItemRemote = createAsyncThunk(
+  'cart/updateItemRemote',
+  async ({ productId, quantity }, { rejectWithValue }) => {
     try {
-      return await updateCartItemRequest(cart._id, {
-        session_id: sessionId,
-        product_id: productId,
-        quantity,
-      })
+      const cart = await updateCartItemRequest(productId, quantity)
+      return cart.items || []
     } catch (err) {
       return rejectWithValue(toSerializableError(err))
     }
   },
 )
 
-export const removeItem = createAsyncThunk(
-  'cart/removeItem',
-  async (productId, { getState, rejectWithValue }) => {
-    const { cart, sessionId } = getState().cart
-    if (!cart?._id) return rejectWithValue({ message: 'No active cart' })
+export const removeItemRemote = createAsyncThunk(
+  'cart/removeItemRemote',
+  async (productId, { rejectWithValue }) => {
     try {
-      return await removeCartItemRequest(cart._id, {
-        session_id: sessionId,
-        product_id: productId,
-      })
+      const cart = await removeCartItemRequest(productId)
+      return cart.items || []
     } catch (err) {
       return rejectWithValue(toSerializableError(err))
     }
@@ -133,10 +113,10 @@ export const checkout = createAsyncThunk(
   'cart/checkout',
   async (payload, { getState, rejectWithValue }) => {
     try {
-      return await checkoutRequest({
-        ...payload,
-        session_id: getState().cart.sessionId,
-      })
+      // Для гостя сервер бере товари саме з тіла запиту (в нього немає
+      // кошика в БД); для залогіненого юзера сервер їх ігнорує і бере
+      // кошик з БД сам — надсилаємо в обох випадках, це нічого не псує.
+      return await checkoutRequest({ ...payload, items: getState().cart.items })
     } catch (err) {
       return rejectWithValue(toSerializableError(err))
     }
@@ -147,11 +127,56 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    // Пряме встановлення кошика без запиту на сервер — зручно для верстки/демо.
+    // Гостьовий кошик — синхронні операції, все живе в localStorage.
+    addLocalItem(state, action) {
+      const { product, quantity } = action.payload
+      const existing = state.items.find((item) => item.product_id === product._id)
+      if (existing) {
+        existing.quantity += quantity
+      } else {
+        state.items.push({
+          product_id: product._id,
+          productName: product.name,
+          price: product.priceKiev,
+          image: product.images?.[0] || '',
+          quantity,
+        })
+      }
+      writeLocalCart(state.items)
+    },
+    updateLocalItem(state, action) {
+      const { productId, quantity } = action.payload
+      const item = state.items.find((i) => i.product_id === productId)
+      if (item) item.quantity = quantity
+      writeLocalCart(state.items)
+    },
+    removeLocalItem(state, action) {
+      state.items = state.items.filter((i) => i.product_id !== action.payload)
+      writeLocalCart(state.items)
+    },
+    addLocalItems(state, action) {
+      // Використовується для "Повторити замовлення" — додає одразу декілька
+      // позицій до поточного (гостьового) кошика.
+      for (const incoming of action.payload) {
+        const existing = state.items.find(
+          (item) => item.product_id === incoming.product_id,
+        )
+        if (existing) {
+          existing.quantity += incoming.quantity
+        } else {
+          state.items.push({ ...incoming })
+        }
+      }
+      writeLocalCart(state.items)
+    },
+    // Скидає гостьовий кошик — використовується при логіні (перед
+    // довантаженням кошика з БД) і зручно для верстки/демо.
+    discardGuestCart(state) {
+      state.items = []
+      clearLocalCart()
+    },
     setCart(state, action) {
-      state.cart = action.payload
-      state.loading = false
-      persistCartId(action.payload)
+      state.items = action.payload
     },
     openDrawer(state) {
       state.isDrawerOpen = true
@@ -162,56 +187,55 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loadCart.pending, (state) => {
+      .addCase(loadMyCart.pending, (state) => {
         state.loading = true
       })
-      .addCase(loadCart.fulfilled, (state, action) => {
-        state.cart = action.payload
-        state.loading = false
-        persistCartId(action.payload)
-      })
-      .addCase(loadCart.rejected, (state) => {
+      .addCase(loadMyCart.fulfilled, (state, action) => {
+        state.items = action.payload
         state.loading = false
       })
-      .addCase(addItem.fulfilled, (state, action) => {
-        state.cart = action.payload
-        state.isDrawerOpen = true
-        persistCartId(action.payload)
+      .addCase(loadMyCart.rejected, (state) => {
+        state.loading = false
       })
-      .addCase(updateItem.fulfilled, (state, action) => {
-        state.cart = action.payload
-        persistCartId(action.payload)
+      .addCase(addItemRemote.fulfilled, (state, action) => {
+        state.items = action.payload
       })
-      .addCase(removeItem.fulfilled, (state, action) => {
-        state.cart = action.payload
-        persistCartId(action.payload)
+      .addCase(updateItemRemote.fulfilled, (state, action) => {
+        state.items = action.payload
+      })
+      .addCase(removeItemRemote.fulfilled, (state, action) => {
+        state.items = action.payload
       })
       .addCase(checkout.fulfilled, (state) => {
-        state.cart = null
-        persistCartId(null)
+        state.items = []
+        clearLocalCart()
       })
       .addCase(logout.fulfilled, (state) => {
-        // The cart we had was tied to this account (user_id server-side),
-        // not to our session_id — after logout there's nothing left to
-        // show, and re-fetching it by the old cart _id would leak the
-        // previous account's cart into an anonymous session.
-        state.cart = null
+        // Гостьовий кошик уже було очищено при логіні — тож після виходу
+        // просто починаємо з порожнього.
+        state.items = []
         state.isDrawerOpen = false
-        persistCartId(null)
+        clearLocalCart()
       })
   },
 })
 
-export const { setCart, openDrawer, closeDrawer } = cartSlice.actions
+export const {
+  addLocalItem,
+  updateLocalItem,
+  removeLocalItem,
+  addLocalItems,
+  discardGuestCart,
+  setCart,
+  openDrawer,
+  closeDrawer,
+} = cartSlice.actions
 export default cartSlice.reducer
 
-export const selectCart = (state) => state.cart.cart
+export const selectCartItems = (state) => state.cart.items
 export const selectCartLoading = (state) => state.cart.loading
 export const selectIsDrawerOpen = (state) => state.cart.isDrawerOpen
 export const selectItemsCount = (state) =>
-  state.cart.cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0
+  state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
 export const selectTotal = (state) =>
-  state.cart.cart?.items?.reduce(
-    (sum, item) => sum + item.quantity * item.price,
-    0,
-  ) || 0
+  state.cart.items.reduce((sum, item) => sum + item.quantity * item.price, 0)

@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'react-datepicker/dist/react-datepicker.css';
 
 @theme {
   --color-bg: #000000;
@@ -59,4 +60,56 @@ body {
 
 .animate-fade-in {
   animation: fade-in 0.25s ease-out;
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.25s ease-out;
+}
+
+/* react-datepicker: підлаштовуємо стандартну (світлу) тему під темний дизайн. */
+.react-datepicker {
+  font-family: var(--font-sans);
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+.react-datepicker__header {
+  background: var(--color-surface-raised);
+  border-bottom-color: var(--color-border);
+}
+.react-datepicker__month-container,
+.react-datepicker__month {
+  background: var(--color-surface);
+}
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker__day {
+  color: var(--color-text);
+}
+.react-datepicker__day:hover {
+  background: var(--color-surface-hover);
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__day--in-range {
+  background: var(--color-primary) !important;
+  color: #000 !important;
+}
+.react-datepicker__day--disabled {
+  color: var(--color-text-subtle);
+}
+.react-datepicker__navigation-icon::before {
+  border-color: var(--color-text-muted);
+}
+.react-datepicker__triangle {
+  display: none;
 }

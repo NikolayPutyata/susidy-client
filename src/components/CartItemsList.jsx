@@ -4,11 +4,9 @@ import { getErrorMessage } from '../lib/errors.js'
 import { QuantityStepper } from './QuantityStepper.jsx'
 import { TrashIcon } from './icons.jsx'
 
-export const CartItemsList = ({ onError }) => {
-  const { cart, updateItem, removeItem } = useCart()
+export const CartItemsList = ({ onError, showImage = false }) => {
+  const { items, updateItem, removeItem } = useCart()
   const [busyId, setBusyId] = useState(null)
-
-  const items = cart?.items || []
 
   const run = async (productId, action) => {
     setBusyId(productId)
@@ -26,6 +24,22 @@ export const CartItemsList = ({ onError }) => {
     <ul className="divide-y divide-border">
       {items.map((item) => (
         <li key={item.product_id} className="flex items-center gap-3 py-4">
+          {showImage && (
+            <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-black">
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.productName}
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-lg">
+                  🍣
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="min-w-0 flex-1">
             <p className="truncate font-medium text-text">{item.productName}</p>
             <p className="text-sm text-text-muted">{item.price} грн / шт</p>

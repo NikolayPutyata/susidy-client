@@ -13,7 +13,7 @@ export const AdminLayout = () => {
     <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
       <aside className="lg:w-56 lg:shrink-0">
         <p className="mb-3 hidden text-xs font-semibold uppercase tracking-widest text-text-subtle lg:block">
-          Адмінка
+          Адмін панель
         </p>
         <nav className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
           <NavLink to="/admin/orders" className={linkClass}>

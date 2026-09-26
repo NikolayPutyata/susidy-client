@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { fetchAllProducts, fetchProductsByCategory } from '../api/products.js'
 import { CATEGORIES } from '../lib/constants.js'
 import { ProductCard } from '../components/ProductCard.jsx'
@@ -43,10 +44,19 @@ const Hero = () => (
 )
 
 export const CatalogPage = () => {
-  const [category, setCategory] = useState('all')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const category = searchParams.get('category') || 'all'
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  const setCategory = (value) => {
+    if (value === 'all') {
+      setSearchParams({})
+    } else {
+      setSearchParams({ category: value })
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -78,7 +88,7 @@ export const CatalogPage = () => {
     <div>
       <Hero />
 
-      <div className="sticky top-[65px] z-10 -mx-4 mb-6 bg-bg/95 px-4 py-3 backdrop-blur">
+      <div className="sticky top-[65px] z-10 -mx-4 mb-6 hidden bg-bg/95 px-4 py-3 backdrop-blur sm:block">
         <div className="flex gap-2 overflow-x-auto pb-1">
           <button
             onClick={() => setCategory('all')}

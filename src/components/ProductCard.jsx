@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useCart } from '../hooks/useCart.js'
-import { CATEGORY_LABELS } from '../lib/constants.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { QuantityStepper } from './QuantityStepper.jsx'
 import { SpinnerIcon } from './icons.jsx'
@@ -42,9 +41,6 @@ export const ProductCard = ({ product }) => {
       </div>
 
       <div className="flex flex-1 flex-col gap-1 p-4">
-        <span className="text-xs font-medium uppercase tracking-wide text-primary-light">
-          {CATEGORY_LABELS[product.category] || product.category}
-        </span>
         <h3 className="font-semibold text-text">{product.name}</h3>
         {product.description && (
           <p className="line-clamp-2 text-sm text-text-muted">

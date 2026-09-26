@@ -6,11 +6,9 @@ import { CartIcon } from '../components/icons.jsx'
 import { OrderTotal } from '../components/OrderTotal.jsx'
 
 export const CartPage = () => {
-  const { cart, loading, total } = useCart()
+  const { items, loading, total } = useCart()
   const navigate = useNavigate()
   const [error, setError] = useState('')
-
-  const items = cart?.items || []
 
   if (loading) {
     return <p className="py-16 text-center text-text-muted">Завантаження кошика…</p>
@@ -39,7 +37,7 @@ export const CartPage = () => {
         <h1 className="mb-4 text-2xl font-extrabold">Кошик</h1>
         {error && <p className="mb-4 text-accent">{error}</p>}
         <div className="rounded-2xl border border-border bg-surface px-5">
-          <CartItemsList onError={setError} />
+          <CartItemsList onError={setError} showImage />
         </div>
       </div>
 
