@@ -56,10 +56,10 @@ export const CheckoutPage = () => {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-4 text-2xl font-extrabold">Оформлення замовлення</h1>
+      <h1 className="mb-4 text-center md:text-start text-2xl font-extrabold">Ваше замовлення, любий сусіде:</h1>
 
       <div className="mb-6 rounded-2xl border border-border bg-surface p-5">
-        <p className="mb-3 font-semibold">Ваше замовлення</p>
+        
         <ul className="mb-3 space-y-1.5 divide-y divide-border text-sm">
           {items.map((item) => (
             <li
@@ -150,7 +150,16 @@ export const CheckoutPage = () => {
 
         {error && <p className="text-accent">{error}</p>}
 
-        <div className="grid grid-cols-2 gap-3 pt-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 font-semibold text-black transition hover:bg-accent-light disabled:opacity-60"
+          >
+            {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
+            {submitting ? 'Оформлюємо…' : `Сплачу при отриманні · ${discounted} ₴`}
+          </button>
+
           <button
             type="button"
             disabled
@@ -161,14 +170,7 @@ export const CheckoutPage = () => {
             <span className="text-xs">(Незабаром)</span>
           </button>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 font-semibold text-black transition hover:bg-accent-light disabled:opacity-60"
-          >
-            {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
-            {submitting ? 'Оформлюємо…' : `Сплачу при отриманні · ${discounted} ₴`}
-          </button>
+          
         </div>
       </form>
     </div>

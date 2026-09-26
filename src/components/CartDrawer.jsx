@@ -66,7 +66,7 @@ export const CartDrawer = () => {
                 onClick={closeDrawer}
                 className="text-sm text-primary-light underline underline-offset-4"
               >
-                Обрати щось смачне
+                Обрати щось смачненьке
               </button>
             </div>
           )}

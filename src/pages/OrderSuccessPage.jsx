@@ -35,7 +35,7 @@ export const OrderSuccessPage = () => {
           ))}
         </ul>
         <div className="flex items-center justify-between border-t border-border pt-3">
-          <span className="text-text-muted">Разом</span>
+          <span className="text-text-muted">Разом до сплати</span>
           <span className="text-xl font-extrabold text-accent">
             {order.total} ₴
           </span>

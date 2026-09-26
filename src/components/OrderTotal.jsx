@@ -14,7 +14,7 @@ export const OrderTotal = ({ total, size = 'md' }) => {
 
   return (
     <div className="flex items-start justify-between gap-2">
-      <span className="pt-1 text-text-muted">Разом</span>
+      <span className="pt-1 text-text-muted">Разом до сплати</span>
       <div className="flex flex-col items-end gap-1">
         {discount > 0 && (
           <span className="flex items-center gap-1.5">

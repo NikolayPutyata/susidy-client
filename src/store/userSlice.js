@@ -12,7 +12,7 @@ import { toSerializableError } from '../lib/errors.js'
 // Щоб захардкодити юзера для верстки без бекенду — заповни цей об'єкт
 // (форма як у GET /auth/me) і постав initializing: false нижче.
 // const initialUser = { _id: '1', name: 'Тест', phoneNumber: '0991234567', role: 'admin', discount: 10 }
-const initialUser = null
+const initialUser = null;
 
 // Якщо initialUser заповнений — це значить розробник свідомо захардкодив
 // юзера для верстки, і App.jsx не повинен одразу перетирати його спробою
