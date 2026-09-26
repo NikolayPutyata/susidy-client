@@ -11,10 +11,10 @@ import { hasHardcodedCart, loadMyCart } from './store/cartSlice.js'
 import { Header } from './components/Header.jsx'
 import { Footer } from './components/Footer.jsx'
 import { CartDrawer } from './components/CartDrawer.jsx'
+import { CityModal } from './components/CityModal.jsx'
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute.jsx'
 import { ProtectedRoute } from './components/ProtectedRoute.jsx'
 import { CatalogPage } from './pages/CatalogPage.jsx'
-import { CartPage } from './pages/CartPage.jsx'
 import { CheckoutPage } from './pages/CheckoutPage.jsx'
 import { OrderSuccessPage } from './pages/OrderSuccessPage.jsx'
 import { MyOrdersPage } from './pages/MyOrdersPage.jsx'
@@ -51,7 +51,6 @@ function App() {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
         <Routes>
           <Route path="/" element={<CatalogPage />} />
-          <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order/success" element={<OrderSuccessPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -75,6 +74,7 @@ function App() {
       </main>
       <Footer />
       <CartDrawer />
+      <CityModal />
     </div>
   )
 }

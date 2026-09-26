@@ -69,12 +69,12 @@ export const loadMyCart = createAsyncThunk('cart/loadMy', async () => {
 
 export const addItemRemote = createAsyncThunk(
   'cart/addItemRemote',
-  async ({ product, quantity }, { rejectWithValue }) => {
+  async ({ product, quantity, price }, { rejectWithValue }) => {
     try {
       const cart = await addToCartRequest({
         product_id: product._id,
         productName: product.name,
-        price: product.priceKiev,
+        price,
         image: product.images?.[0] || '',
         quantity,
       })
@@ -129,7 +129,7 @@ const cartSlice = createSlice({
   reducers: {
     // Гостьовий кошик — синхронні операції, все живе в localStorage.
     addLocalItem(state, action) {
-      const { product, quantity } = action.payload
+      const { product, quantity, price } = action.payload
       const existing = state.items.find((item) => item.product_id === product._id)
       if (existing) {
         existing.quantity += quantity
@@ -137,7 +137,7 @@ const cartSlice = createSlice({
         state.items.push({
           product_id: product._id,
           productName: product.name,
-          price: product.priceKiev,
+          price,
           image: product.images?.[0] || '',
           quantity,
         })

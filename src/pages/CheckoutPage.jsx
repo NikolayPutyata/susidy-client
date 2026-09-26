@@ -2,8 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
+import { useCity } from '../hooks/useCity.js'
 import { getErrorMessage } from '../lib/errors.js'
+import { LOCATIONS } from '../lib/constants.js'
 import { SpinnerIcon } from '../components/icons.jsx'
+import { QuantityStepper } from '../components/QuantityStepper.jsx'
 import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
 
 const Field = ({ label, children }) => (
@@ -16,20 +19,35 @@ const Field = ({ label, children }) => (
 const inputClass =
   'w-full rounded-xl border border-border bg-surface-raised px-4 py-2.5 text-text placeholder:text-text-subtle outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30'
 
+const segmentButtonClass = (active) =>
+  `flex-1 rounded-xl py-2.5 text-sm font-semibold transition ${
+    active
+      ? 'bg-primary text-black'
+      : 'bg-surface-raised text-text-muted hover:text-text'
+  }`
+
 export const CheckoutPage = () => {
   const { items, total, checkout } = useCart()
   const { user } = useAuth()
+  const { city, cityLabel } = useCity()
   const { discounted } = useDiscountedTotal(total)
   const navigate = useNavigate()
   const [form, setForm] = useState({
     name: user?.name || '',
     phoneNumber: user?.phoneNumber || '',
-    delivery: '',
+    fulfillment: 'delivery',
+    street: '',
+    building: '',
+    apartment: '',
+    isPrivateHouse: false,
+    cutlery: 1,
     details: '',
     noCallback: false,
   })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  const pickupPoint = LOCATIONS.find((l) => l.city === city)
 
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target
@@ -41,7 +59,7 @@ export const CheckoutPage = () => {
     setSubmitting(true)
     setError('')
     try {
-      const order = await checkout({ ...form, paymentMethod: 'cod' })
+      const order = await checkout({ ...form, city, paymentMethod: 'cod' })
       navigate('/order/success', { state: { order } })
     } catch (err) {
       setError(getErrorMessage(err))
@@ -56,10 +74,11 @@ export const CheckoutPage = () => {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-4 text-center md:text-start text-2xl font-extrabold">Ваше замовлення, любий сусіде:</h1>
+      <h1 className="mb-4 text-center md:text-start text-2xl font-extrabold">
+        Ваше замовлення, любий сусіде:
+      </h1>
 
       <div className="mb-6 rounded-2xl border border-border bg-surface p-5">
-        
         <ul className="mb-3 space-y-1.5 divide-y divide-border text-sm">
           {items.map((item) => (
             <li
@@ -94,6 +113,11 @@ export const CheckoutPage = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-border bg-surface p-5">
+        <div className="flex items-center justify-between rounded-xl bg-surface-raised px-4 py-2.5 text-sm">
+          <span className="text-text-muted">Місто</span>
+          <span className="font-semibold text-text">{cityLabel}</span>
+        </div>
+
         <Field label="Ім'я">
           <input
             name="name"
@@ -116,15 +140,98 @@ export const CheckoutPage = () => {
           />
         </Field>
 
-        <Field label="Адреса доставки">
-          <input
-            name="delivery"
-            value={form.delivery}
-            onChange={handleChange}
-            placeholder="Вулиця, будинок, квартира"
-            className={inputClass}
+        <div>
+          <label className="mb-1.5 block text-sm text-text-muted">Отримання</label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setForm((prev) => ({ ...prev, fulfillment: 'delivery' }))}
+              className={segmentButtonClass(form.fulfillment === 'delivery')}
+            >
+              Доставка
+            </button>
+            <button
+              type="button"
+              onClick={() => setForm((prev) => ({ ...prev, fulfillment: 'pickup' }))}
+              className={segmentButtonClass(form.fulfillment === 'pickup')}
+            >
+              Самовивіз
+            </button>
+          </div>
+        </div>
+
+        {form.fulfillment === 'pickup' ? (
+          <div className="rounded-xl bg-surface-raised px-4 py-3 text-sm text-text-muted">
+            Точка самовивозу: <span className="text-text">{pickupPoint?.address}</span>
+            {pickupPoint?.phone && (
+              <>
+                {' '}
+                · <span className="text-text">{pickupPoint.phone}</span>
+              </>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Вулиця">
+                <input
+                  name="street"
+                  value={form.street}
+                  onChange={handleChange}
+                  required
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Будинок">
+                <input
+                  name="building"
+                  value={form.building}
+                  onChange={handleChange}
+                  required
+                  className={inputClass}
+                />
+              </Field>
+            </div>
+
+            <label className="flex items-center gap-2 text-sm text-text-muted">
+              <input
+                type="checkbox"
+                name="isPrivateHouse"
+                checked={form.isPrivateHouse}
+                onChange={handleChange}
+                className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
+              />
+              Приватний будинок
+            </label>
+
+            {!form.isPrivateHouse && (
+              <Field label="Квартира">
+                <input
+                  name="apartment"
+                  value={form.apartment}
+                  onChange={handleChange}
+                  required
+                  className={inputClass}
+                />
+              </Field>
+            )}
+          </>
+        )}
+
+        <div>
+          <label className="mb-1.5 block text-sm text-text-muted">
+            Кількість приборів
+          </label>
+          <QuantityStepper
+            quantity={form.cutlery}
+            onDecrease={() =>
+              setForm((prev) => ({ ...prev, cutlery: Math.max(1, prev.cutlery - 1) }))
+            }
+            onIncrease={() =>
+              setForm((prev) => ({ ...prev, cutlery: Math.min(10, prev.cutlery + 1) }))
+            }
           />
-        </Field>
+        </div>
 
         <Field label="Коментар до замовлення">
           <textarea
@@ -169,8 +276,6 @@ export const CheckoutPage = () => {
             Оплатити онлайн
             <span className="text-xs">(Незабаром)</span>
           </button>
-
-          
         </div>
       </form>
     </div>

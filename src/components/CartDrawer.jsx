@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
 import { CartItemsList } from './CartItemsList.jsx'
 import { CartIcon, CloseIcon } from './icons.jsx'
@@ -84,13 +84,6 @@ export const CartDrawer = () => {
             >
               Оформити замовлення
             </button>
-            <Link
-              to="/cart"
-              onClick={closeDrawer}
-              className="block text-center text-sm text-text-muted underline underline-offset-4 hover:text-text"
-            >
-              Переглянути кошик повністю
-            </Link>
           </div>
         )}
       </aside>

@@ -95,6 +95,44 @@ export const SearchIcon = (props) => (
   </svg>
 )
 
+export const InstagramIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17" cy="7" r="1" fill="currentColor" stroke="none" />
+  </svg>
+)
+
+export const FacebookIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <path
+      d="M14.5 21v-7.5h2.5l.5-3h-3V8.5c0-.9.3-1.5 1.6-1.5H17.5V4.3C17.2 4.3 16.2 4 15 4c-2.4 0-4 1.5-4 4.2V10.5H8.5v3H11V21"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
+export const MapPinIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <path
+      d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"
+      strokeLinejoin="round"
+    />
+    <circle cx="12" cy="9.5" r="2.3" />
+  </svg>
+)
+
+export const PhoneIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <path
+      d="M6.5 3.5h3l1.5 4-2 1.5a11 11 0 0 0 5.5 5.5l1.5-2 4 1.5v3a2 2 0 0 1-2 2C10.5 19 5 13.5 4.5 5.5a2 2 0 0 1 2-2Z"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
 export const SpinnerIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="none" {...props}>
     <circle

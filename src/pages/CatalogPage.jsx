@@ -16,30 +16,25 @@ const ProductCardSkeleton = () => (
   </div>
 )
 
+// TODO: замінити --hero-bg на реальне фото (наразі — абстрактний градієнт-заглушка).
 const Hero = () => (
-  <section className="relative mb-10 overflow-hidden rounded-3xl border border-border bg-surface px-6 py-14 text-center sm:py-20">
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary/25 blur-3xl"
-    />
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-accent/25 blur-3xl"
-    />
+  <section
+    className="relative left-1/2 right-1/2 -mt-8 mb-10 -ml-[50vw] -mr-[50vw] flex h-[70vh] min-h-[420px] w-screen items-center justify-center overflow-hidden bg-cover bg-center text-center"
+    style={{
+      backgroundImage:
+        'radial-gradient(ellipse at 30% 20%, rgba(0,157,181,0.35), transparent 55%), radial-gradient(ellipse at 75% 75%, rgba(255,133,98,0.3), transparent 55%), #0a0a0c',
+    }}
+  >
+    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
 
-    <p className="relative text-sm font-semibold uppercase tracking-widest text-primary-light">
-      Свіжі роли та суші
-    </p>
-    <h1 className="relative mx-auto mt-3 max-w-2xl text-4xl font-extrabold leading-tight sm:text-5xl">
-      Смачно. Швидко.{' '}
-      <span className="bg-gradient-to-r from-primary-light to-accent bg-clip-text text-transparent">
-        Без зайвих кроків.
-      </span>
-    </h1>
-    <p className="relative mx-auto mt-4 max-w-md text-text-muted">
-      Обирай улюблені роли й суші, додавай у кошик і оформлюй замовлення без
-      реєстрації — за пару хвилин.
-    </p>
+    <div className="relative px-6">
+      <h1 className="mx-auto max-w-2xl text-4xl font-extrabold leading-tight text-text sm:text-6xl">
+        Суші тільки зі свіжих продуктів
+      </h1>
+      <p className="mx-auto mt-4 max-w-md text-lg text-text-muted">
+        Готуємо для сусідів, як для себе!
+      </p>
+    </div>
   </section>
 )
 
@@ -88,7 +83,7 @@ export const CatalogPage = () => {
     <div>
       <Hero />
 
-      <div className="sticky top-[65px] z-10 -mx-4 mb-6 hidden bg-bg/95 px-4 py-3 backdrop-blur sm:block">
+      <div className="sticky top-0 z-10 -mx-4 mb-6 hidden bg-bg/95 px-4 py-3 backdrop-blur sm:block">
         <div className="flex gap-2 overflow-x-auto pb-1">
           <button
             onClick={() => setCategory('all')}

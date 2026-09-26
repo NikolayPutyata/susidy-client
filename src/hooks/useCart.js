@@ -32,11 +32,11 @@ export const useCart = () => {
   const total = useAppSelector(selectTotal)
 
   const addItem = useCallback(
-    (product, quantity = 1) => {
+    (product, quantity, price) => {
       if (isAuthenticated) {
-        return dispatch(addItemRemote({ product, quantity })).unwrap()
+        return dispatch(addItemRemote({ product, quantity, price })).unwrap()
       }
-      dispatch(addLocalItem({ product, quantity }))
+      dispatch(addLocalItem({ product, quantity, price }))
       return Promise.resolve()
     },
     [dispatch, isAuthenticated],
@@ -44,21 +44,24 @@ export const useCart = () => {
 
   const addItems = useCallback(
     (products) => {
-      // Масове додавання (наприклад, "Повторити замовлення"). Для
-      // залогіненого юзера просто по черзі додаємо на сервер.
+      // Масове додавання (наприклад, "Повторити замовлення"). products —
+      // масив { product, quantity, price }. Для залогіненого юзера просто
+      // по черзі додаємо на сервер.
       if (isAuthenticated) {
         return products.reduce(
-          (chain, { product, quantity }) =>
-            chain.then(() => dispatch(addItemRemote({ product, quantity })).unwrap()),
+          (chain, { product, quantity, price }) =>
+            chain.then(() =>
+              dispatch(addItemRemote({ product, quantity, price })).unwrap(),
+            ),
           Promise.resolve(),
         )
       }
       dispatch(
         addLocalItems(
-          products.map(({ product, quantity }) => ({
+          products.map(({ product, quantity, price }) => ({
             product_id: product._id,
             productName: product.name,
-            price: product.priceKiev,
+            price,
             image: product.images?.[0] || '',
             quantity,
           })),
