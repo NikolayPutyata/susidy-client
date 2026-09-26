@@ -1,23 +1,17 @@
 import { apiClient } from './client.js'
 
-export const fetchCart = (cartId, sessionId) =>
-  apiClient
-    .get(`/cart/${cartId}`, { params: { session_id: sessionId } })
-    .then((r) => r.data.data)
-
-export const fetchMyCart = () =>
-  apiClient.get('/cart/me').then((r) => r.data.data)
+export const fetchMyCart = () => apiClient.get('/cart/me').then((r) => r.data.data)
 
 export const addToCartRequest = (payload) =>
   apiClient.post('/cart/add', payload).then((r) => r.data.data)
 
-export const updateCartItemRequest = (cartId, payload) =>
-  apiClient.patch(`/cart/${cartId}`, payload).then((r) => r.data.data)
-
-export const removeCartItemRequest = (cartId, payload) =>
+export const updateCartItemRequest = (productId, quantity) =>
   apiClient
-    .delete(`/cart/${cartId}`, { data: payload })
+    .patch(`/cart/items/${productId}`, { quantity })
     .then((r) => r.data.data)
+
+export const removeCartItemRequest = (productId) =>
+  apiClient.delete(`/cart/items/${productId}`).then((r) => r.data.data)
 
 export const checkoutRequest = (payload) =>
   apiClient.post('/cart/checkout', payload).then((r) => r.data.data)

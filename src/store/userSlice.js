@@ -42,14 +42,9 @@ export const restoreSession = createAsyncThunk(
 
 export const login = createAsyncThunk(
   'user/login',
-  async (payload, { getState, rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      // Carrying session_id lets the server merge whatever guest cart
-      // this browser had into the account being logged into.
-      const { accessToken } = await loginRequest({
-        ...payload,
-        session_id: getState().cart.sessionId,
-      })
+      const { accessToken } = await loginRequest(payload)
       setAccessToken(accessToken)
       return await fetchMe()
     } catch (err) {

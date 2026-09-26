@@ -9,7 +9,7 @@ import {
   selectIsAuthenticated,
   selectUser,
 } from '../store/userSlice.js'
-import { loadCart } from '../store/cartSlice.js'
+import { discardGuestCart, loadMyCart } from '../store/cartSlice.js'
 
 export const useAuth = () => {
   const dispatch = useAppDispatch()
@@ -21,9 +21,11 @@ export const useAuth = () => {
   const login = useCallback(
     async (payload) => {
       const loggedInUser = await dispatch(loginThunk(payload)).unwrap()
-      // Picks up whatever the server-side login-time merge did to the
-      // guest cart (reassigned or merged into an existing account cart).
-      dispatch(loadCart())
+      // Свідоме рішення: жодного злиття кошиків. Що б не лежало в
+      // гостьовому кошику до логіну — воно відкидається, і завантажується
+      // кошик з БД цього акаунта (порожній, якщо там нічого немає).
+      dispatch(discardGuestCart())
+      dispatch(loadMyCart())
       return loggedInUser
     },
     [dispatch],

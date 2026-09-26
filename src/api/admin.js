@@ -36,3 +36,11 @@ export const searchAdminOrders = (phone) =>
   apiClient
     .get('/admin/orders/search', { params: { phone } })
     .then((r) => r.data.data)
+
+// Токен доступу лежить лише в пам'яті (не в localStorage), тому просте
+// посилання <a href> на цей ендпоінт не надішле Authorization — потрібен
+// звичайний axios-запит з blob-відповіддю.
+export const exportAdminUsers = (params) =>
+  apiClient
+    .get('/admin/users/export', { params, responseType: 'blob' })
+    .then((r) => r.data)
