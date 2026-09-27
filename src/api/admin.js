@@ -19,25 +19,25 @@ export const deleteAdminProduct = (id) => apiClient.delete(`/admin/products/${id
 export const fetchAdminUsers = (params) =>
   apiClient.get('/admin/users', { params }).then((r) => r.data)
 
-export const searchAdminUsers = (phone) =>
+export const searchAdminUsers = ({ phone, page, perPage }) =>
   apiClient
-    .get('/admin/users/search', { params: { phone } })
-    .then((r) => r.data.data)
+    .get('/admin/users/search', { params: { phone, page, perPage } })
+    .then((r) => r.data)
 
 export const updateUserDiscountRequest = (id, discount) =>
   apiClient
     .patch(`/admin/users/${id}/discount`, { discount })
     .then((r) => r.data.data)
 
-export const fetchOrdersByDay = ({ day, pickupPointId } = {}) =>
+export const fetchOrdersByDay = ({ day, pickupPointId, page, perPage } = {}) =>
   apiClient
-    .get('/admin/orders/by-day', { params: { day, pickupPointId } })
-    .then((r) => r.data.data)
+    .get('/admin/orders/by-day', { params: { day, pickupPointId, page, perPage } })
+    .then((r) => r.data)
 
-export const searchAdminOrders = (phone) =>
+export const searchAdminOrders = ({ phone, page, perPage }) =>
   apiClient
-    .get('/admin/orders/search', { params: { phone } })
-    .then((r) => r.data.data)
+    .get('/admin/orders/search', { params: { phone, page, perPage } })
+    .then((r) => r.data)
 
 // Токен доступу лежить лише в пам'яті (не в localStorage), тому просте
 // посилання <a href> на цей ендпоінт не надішле Authorization — потрібен

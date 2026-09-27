@@ -31,6 +31,19 @@ export const SOCIAL_LINKS = {
 
 export const WORKING_HOURS = '11:00 – 22:00'
 
+const WORKING_HOURS_START = 11
+const WORKING_HOURS_END = 22
+
+export const TIME_SLOTS = Array.from(
+  { length: (WORKING_HOURS_END - WORKING_HOURS_START) * 2 + 1 },
+  (_, i) => {
+    const minutesFromStart = i * 30
+    const hour = WORKING_HOURS_START + Math.floor(minutesFromStart / 60)
+    const minute = minutesFromStart % 60
+    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+  },
+)
+
 export const LOCATIONS = [
   { id: 'kyiv-berestejskyi', city: 'kyiv', address: 'просп. Берестейський, 9' },
   { id: 'kyiv-dragomanova', city: 'kyiv', address: 'вул. Драгоманова, 2А' },
