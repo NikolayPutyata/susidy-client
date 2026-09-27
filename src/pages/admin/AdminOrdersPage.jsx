@@ -3,6 +3,9 @@ import { fetchOrdersByDay, searchAdminOrders } from '../../api/admin.js'
 import { getErrorMessage } from '../../lib/errors.js'
 import { CITY_LABELS, LOCATIONS } from '../../lib/constants.js'
 import { SearchIcon, SpinnerIcon } from '../../components/icons.jsx'
+import { Pagination } from '../../components/Pagination.jsx'
+
+const PER_PAGE = 10
 
 const formatFulfillment = (order) => {
   const city = CITY_LABELS[order.city] || order.city || '—'
@@ -83,7 +86,10 @@ export const AdminOrdersPage = () => {
   const [pointFilter, setPointFilter] = useState('')
   const [dayOrders, setDayOrders] = useState([])
   const [phone, setPhone] = useState('')
+  const [activePhone, setActivePhone] = useState('')
   const [searchResults, setSearchResults] = useState(null)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -91,25 +97,48 @@ export const AdminOrdersPage = () => {
     if (tab === 'search') return
     setLoading(true)
     setError('')
-    fetchOrdersByDay({ day: tab, pickupPointId: pointFilter || undefined })
-      .then(setDayOrders)
+    fetchOrdersByDay({
+      day: tab,
+      pickupPointId: pointFilter || undefined,
+      page,
+      perPage: PER_PAGE,
+    })
+      .then((res) => {
+        setDayOrders(res.data)
+        setTotalPages(res.totalPages || 1)
+      })
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false))
-  }, [tab, pointFilter])
+  }, [tab, pointFilter, page])
 
-  const handleSearch = async (e) => {
-    e.preventDefault()
-    if (!phone.trim()) return
+  useEffect(() => {
+    if (tab !== 'search' || !activePhone) return
     setLoading(true)
     setError('')
-    try {
-      const data = await searchAdminOrders(phone.trim())
-      setSearchResults(data)
-    } catch (err) {
-      setError(getErrorMessage(err))
-    } finally {
-      setLoading(false)
-    }
+    searchAdminOrders({ phone: activePhone, page, perPage: PER_PAGE })
+      .then((res) => {
+        setSearchResults(res.data)
+        setTotalPages(res.totalPages || 1)
+      })
+      .catch((err) => setError(getErrorMessage(err)))
+      .finally(() => setLoading(false))
+  }, [tab, activePhone, page])
+
+  const handleTabChange = (newTab) => {
+    setTab(newTab)
+    setPage(1)
+  }
+
+  const handlePointFilterChange = (pointId) => {
+    setPointFilter(pointId)
+    setPage(1)
+  }
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (!phone.trim()) return
+    setPage(1)
+    setActivePhone(phone.trim())
   }
 
   return (
@@ -117,20 +146,20 @@ export const AdminOrdersPage = () => {
       <h1 className="mb-4 text-2xl font-extrabold">Замовлення</h1>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <TabButton active={tab === 'today'} onClick={() => setTab('today')}>
+        <TabButton active={tab === 'today'} onClick={() => handleTabChange('today')}>
           Сьогодні
         </TabButton>
-        <TabButton active={tab === 'yesterday'} onClick={() => setTab('yesterday')}>
+        <TabButton active={tab === 'yesterday'} onClick={() => handleTabChange('yesterday')}>
           Вчора
         </TabButton>
-        <TabButton active={tab === 'search'} onClick={() => setTab('search')}>
+        <TabButton active={tab === 'search'} onClick={() => handleTabChange('search')}>
           Пошук за телефоном
         </TabButton>
 
         {tab !== 'search' && (
           <select
             value={pointFilter}
-            onChange={(e) => setPointFilter(e.target.value)}
+            onChange={(e) => handlePointFilterChange(e.target.value)}
             className="ml-auto rounded-full border border-border bg-surface-raised px-3.5 py-1.5 text-sm text-text outline-none focus:border-primary"
           >
             <option value="">Усі точки</option>
@@ -155,7 +184,10 @@ export const AdminOrdersPage = () => {
             <SpinnerIcon className="h-4 w-4 animate-spin" /> Завантаження…
           </p>
         ) : (
-          <OrdersTable orders={dayOrders} />
+          <>
+            <OrdersTable orders={dayOrders} />
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          </>
         ))}
 
       {tab === 'search' && (
@@ -177,7 +209,18 @@ export const AdminOrdersPage = () => {
               Знайти
             </button>
           </form>
-          {searchResults && <OrdersTable orders={searchResults} />}
+          {loading ? (
+            <p className="flex items-center gap-2 text-text-muted">
+              <SpinnerIcon className="h-4 w-4 animate-spin" /> Завантаження…
+            </p>
+          ) : (
+            searchResults && (
+              <>
+                <OrdersTable orders={searchResults} />
+                <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+              </>
+            )
+          )}
         </div>
       )}
     </div>

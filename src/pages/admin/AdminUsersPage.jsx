@@ -8,12 +8,18 @@ import {
 } from '../../api/admin.js'
 import { getErrorMessage } from '../../lib/errors.js'
 import { SearchIcon, SpinnerIcon, UploadIcon } from '../../components/icons.jsx'
+import { Pagination } from '../../components/Pagination.jsx'
 
 const toIsoDate = (date) => (date ? date.toISOString().slice(0, 10) : undefined)
+
+const PER_PAGE = 10
 
 export const AdminUsersPage = () => {
   const [users, setUsers] = useState([])
   const [phone, setPhone] = useState('')
+  const [activePhone, setActivePhone] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [savingId, setSavingId] = useState(null)
@@ -21,34 +27,32 @@ export const AdminUsersPage = () => {
   const [exportTo, setExportTo] = useState(null)
   const [exporting, setExporting] = useState(false)
 
-  const loadAll = () => {
+  useEffect(() => {
     setLoading(true)
     setError('')
-    fetchAdminUsers({ perPage: 50 })
-      .then((res) => setUsers(res.data))
+    const request = activePhone
+      ? searchAdminUsers({ phone: activePhone, page, perPage: PER_PAGE })
+      : fetchAdminUsers({ page, perPage: PER_PAGE })
+
+    request
+      .then((res) => {
+        setUsers(res.data)
+        setTotalPages(res.totalPages || 1)
+      })
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false))
+  }, [page, activePhone])
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    setPage(1)
+    setActivePhone(phone.trim())
   }
 
-  useEffect(loadAll, [])
-
-  const handleSearch = async (e) => {
-    e.preventDefault()
-    if (!phone.trim()) {
-      loadAll()
-      return
-    }
-
-    setLoading(true)
-    setError('')
-    try {
-      const data = await searchAdminUsers(phone.trim())
-      setUsers(data)
-    } catch (err) {
-      setError(getErrorMessage(err))
-    } finally {
-      setLoading(false)
-    }
+  const handleResetSearch = () => {
+    setPhone('')
+    setPage(1)
+    setActivePhone('')
   }
 
   const handleDiscountChange = async (user, input) => {
@@ -118,10 +122,7 @@ export const AdminUsersPage = () => {
         </button>
         <button
           type="button"
-          onClick={() => {
-            setPhone('')
-            loadAll()
-          }}
+          onClick={handleResetSearch}
           className="rounded-xl bg-surface px-4 py-2 font-medium text-text-muted transition hover:bg-surface-hover hover:text-text"
         >
           Скинути
@@ -220,6 +221,8 @@ export const AdminUsersPage = () => {
           </table>
         </div>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   )
 }
