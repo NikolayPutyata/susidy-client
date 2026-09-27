@@ -15,3 +15,6 @@ export const removeCartItemRequest = (productId) =>
 
 export const checkoutRequest = (payload) =>
   apiClient.post('/cart/checkout', payload).then((r) => r.data.data)
+
+export const repriceCartRequest = (items) =>
+  apiClient.patch('/cart/reprice', { items }).then((r) => r.data.data)

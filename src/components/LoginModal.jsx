@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import { getErrorMessage } from '../lib/errors.js'
@@ -7,11 +7,23 @@ import { CloseIcon, SpinnerIcon } from './icons.jsx'
 const inputClass =
   'w-full rounded-xl border border-border bg-surface-raised px-4 py-2.5 text-text placeholder:text-text-subtle outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30'
 
+const emptyForm = { phoneNumber: '', password: '' }
+
 export const LoginModal = ({ open, onClose }) => {
   const { login } = useAuth()
-  const [form, setForm] = useState({ phoneNumber: '', password: '' })
+  const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  // Компонент ніколи не розмонтовується (Header завжди його рендерить, сам
+  // лише ховає) — без цього стара пошта/пароль лишались би в полях між
+  // логінами.
+  useEffect(() => {
+    if (open) {
+      setForm(emptyForm)
+      setError('')
+    }
+  }, [open])
 
   if (!open) return null
 

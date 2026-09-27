@@ -5,8 +5,9 @@ import { useAuth } from '../hooks/useAuth.js'
 import { useCity } from '../hooks/useCity.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { LOCATIONS } from '../lib/constants.js'
-import { AppleIcon, SpinnerIcon } from '../components/icons.jsx'
+import { SpinnerIcon } from '../components/icons.jsx'
 import { QuantityStepper } from '../components/QuantityStepper.jsx'
+import { PaymentMethodModal } from '../components/PaymentMethodModal.jsx'
 import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
 
 const Field = ({ label, children }) => (
@@ -40,13 +41,14 @@ export const CheckoutPage = () => {
     building: '',
     apartment: '',
     isPrivateHouse: false,
-    pickupAddress: '',
+    pickupPointId: '',
     cutlery: 1,
     details: '',
     noCallback: false,
   })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false)
 
   const pickupOptions = LOCATIONS.filter((l) => l.city === city)
 
@@ -54,9 +56,9 @@ export const CheckoutPage = () => {
   // разом з ним, якщо юзер поміняв місто просто на цій сторінці.
   useEffect(() => {
     setForm((prev) =>
-      pickupOptions.some((p) => p.address === prev.pickupAddress)
+      pickupOptions.some((p) => p.id === prev.pickupPointId)
         ? prev
-        : { ...prev, pickupAddress: pickupOptions[0]?.address || '' },
+        : { ...prev, pickupPointId: pickupOptions[0]?.id || '' },
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city])
@@ -71,7 +73,13 @@ export const CheckoutPage = () => {
     setSubmitting(true)
     setError('')
     try {
-      const order = await checkout({ ...form, city, paymentMethod: 'cod' })
+      const pickupPoint = pickupOptions.find((p) => p.id === form.pickupPointId)
+      const order = await checkout({
+        ...form,
+        city,
+        paymentMethod: 'cod',
+        pickupAddress: pickupPoint?.address || '',
+      })
       navigate('/order/success', { state: { order } })
     } catch (err) {
       setError(getErrorMessage(err))
@@ -182,16 +190,16 @@ export const CheckoutPage = () => {
                 <label
                   key={point.id}
                   className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm transition ${
-                    form.pickupAddress === point.address
+                    form.pickupPointId === point.id
                       ? 'border-primary bg-primary/10 text-text'
                       : 'border-border bg-surface-raised text-text-muted hover:text-text'
                   }`}
                 >
                   <input
                     type="radio"
-                    name="pickupAddress"
-                    value={point.address}
-                    checked={form.pickupAddress === point.address}
+                    name="pickupPointId"
+                    value={point.id}
+                    checked={form.pickupPointId === point.id}
                     onChange={handleChange}
                     className="h-4 w-4 accent-primary"
                   />
@@ -288,37 +296,32 @@ export const CheckoutPage = () => {
 
         {error && <p className="text-accent">{error}</p>}
 
-        <div className="grid grid-cols-1 gap-3 pt-1 md:mx-15">
+        <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setPaymentModalOpen(true)}
+            className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light"
+          >
+            Сплатити · {discounted} ₴
+          </button>
+
           <button
             type="submit"
-            disabled={submitting}
-            className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light disabled:opacity-60"
+            disabled={submitting || form.noCallback}
+            title={
+              form.noCallback
+                ? 'Недоступно з "не передзвонювати мені" — оплатіть одразу'
+                : undefined
+            }
+            className="flex items-center justify-center gap-2 rounded-full border border-border bg-surface-raised py-3 text-sm font-semibold text-text transition hover:bg-surface-hover disabled:opacity-40"
           >
             {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
-            {submitting ? 'Оформлюємо…' : `Сплачу при отриманні · ${discounted} ₴`}
-          </button>
-
-          <button
-            type="button"
-            disabled
-            title="Незабаром"
-            className="flex items-center justify-center gap-1.5 rounded-full bg-black py-3 text-sm font-semibold text-white opacity-60"
-          >
-            <AppleIcon className="h-4 w-4" />
-            Pay
-          </button>
-
-          <button
-            type="button"
-            disabled
-            title="Незабаром"
-            className="flex items-center justify-center gap-1.5 rounded-full bg-[#6c5ce7] py-3 text-sm font-semibold text-white opacity-60"
-          >
-            WayForPay
+            {submitting ? 'Оформлюємо…' : 'Сплачу при отриманні'}
           </button>
         </div>
-        
       </form>
+
+      <PaymentMethodModal open={paymentModalOpen} onClose={() => setPaymentModalOpen(false)} />
     </div>
   )
 }

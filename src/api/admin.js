@@ -29,8 +29,10 @@ export const updateUserDiscountRequest = (id, discount) =>
     .patch(`/admin/users/${id}/discount`, { discount })
     .then((r) => r.data.data)
 
-export const fetchTodayOrders = () =>
-  apiClient.get('/admin/orders/today').then((r) => r.data.data)
+export const fetchOrdersByDay = ({ day, pickupPointId } = {}) =>
+  apiClient
+    .get('/admin/orders/by-day', { params: { day, pickupPointId } })
+    .then((r) => r.data.data)
 
 export const searchAdminOrders = (phone) =>
   apiClient
