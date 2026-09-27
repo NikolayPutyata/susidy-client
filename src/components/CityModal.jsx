@@ -13,7 +13,7 @@ export const CityModal = () => {
       <div className="w-full max-w-sm rounded-3xl border border-border bg-surface p-6 text-center">
         <h2 className="mb-1 text-xl font-extrabold">Оберіть місто</h2>
         
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 mt-2">
           {CITIES.map((c) => (
             <button
               key={c.value}

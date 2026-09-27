@@ -8,7 +8,7 @@ export const OrderSuccessPage = () => {
   if (!order) return <Navigate to="/" replace />
 
   return (
-    <div className="mx-auto max-w-md text-center">
+    <div className="mx-auto max-w-md text-center mt-12">
       <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-primary-light">
         <CheckCircleIcon className="h-9 w-9" />
       </div>

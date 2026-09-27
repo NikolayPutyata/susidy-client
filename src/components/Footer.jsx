@@ -47,7 +47,7 @@ export const Footer = () => (
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-1 text-center text-sm text-text-subtle sm:flex-row sm:justify-between sm:text-left">
-        <p>Час роботи: {WORKING_HOURS}</p>
+        <p>{WORKING_HOURS}</p>
         <p>© {new Date().getFullYear()} Susidy</p>
       </div>
     </div>
