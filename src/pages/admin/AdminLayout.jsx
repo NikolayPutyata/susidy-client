@@ -10,7 +10,7 @@ const linkClass = ({ isActive }) =>
 
 export const AdminLayout = () => {
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+    <div className="flex flex-col gap-6 lg:flex-row lg:gap-8 mt-12">
       <aside className="lg:w-56 lg:shrink-0">
         <p className="mb-3 hidden text-xs font-semibold uppercase tracking-widest text-text-subtle lg:block">
           Адмін панель

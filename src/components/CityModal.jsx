@@ -12,9 +12,7 @@ export const CityModal = () => {
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
       <div className="w-full max-w-sm rounded-3xl border border-border bg-surface p-6 text-center">
         <h2 className="mb-1 text-xl font-extrabold">Оберіть місто</h2>
-        <p className="mb-5 text-sm text-text-muted">
-          Від міста залежать ціни та точки самовивозу.
-        </p>
+        
         <div className="flex flex-col gap-2">
           {CITIES.map((c) => (
             <button

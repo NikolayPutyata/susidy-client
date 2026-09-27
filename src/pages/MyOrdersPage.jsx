@@ -61,7 +61,7 @@ export const MyOrdersPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-2xl mt-12">
       <h1 className="mb-4 text-2xl font-extrabold">Мої замовлення</h1>
 
       {error && (

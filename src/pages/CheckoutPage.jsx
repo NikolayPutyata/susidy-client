@@ -85,7 +85,7 @@ export const CheckoutPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-2xl mt-12">
       <h1 className="mb-4 text-center md:text-start text-2xl font-extrabold">
         Ваше замовлення, любий сусіде:
       </h1>
@@ -223,6 +223,17 @@ export const CheckoutPage = () => {
               </Field>
             </div>
 
+{!form.isPrivateHouse && (
+              <Field label="Квартира">
+                <input
+                  name="apartment"
+                  value={form.apartment}
+                  onChange={handleChange}
+                  required
+                  className={inputClass}
+                />
+              </Field>
+            )}
             <label className="flex items-center gap-2 text-sm text-text-muted">
               <input
                 type="checkbox"
@@ -234,17 +245,7 @@ export const CheckoutPage = () => {
               Приватний будинок
             </label>
 
-            {!form.isPrivateHouse && (
-              <Field label="Квартира">
-                <input
-                  name="apartment"
-                  value={form.apartment}
-                  onChange={handleChange}
-                  required
-                  className={inputClass}
-                />
-              </Field>
-            )}
+            
           </>
         )}
 
@@ -258,7 +259,7 @@ export const CheckoutPage = () => {
               setForm((prev) => ({ ...prev, cutlery: Math.max(1, prev.cutlery - 1) }))
             }
             onIncrease={() =>
-              setForm((prev) => ({ ...prev, cutlery: Math.min(10, prev.cutlery + 1) }))
+              setForm((prev) => ({ ...prev, cutlery: Math.min(20, prev.cutlery + 1) }))
             }
           />
         </div>
@@ -269,7 +270,7 @@ export const CheckoutPage = () => {
             value={form.details}
             onChange={handleChange}
             rows={3}
-            placeholder="Наприклад: без імбиру, зателефонувати заздалегідь"
+            placeholder="побажання, уточнення, алергії"
             className={inputClass}
           />
         </Field>

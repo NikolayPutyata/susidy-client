@@ -2,7 +2,7 @@ export const CATEGORIES = [
   { value: 'rolls', label: 'Роли' },
   { value: 'sushi', label: 'Суші' },
   { value: 'hotRolls', label: 'Гарячі роли' },
-  { value: 'hunkans', label: 'Хункани' },
+  { value: 'hunkans', label: 'Фелікси' },
   { value: 'sets', label: 'Сети' },
   { value: 'drinks', label: 'Напої' },
   { value: 'maki', label: 'Маки' },
