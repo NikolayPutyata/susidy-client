@@ -28,7 +28,7 @@ export const ProductCard = ({ product }) => {
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-3xl bg-surface transition hover:bg-surface-hover">
-      <div className="relative aspect-[4/5] bg-black">
+      <div className="relative aspect-[4/3] bg-black">
         {product.images?.[0] ? (
           <img
             src={product.images[0]}
