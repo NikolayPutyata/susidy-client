@@ -4,7 +4,7 @@ import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useCity } from '../hooks/useCity.js'
 import { getErrorMessage } from '../lib/errors.js'
-import { LOCATIONS } from '../lib/constants.js'
+import { LOCATIONS, TIME_SLOTS } from '../lib/constants.js'
 import { SpinnerIcon } from '../components/icons.jsx'
 import { QuantityStepper } from '../components/QuantityStepper.jsx'
 import { PaymentMethodModal } from '../components/PaymentMethodModal.jsx'
@@ -42,6 +42,7 @@ export const CheckoutPage = () => {
     apartment: '',
     isPrivateHouse: false,
     pickupPointId: '',
+    requestedTime: 'asap',
     cutlery: 1,
     details: '',
     noCallback: false,
@@ -172,13 +173,41 @@ export const CheckoutPage = () => {
             </button>
             <button
               type="button"
-              onClick={() => setForm((prev) => ({ ...prev, fulfillment: 'pickup' }))}
+              onClick={() =>
+                setForm((prev) => ({
+                  ...prev,
+                  fulfillment: 'pickup',
+                  // "Якнайшвидше" не має сенсу для самовивозу — точка має
+                  // знати, на яку годину готувати замовлення.
+                  requestedTime:
+                    prev.requestedTime === 'asap' ? TIME_SLOTS[0] : prev.requestedTime,
+                }))
+              }
               className={segmentButtonClass(form.fulfillment === 'pickup')}
             >
               Самовивіз
             </button>
           </div>
         </div>
+
+        <Field label={form.fulfillment === 'pickup' ? 'Час самовивозу' : 'Час доставки'}>
+          <select
+            name="requestedTime"
+            value={form.requestedTime}
+            onChange={handleChange}
+            required
+            className={inputClass}
+          >
+            {form.fulfillment === 'delivery' && (
+              <option value="asap">Якнайшвидше</option>
+            )}
+            {TIME_SLOTS.map((slot) => (
+              <option key={slot} value={slot}>
+                {slot}
+              </option>
+            ))}
+          </select>
+        </Field>
 
         {form.fulfillment === 'pickup' ? (
           <div>

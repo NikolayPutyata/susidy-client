@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { fetchOrdersByDay, searchAdminOrders } from '../../api/admin.js'
 import { getErrorMessage } from '../../lib/errors.js'
 import { CITY_LABELS, LOCATIONS } from '../../lib/constants.js'
@@ -18,7 +18,19 @@ const formatFulfillment = (order) => {
   return `${city}, вул. ${order.street}, буд. ${order.building}, ${apartment}`
 }
 
+const formatRequestedTime = (order) => {
+  if (!order.requestedTime) return null
+  return order.requestedTime === 'asap' ? 'Якнайшвидше' : order.requestedTime
+}
+
+const summarizeItems = (items) => {
+  if (items.length === 1) return `${items[0].productName} ×${items[0].quantity}`
+  return `${items[0].productName} × ${items[0].quantity} + ще ${items.length - 1}`
+}
+
 const OrdersTable = ({ orders }) => {
+  const [expandedId, setExpandedId] = useState(null)
+
   if (orders.length === 0) {
     return (
       <div className="rounded-2xl border border-border bg-surface p-8 text-center text-text-muted">
@@ -37,31 +49,92 @@ const OrdersTable = ({ orders }) => {
             <th className="p-3 font-medium">Телефон</th>
             <th className="p-3 font-medium">Товари</th>
             <th className="p-3 font-medium">Доставка</th>
-            <th className="p-3 text-right font-medium">Сума</th>
+            <th className="w-28 p-3 text-right font-medium">Сума</th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
-            <tr
-              key={order._id}
-              className="border-b border-border last:border-0 hover:bg-surface-hover"
-            >
-              <td className="whitespace-nowrap p-3 text-text-muted">
-                {new Date(order.createdAt).toLocaleString('uk-UA')}
-              </td>
-              <td className="p-3 font-medium">{order.name}</td>
-              <td className="p-3 text-text-muted">{order.phoneNumber}</td>
-              <td className="p-3 text-text-muted">
-                {order.items
-                  .map((item) => `${item.productName} ×${item.quantity}`)
-                  .join(', ')}
-              </td>
-              <td className="p-3 text-text-muted">{formatFulfillment(order)}</td>
-              <td className="p-3 text-right font-semibold text-accent">
-                {order.total} ₴
-              </td>
-            </tr>
-          ))}
+          {orders.map((order) => {
+            const expanded = expandedId === order._id
+            const requestedTime = formatRequestedTime(order)
+
+            return (
+              <Fragment key={order._id}>
+                <tr
+                  onClick={() => setExpandedId(expanded ? null : order._id)}
+                  className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-hover"
+                >
+                  <td className="whitespace-nowrap p-3 text-text-muted">
+                    {new Date(order.createdAt).toLocaleString('uk-UA')}
+                  </td>
+                  <td className="p-3 font-medium">{order.name}</td>
+                  <td className="p-3 text-text-muted">{order.phoneNumber}</td>
+                  <td className="max-w-[220px] truncate p-3 text-text-muted">
+                    {summarizeItems(order.items)}
+                  </td>
+                  <td className="p-3 text-text-muted">
+                    <div>{formatFulfillment(order)}</div>
+                    {requestedTime && (
+                      <div className="text-xs text-text-subtle">
+                        ⏰ {requestedTime}
+                      </div>
+                    )}
+                  </td>
+                  <td className="whitespace-nowrap p-3 text-right font-semibold text-accent">
+                    {order.total} ₴
+                  </td>
+                </tr>
+                {expanded && (
+                  <tr className="border-b border-border bg-surface-raised/40 last:border-0">
+                    <td colSpan={6} className="p-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <p className="mb-1.5 font-medium text-text">Товари</p>
+                          <ul className="space-y-1 divide-y divide-border text-text-muted">
+                            {order.items.map((item) => (
+                              <li
+                                key={item.product_id}
+                                className="flex justify-between gap-3 py-1"
+                              >
+                                <span>
+                                  {item.productName} × {item.quantity}
+                                </span>
+                                <span className="shrink-0 text-text">
+                                  {item.price * item.quantity} ₴
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="space-y-1.5 text-text-muted">
+                          <p>
+                            <span className="text-text-subtle">Час: </span>
+                            {requestedTime || '—'}
+                          </p>
+                          <p>
+                            <span className="text-text-subtle">Приборів: </span>
+                            {order.cutlery ?? 1}
+                          </p>
+                          <p>
+                            <span className="text-text-subtle">Оплата: </span>
+                            {order.paymentMethod === 'online' ? 'Онлайн' : 'При отриманні'}
+                          </p>
+                          {order.details && (
+                            <p>
+                              <span className="text-text-subtle">Коментар: </span>
+                              {order.details}
+                            </p>
+                          )}
+                          {order.noCallback && (
+                            <p className="text-accent">Просив(ла) не передзвонювати</p>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            )
+          })}
         </tbody>
       </table>
     </div>
