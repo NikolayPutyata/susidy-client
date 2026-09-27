@@ -4,8 +4,10 @@ import {
   checkoutRequest,
   fetchMyCart,
   removeCartItemRequest,
+  repriceCartRequest,
   updateCartItemRequest,
 } from '../api/cart.js'
+import { fetchAllProducts } from '../api/products.js'
 import { toSerializableError } from '../lib/errors.js'
 import { logout } from './userSlice.js'
 
@@ -123,6 +125,49 @@ export const checkout = createAsyncThunk(
   },
 )
 
+// Ціна кожної позиції фіксується в момент додавання в кошик — якщо юзер
+// пізніше міняє місто, уже додані товари лишаються за старою ціною, поки
+// хтось явно не перерахує їх. Викликається з useCity().setCity().
+export const repriceCartForCity = createAsyncThunk(
+  'cart/repriceForCity',
+  async (city, { getState }) => {
+    const state = getState()
+    const items = state.cart.items
+    if (items.length === 0) return items
+
+    const priceField = city === 'kharkiv' ? 'priceKharkov' : 'priceKiev'
+
+    let products
+    try {
+      products = await fetchAllProducts()
+    } catch {
+      // Без каталогу нема з чим звірити нову ціну — краще лишити стару,
+      // ніж впасти.
+      return items
+    }
+
+    const repriced = items.map((item) => {
+      const product = products.find((p) => p._id === item.product_id)
+      return product ? { ...item, price: product[priceField] } : item
+    })
+
+    if (state.user.user) {
+      try {
+        await repriceCartRequest(
+          repriced.map(({ product_id, price }) => ({ product_id, price })),
+        )
+      } catch {
+        // Не вдалось синхронізувати з БД — усе одно покажемо перераховане
+        // локально; наступна дія з кошиком перезапише items з БД.
+      }
+    } else {
+      writeLocalCart(repriced)
+    }
+
+    return repriced
+  },
+)
+
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
@@ -204,6 +249,9 @@ const cartSlice = createSlice({
         state.items = action.payload
       })
       .addCase(removeItemRemote.fulfilled, (state, action) => {
+        state.items = action.payload
+      })
+      .addCase(repriceCartForCity.fulfilled, (state, action) => {
         state.items = action.payload
       })
       .addCase(checkout.fulfilled, (state) => {

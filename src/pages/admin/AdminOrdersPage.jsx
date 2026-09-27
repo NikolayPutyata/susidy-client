@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { fetchTodayOrders, searchAdminOrders } from '../../api/admin.js'
+import { fetchOrdersByDay, searchAdminOrders } from '../../api/admin.js'
 import { getErrorMessage } from '../../lib/errors.js'
-import { CITY_LABELS } from '../../lib/constants.js'
+import { CITY_LABELS, LOCATIONS } from '../../lib/constants.js'
 import { SearchIcon, SpinnerIcon } from '../../components/icons.jsx'
 
 const formatFulfillment = (order) => {
@@ -80,19 +80,22 @@ const TabButton = ({ active, onClick, children }) => (
 
 export const AdminOrdersPage = () => {
   const [tab, setTab] = useState('today')
-  const [todayOrders, setTodayOrders] = useState([])
+  const [pointFilter, setPointFilter] = useState('')
+  const [dayOrders, setDayOrders] = useState([])
   const [phone, setPhone] = useState('')
   const [searchResults, setSearchResults] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    if (tab === 'search') return
     setLoading(true)
-    fetchTodayOrders()
-      .then(setTodayOrders)
+    setError('')
+    fetchOrdersByDay({ day: tab, pickupPointId: pointFilter || undefined })
+      .then(setDayOrders)
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false))
-  }, [])
+  }, [tab, pointFilter])
 
   const handleSearch = async (e) => {
     e.preventDefault()
@@ -113,13 +116,31 @@ export const AdminOrdersPage = () => {
     <div>
       <h1 className="mb-4 text-2xl font-extrabold">Замовлення</h1>
 
-      <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <TabButton active={tab === 'today'} onClick={() => setTab('today')}>
-          Сьогодні · {todayOrders.length}
+          Сьогодні
+        </TabButton>
+        <TabButton active={tab === 'yesterday'} onClick={() => setTab('yesterday')}>
+          Вчора
         </TabButton>
         <TabButton active={tab === 'search'} onClick={() => setTab('search')}>
           Пошук за телефоном
         </TabButton>
+
+        {tab !== 'search' && (
+          <select
+            value={pointFilter}
+            onChange={(e) => setPointFilter(e.target.value)}
+            className="ml-auto rounded-full border border-border bg-surface-raised px-3.5 py-1.5 text-sm text-text outline-none focus:border-primary"
+          >
+            <option value="">Усі точки</option>
+            {LOCATIONS.map((point) => (
+              <option key={point.id} value={point.id}>
+                {CITY_LABELS[point.city]} · {point.address}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {error && (
@@ -128,13 +149,13 @@ export const AdminOrdersPage = () => {
         </p>
       )}
 
-      {tab === 'today' &&
+      {tab !== 'search' &&
         (loading ? (
           <p className="flex items-center gap-2 text-text-muted">
             <SpinnerIcon className="h-4 w-4 animate-spin" /> Завантаження…
           </p>
         ) : (
-          <OrdersTable orders={todayOrders} />
+          <OrdersTable orders={dayOrders} />
         ))}
 
       {tab === 'search' && (
