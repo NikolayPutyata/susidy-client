@@ -7,6 +7,7 @@ import {
   updateUserDiscountRequest,
 } from '../../api/admin.js'
 import { getErrorMessage } from '../../lib/errors.js'
+import { CITIES } from '../../lib/constants.js'
 import { SearchIcon, SpinnerIcon, UploadIcon } from '../../components/icons.jsx'
 import { Pagination } from '../../components/Pagination.jsx'
 
@@ -25,6 +26,7 @@ export const AdminUsersPage = () => {
   const [savingId, setSavingId] = useState(null)
   const [exportFrom, setExportFrom] = useState(null)
   const [exportTo, setExportTo] = useState(null)
+  const [exportCity, setExportCity] = useState('')
   const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
@@ -84,11 +86,12 @@ export const AdminUsersPage = () => {
       const blob = await exportAdminUsers({
         from: toIsoDate(exportFrom),
         to: toIsoDate(exportTo),
+        city: exportCity || undefined,
       })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = 'customers.csv'
+      link.download = exportCity ? `customers-${exportCity}.csv` : 'customers.csv'
       document.body.appendChild(link)
       link.click()
       link.remove()
@@ -156,6 +159,21 @@ export const AdminUsersPage = () => {
               className="w-32 rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
             />
           </div>
+        </div>
+        <div>
+          <p className="mb-1.5 text-sm text-text-muted">Місто (необов'язково)</p>
+          <select
+            value={exportCity}
+            onChange={(e) => setExportCity(e.target.value)}
+            className="rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+          >
+            <option value="">Усі міста</option>
+            {CITIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
         </div>
         <button
           type="button"
