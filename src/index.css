@@ -26,6 +26,10 @@
 
 html {
   color-scheme: dark;
+  /* Резервуємо місце під скролбар завжди, щоб відкриття кошика/меню
+     (яке ставить body { overflow: hidden }) не зсувало вміст сторінки
+     вбік, коли скролбар на мить зникає. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -86,6 +90,45 @@ body {
 
 .animate-slide-in-right {
   animation: slide-in-right 0.25s ease-out;
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-fade-out {
+  animation: fade-out 0.2s ease-in forwards;
+}
+
+@keyframes slide-out-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-slide-out-left {
+  animation: slide-out-left 0.2s ease-in forwards;
+}
+
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.animate-slide-out-right {
+  animation: slide-out-right 0.2s ease-in forwards;
 }
 
 /* react-datepicker: підлаштовуємо стандартну (світлу) тему під темний дизайн. */

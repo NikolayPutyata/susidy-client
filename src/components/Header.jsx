@@ -11,13 +11,34 @@ import { CartIcon, CloseIcon, FacebookIcon, InstagramIcon, MenuIcon } from './ic
 const menuLinkClass =
   'rounded-xl px-3.5 py-2.5 text-sm font-medium text-text-muted transition hover:bg-surface-hover hover:text-text'
 
+// Замість миттєвого зникнення (яке виглядає як "мигання" сторінки під
+// меню) — програємо анімацію закриття і розмонтовуємо тільки після неї.
+const CLOSE_ANIMATION_MS = 200
+
 const MobileMenu = ({ open, onClose, onLoginClick }) => {
   const { user, isAdmin, logout } = useAuth()
   const { city, setCity } = useCity()
   const navigate = useNavigate()
+  const [rendered, setRendered] = useState(open)
+  const [closing, setClosing] = useState(false)
 
   useEffect(() => {
-    if (!open) return
+    if (open) {
+      setRendered(true)
+      setClosing(false)
+      return
+    }
+    if (!rendered) return
+    setClosing(true)
+    const timeout = setTimeout(() => {
+      setRendered(false)
+      setClosing(false)
+    }, CLOSE_ANIMATION_MS)
+    return () => clearTimeout(timeout)
+  }, [open, rendered])
+
+  useEffect(() => {
+    if (!rendered) return
     const onKeyDown = (e) => e.key === 'Escape' && onClose()
     document.addEventListener('keydown', onKeyDown)
     document.body.style.overflow = 'hidden'
@@ -25,9 +46,9 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
       document.removeEventListener('keydown', onKeyDown)
       document.body.style.overflow = ''
     }
-  }, [open, onClose])
+  }, [rendered, onClose])
 
-  if (!open) return null
+  if (!rendered) return null
 
   const goToCategory = (value) => {
     onClose()
@@ -39,10 +60,12 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
       <button
         aria-label="Закрити меню"
         onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm ${closing ? 'animate-fade-out' : 'animate-fade-in'}`}
       />
 
-      <aside className="absolute left-0 top-0 flex h-full w-[80%] max-w-xs flex-col overflow-y-auto border-r border-border bg-surface shadow-2xl animate-slide-in-left">
+      <aside
+        className={`absolute left-0 top-0 flex h-full w-[80%] max-w-xs flex-col overflow-y-auto border-r border-border bg-surface shadow-2xl ${closing ? 'animate-slide-out-left' : 'animate-slide-in-left'}`}
+      >
         <div className="flex items-center justify-between border-b border-border px-4 py-4">
           <Logo className="text-base" />
           <button

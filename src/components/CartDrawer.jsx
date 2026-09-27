@@ -5,13 +5,34 @@ import { CartItemsList } from './CartItemsList.jsx'
 import { CartIcon, CloseIcon } from './icons.jsx'
 import { OrderTotal } from './OrderTotal.jsx'
 
+// Замість миттєвого зникнення (яке виглядає як "мигання" сторінки під
+// кошиком) — програємо анімацію закриття і розмонтовуємо тільки після неї.
+const CLOSE_ANIMATION_MS = 200
+
 export const CartDrawer = () => {
   const { items, loading, isDrawerOpen, closeDrawer, total } = useCart()
   const navigate = useNavigate()
   const [error, setError] = useState('')
+  const [rendered, setRendered] = useState(isDrawerOpen)
+  const [closing, setClosing] = useState(false)
 
   useEffect(() => {
-    if (!isDrawerOpen) return
+    if (isDrawerOpen) {
+      setRendered(true)
+      setClosing(false)
+      return
+    }
+    if (!rendered) return
+    setClosing(true)
+    const timeout = setTimeout(() => {
+      setRendered(false)
+      setClosing(false)
+    }, CLOSE_ANIMATION_MS)
+    return () => clearTimeout(timeout)
+  }, [isDrawerOpen, rendered])
+
+  useEffect(() => {
+    if (!rendered) return
     const onKeyDown = (e) => e.key === 'Escape' && closeDrawer()
     document.addEventListener('keydown', onKeyDown)
     document.body.style.overflow = 'hidden'
@@ -19,9 +40,9 @@ export const CartDrawer = () => {
       document.removeEventListener('keydown', onKeyDown)
       document.body.style.overflow = ''
     }
-  }, [isDrawerOpen, closeDrawer])
+  }, [rendered, closeDrawer])
 
-  if (!isDrawerOpen) return null
+  if (!rendered) return null
 
   const goToCheckout = () => {
     closeDrawer()
@@ -33,10 +54,12 @@ export const CartDrawer = () => {
       <button
         aria-label="Закрити кошик"
         onClick={closeDrawer}
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in"
+        className={`absolute inset-0 bg-black/70 backdrop-blur-sm ${closing ? 'animate-fade-out' : 'animate-fade-in'}`}
       />
 
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col border-l border-border bg-surface shadow-2xl animate-slide-in-right">
+      <aside
+        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col border-l border-border bg-surface shadow-2xl ${closing ? 'animate-slide-out-right' : 'animate-slide-in-right'}`}
+      >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="flex items-center gap-2 text-lg font-bold">
             <CartIcon className="h-5 w-5 text-accent" />
