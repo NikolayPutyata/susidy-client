@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateMyBirthday, updateMyProfile } from '../api/auth.js'
+import { removeMyFavorite, updateMyBirthday, updateMyProfile } from '../api/auth.js'
 import { fetchAllProducts } from '../api/products.js'
+import { useCity } from '../hooks/useCity.js'
 import { useModals } from '../hooks/useModals.js'
 import { FAVORITES_CATEGORY } from '../lib/constants.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { selectUser, setUser } from '../store/userSlice.js'
-import { ProductCard } from './ProductCard.jsx'
 import { CloseIcon, HeartIcon, SpinnerIcon } from './icons.jsx'
 
 const inputClass =
@@ -17,6 +17,7 @@ const todayIso = () => new Date().toISOString().slice(0, 10)
 export const ProfileModal = () => {
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
+  const { getPrice } = useCity()
   const { profileOpen: open, closeProfile, openMyOrders } = useModals()
 
   const [form, setForm] = useState({ name: '', city: '' })
@@ -30,6 +31,7 @@ export const ProfileModal = () => {
   const [favoriteProducts, setFavoriteProducts] = useState([])
   const [favoritesLoading, setFavoritesLoading] = useState(true)
   const [favoritesError, setFavoritesError] = useState('')
+  const [favoriteBusyId, setFavoriteBusyId] = useState(null)
 
   useEffect(() => {
     if (!open || !user) return
@@ -83,6 +85,19 @@ export const ProfileModal = () => {
   const handleGoToMyOrders = () => {
     closeProfile()
     openMyOrders()
+  }
+
+  const handleRemoveFavorite = async (productId) => {
+    setFavoriteBusyId(productId)
+    setFavoritesError('')
+    try {
+      const updated = await removeMyFavorite(productId)
+      dispatch(setUser(updated))
+    } catch (err) {
+      setFavoritesError(getErrorMessage(err))
+    } finally {
+      setFavoriteBusyId(null)
+    }
   }
 
   const favorites = favoriteProducts.filter((p) => user.favorites?.includes(p._id))
@@ -202,11 +217,39 @@ export const ProfileModal = () => {
                 У вас поки немає улюблених позицій.
               </p>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <ul className="divide-y divide-border rounded-2xl border border-border bg-surface-raised px-4">
                 {favorites.map((product) => (
-                  <ProductCard key={product._id} product={product} />
+                  <li key={product._id} className="flex items-center gap-3 py-2.5">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-black">
+                      {product.images?.[0] ? (
+                        <img
+                          src={product.images[0]}
+                          alt={product.name}
+                          className="h-full w-full object-contain"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-sm">
+                          🍣
+                        </div>
+                      )}
+                    </div>
+                    <span className="min-w-0 flex-1 truncate text-sm text-text">
+                      {product.name}
+                    </span>
+                    <span className="shrink-0 text-sm text-text-muted">
+                      {getPrice(product)} ₴
+                    </span>
+                    <button
+                      onClick={() => handleRemoveFavorite(product._id)}
+                      disabled={favoriteBusyId === product._id}
+                      aria-label="Прибрати з улюблених"
+                      className="shrink-0 text-accent transition hover:opacity-70 disabled:opacity-40"
+                    >
+                      <HeartIcon filled className="h-4 w-4" />
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </div>
         </div>
