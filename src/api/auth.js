@@ -12,3 +12,12 @@ export const refreshRequest = () =>
   apiClient.post('/auth/refresh').then((r) => r.data.data)
 
 export const fetchMe = () => apiClient.get('/auth/me').then((r) => r.data.data)
+
+export const updateMyBirthday = (birthday) =>
+  apiClient.patch('/auth/me/birthday', { birthday }).then((r) => r.data.data)
+
+export const addMyFavorite = (productId) =>
+  apiClient.post(`/auth/me/favorites/${productId}`).then((r) => r.data.data)
+
+export const removeMyFavorite = (productId) =>
+  apiClient.delete(`/auth/me/favorites/${productId}`).then((r) => r.data.data)

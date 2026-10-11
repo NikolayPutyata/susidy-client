@@ -8,7 +8,7 @@ import {
 } from '../../api/admin.js'
 import { getErrorMessage } from '../../lib/errors.js'
 import { CITIES } from '../../lib/constants.js'
-import { SearchIcon, SpinnerIcon, UploadIcon } from '../../components/icons.jsx'
+import { SearchIcon, SortAscIcon, SortDescIcon, SpinnerIcon, UploadIcon } from '../../components/icons.jsx'
 import { Pagination } from '../../components/Pagination.jsx'
 
 const toIsoDate = (date) => (date ? date.toISOString().slice(0, 10) : undefined)
@@ -28,13 +28,15 @@ export const AdminUsersPage = () => {
   const [exportTo, setExportTo] = useState(null)
   const [exportCity, setExportCity] = useState('')
   const [exporting, setExporting] = useState(false)
+  const [sortDir, setSortDir] = useState('')
 
   useEffect(() => {
     setLoading(true)
     setError('')
+    const sortParams = sortDir ? { sortBy: 'ordersCount', sortDir } : {}
     const request = activePhone
-      ? searchAdminUsers({ phone: activePhone, page, perPage: PER_PAGE })
-      : fetchAdminUsers({ page, perPage: PER_PAGE })
+      ? searchAdminUsers({ phone: activePhone, page, perPage: PER_PAGE, ...sortParams })
+      : fetchAdminUsers({ page, perPage: PER_PAGE, ...sortParams })
 
     request
       .then((res) => {
@@ -43,7 +45,12 @@ export const AdminUsersPage = () => {
       })
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false))
-  }, [page, activePhone])
+  }, [page, activePhone, sortDir])
+
+  const toggleOrdersSort = () => {
+    setPage(1)
+    setSortDir((prev) => (prev === 'desc' ? 'asc' : 'desc'))
+  }
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -209,7 +216,22 @@ export const AdminUsersPage = () => {
               <tr className="border-b border-border text-text-subtle">
                 <th className="p-3 font-medium">Ім'я</th>
                 <th className="p-3 font-medium">Телефон</th>
-                <th className="p-3 font-medium">Замовлень</th>
+                <th className="p-3 font-medium">
+                  <button
+                    type="button"
+                    onClick={toggleOrdersSort}
+                    className="flex items-center gap-1 font-medium text-text-subtle transition hover:text-text"
+                  >
+                    Замовлень
+                    {sortDir === 'asc' ? (
+                      <SortAscIcon className="h-3.5 w-3.5" />
+                    ) : sortDir === 'desc' ? (
+                      <SortDescIcon className="h-3.5 w-3.5" />
+                    ) : (
+                      <SortDescIcon className="h-3.5 w-3.5 opacity-30" />
+                    )}
+                  </button>
+                </th>
                 <th className="p-3 font-medium">Знижка, %</th>
               </tr>
             </thead>

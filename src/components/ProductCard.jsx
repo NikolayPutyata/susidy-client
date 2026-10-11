@@ -1,18 +1,47 @@
 import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { addMyFavorite, removeMyFavorite } from '../api/auth.js'
 import { useCart } from '../hooks/useCart.js'
 import { useCity } from '../hooks/useCity.js'
+import { useModals } from '../hooks/useModals.js'
 import { getErrorMessage } from '../lib/errors.js'
+import { selectIsAuthenticated, selectUser, setUser } from '../store/userSlice.js'
 import { QuantityStepper } from './QuantityStepper.jsx'
-import { SpinnerIcon } from './icons.jsx'
+import { HeartIcon, SpinnerIcon } from './icons.jsx'
 
 export const ProductCard = ({ product }) => {
+  const dispatch = useDispatch()
+  const user = useSelector(selectUser)
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+  const { openLogin } = useModals()
   const { addItem, updateItem, removeItem, getItemQuantity } = useCart()
   const { getPrice } = useCity()
   const [busy, setBusy] = useState(false)
+  const [favoriteBusy, setFavoriteBusy] = useState(false)
   const [error, setError] = useState('')
 
   const quantity = getItemQuantity(product._id)
   const price = getPrice(product)
+  const isFavorite = Boolean(user?.favorites?.includes(product._id))
+
+  const toggleFavorite = async () => {
+    if (!isAuthenticated) {
+      openLogin()
+      return
+    }
+
+    setFavoriteBusy(true)
+    try {
+      const updated = isFavorite
+        ? await removeMyFavorite(product._id)
+        : await addMyFavorite(product._id)
+      dispatch(setUser(updated))
+    } catch (err) {
+      setError(getErrorMessage(err))
+    } finally {
+      setFavoriteBusy(false)
+    }
+  }
 
   const withBusy = async (action) => {
     setBusy(true)
@@ -29,6 +58,17 @@ export const ProductCard = ({ product }) => {
   return (
     <div className="group flex flex-col overflow-hidden rounded-3xl bg-surface transition hover:bg-surface-hover">
       <div className="relative aspect-[4/3] bg-black">
+        <button
+          onClick={toggleFavorite}
+          disabled={favoriteBusy}
+          aria-label={isFavorite ? 'Прибрати з улюблених' : 'Додати в улюблені'}
+          className="absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-sm transition hover:bg-black/70 disabled:opacity-60"
+        >
+          <HeartIcon
+            filled={isFavorite}
+            className={`h-4.5 w-4.5 ${isFavorite ? 'text-accent' : 'text-text'}`}
+          />
+        </button>
         {product.images?.[0] ? (
           <img
             src={product.images[0]}
