@@ -4,10 +4,18 @@ import {
   createAdminProduct,
   deleteAdminProduct,
   updateAdminProduct,
+  updateAdminProductStop,
 } from '../../api/admin.js'
-import { CATEGORIES } from '../../lib/constants.js'
+import { CATEGORIES, CITY_LABELS, LOCATIONS } from '../../lib/constants.js'
 import { getErrorMessage } from '../../lib/errors.js'
 import { SpinnerIcon, TrashIcon, UploadIcon } from '../../components/icons.jsx'
+
+const pointById = Object.fromEntries(LOCATIONS.map((point) => [point.id, point]))
+
+const pointLabel = (pointId) => {
+  const point = pointById[pointId]
+  return point ? `${CITY_LABELS[point.city]} · ${point.address}` : pointId
+}
 
 const emptyForm = {
   name: '',
@@ -19,7 +27,7 @@ const emptyForm = {
 }
 
 const inputClass =
-  'w-full rounded-xl border border-border bg-surface-raised px-3.5 py-2 text-text placeholder:text-text-subtle outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30'
+  'w-full rounded-xl border border-border bg-surface-raised px-3 py-1.5 text-text placeholder:text-text-subtle outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30'
 
 export const AdminProductsPage = () => {
   const [products, setProducts] = useState([])
@@ -30,6 +38,8 @@ export const AdminProductsPage = () => {
   const [files, setFiles] = useState([])
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
+  const [pointFilter, setPointFilter] = useState('')
+  const [stopBusyId, setStopBusyId] = useState(null)
 
   const load = () => {
     setLoading(true)
@@ -103,19 +113,39 @@ export const AdminProductsPage = () => {
     }
   }
 
+  const handleToggleStop = async (product) => {
+    if (!pointFilter) return
+    const stoppedHere = product.stoppedPoints?.includes(pointFilter)
+
+    setStopBusyId(product._id)
+    setError('')
+    try {
+      const updated = await updateAdminProductStop(
+        product._id,
+        pointFilter,
+        !stoppedHere,
+      )
+      setProducts((prev) => prev.map((p) => (p._id === product._id ? updated : p)))
+    } catch (err) {
+      setError(getErrorMessage(err))
+    } finally {
+      setStopBusyId(null)
+    }
+  }
+
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-extrabold">Товари</h1>
+      <h1 className="mb-3 text-xl font-extrabold">Товари</h1>
 
       {error && (
-        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-accent">
+        <p className="mb-3 rounded-xl border border-accent/30 bg-accent/10 px-3.5 py-2.5 text-accent">
           {error}
         </p>
       )}
 
       <form
         onSubmit={handleSubmit}
-        className="mx-auto mb-8 max-w-xl space-y-3 rounded-2xl border border-border bg-surface p-5"
+        className="mx-auto mb-6 max-w-xl space-y-3 rounded-2xl border border-border bg-surface p-4"
       >
         <h2 className="text-center font-semibold">
           {editingId ? 'Редагувати товар' : 'Новий товар'}
@@ -129,7 +159,7 @@ export const AdminProductsPage = () => {
           required
           className={inputClass}
         />
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <input
             name="priceKiev"
             type="number"
@@ -179,7 +209,7 @@ export const AdminProductsPage = () => {
           className={inputClass}
         />
 
-        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border-strong px-4 py-3 text-sm text-text-muted transition hover:border-primary hover:text-text">
+        <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-dashed border-border-strong px-3.5 py-2.5 text-xs text-text-muted transition hover:border-primary hover:text-text">
           <UploadIcon className="h-4 w-4" />
           {files.length > 0
             ? `Обрано файлів: ${files.length}`
@@ -198,11 +228,11 @@ export const AdminProductsPage = () => {
           </p>
         )}
 
-        <div className="flex gap-2 pt-1">
+        <div className="flex gap-1.5 pt-1">
           <button
             type="submit"
             disabled={saving}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
           >
             {saving && <SpinnerIcon className="h-4 w-4 animate-spin" />}
             {saving ? 'Зберігаємо…' : editingId ? 'Зберегти' : 'Додати товар'}
@@ -211,7 +241,7 @@ export const AdminProductsPage = () => {
             <button
               type="button"
               onClick={resetForm}
-              className="rounded-xl bg-surface-raised px-4 py-2.5 font-medium text-text-muted transition hover:text-text"
+              className="rounded-xl bg-surface-raised px-3.5 py-2 font-medium text-text-muted transition hover:text-text"
             >
               Скасувати
             </button>
@@ -219,12 +249,32 @@ export const AdminProductsPage = () => {
         </div>
       </form>
 
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-1.5">
+        <p className="text-xs text-text-muted">
+          {pointFilter
+            ? 'Кнопка в колонці "На обраній точці" стопить/повертає позицію саме на цій точці — інші точки не зміняться.'
+            : 'Оберіть точку, щоб ставити позиції на стоп саме на ній.'}
+        </p>
+        <select
+          value={pointFilter}
+          onChange={(e) => setPointFilter(e.target.value)}
+          className="rounded-full border border-border bg-surface-raised px-3 py-1 text-xs text-text outline-none focus:border-primary"
+        >
+          <option value="">Усі точки</option>
+          {LOCATIONS.map((point) => (
+            <option key={point.id} value={point.id}>
+              {CITY_LABELS[point.city]} · {point.address}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {loading ? (
-        <p className="flex items-center gap-2 text-text-muted">
+        <p className="flex items-center gap-1.5 text-text-muted">
           <SpinnerIcon className="h-4 w-4 animate-spin" /> Завантаження…
         </p>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6">
           {CATEGORIES.map((category) => {
             const categoryProducts = products.filter(
               (p) => p.category === category.value,
@@ -233,55 +283,106 @@ export const AdminProductsPage = () => {
 
             return (
               <div key={category.value}>
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary-light">
+                <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-primary-light">
                   {category.label} · {categoryProducts.length}
                 </h3>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                  {categoryProducts.map((product) => (
-                    <div
-                      key={product._id}
-                      className="overflow-hidden rounded-2xl border border-border bg-surface"
-                    >
-                      <div className="aspect-square bg-black">
-                        {product.images?.[0] && (
-                          <img
-                            src={product.images[0]}
-                            alt={product.name}
-                            className="h-full w-full object-contain"
-                          />
+                <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-border text-text-subtle">
+                        <th className="p-2 font-medium">Назва</th>
+                        <th className="p-2 font-medium">Ціна, Київ / Харків</th>
+                        <th className="p-2 font-medium">Стоп на точках</th>
+                        {pointFilter && (
+                          <th className="p-2 font-medium">На обраній точці</th>
                         )}
-                      </div>
-                      <div className="p-3">
-                        <p className="truncate font-medium">
-                          {product.name}
-                          {product.weight > 0 && (
-                            <span className="ml-1.5 text-xs font-normal text-text-subtle">
-                              {product.weight} г
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-sm font-semibold text-accent">
-                          {product.priceKiev} ₴
-                        </p>
-                        <div className="mt-2 flex gap-3 text-sm">
-                          <button
-                            onClick={() => startEdit(product)}
-                            className="text-primary-light underline underline-offset-2"
+                        <th className="p-2 font-medium">Дії</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categoryProducts.map((product) => {
+                        const stoppedHere = Boolean(
+                          pointFilter && product.stoppedPoints?.includes(pointFilter),
+                        )
+
+                        return (
+                          <tr
+                            key={product._id}
+                            className={`border-b border-border last:border-0 hover:bg-surface-hover ${
+                              stoppedHere ? 'bg-accent/5' : ''
+                            }`}
                           >
-                            Редагувати
-                          </button>
-                          <button
-                            onClick={() => handleDelete(product._id)}
-                            disabled={deletingId === product._id}
-                            className="flex items-center gap-1 text-accent underline underline-offset-2 disabled:opacity-50"
-                          >
-                            <TrashIcon className="h-3.5 w-3.5" />
-                            Видалити
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                            <td className="p-2 font-medium">
+                              {product.name}
+                              {product.weight > 0 && (
+                                <span className="ml-1 text-xs font-normal text-text-subtle">
+                                  {product.weight} г
+                                </span>
+                              )}
+                            </td>
+                            <td className="whitespace-nowrap p-2 text-text-muted">
+                              {product.priceKiev} / {product.priceKharkov} ₴
+                            </td>
+                            <td className="p-2">
+                              {product.stoppedPoints?.length > 0 ? (
+                                <div className="flex flex-wrap gap-1">
+                                  {product.stoppedPoints.map((pointId) => (
+                                    <span
+                                      key={pointId}
+                                      className={`rounded-full px-2 py-0.5 text-xs ${
+                                        pointId === pointFilter
+                                          ? 'bg-accent/20 text-accent'
+                                          : 'bg-surface-raised text-text-subtle'
+                                      }`}
+                                    >
+                                      {pointLabel(pointId)}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-xs text-text-subtle">—</span>
+                              )}
+                            </td>
+                            {pointFilter && (
+                              <td className="p-2">
+                                <button
+                                  onClick={() => handleToggleStop(product)}
+                                  disabled={stopBusyId === product._id}
+                                  className={`rounded-full px-2.5 py-1 text-xs font-semibold transition disabled:opacity-50 ${
+                                    stoppedHere
+                                      ? 'bg-accent/20 text-accent hover:bg-accent/30'
+                                      : 'bg-primary/15 text-primary-light hover:bg-primary/25'
+                                  }`}
+                                >
+                                  {stoppedHere
+                                    ? 'Немає на точці · повернути'
+                                    : 'В продажі · поставити на стоп'}
+                                </button>
+                              </td>
+                            )}
+                            <td className="p-2">
+                              <div className="flex gap-2 text-xs">
+                                <button
+                                  onClick={() => startEdit(product)}
+                                  className="text-primary-light underline underline-offset-2"
+                                >
+                                  Редагувати
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(product._id)}
+                                  disabled={deletingId === product._id}
+                                  className="flex items-center gap-1 text-accent underline underline-offset-2 disabled:opacity-50"
+                                >
+                                  <TrashIcon className="h-3.5 w-3.5" />
+                                  Видалити
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )

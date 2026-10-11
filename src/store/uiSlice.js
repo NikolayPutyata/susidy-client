@@ -8,6 +8,7 @@ const initialState = {
   registerOpen: false,
   myOrdersOpen: false,
   checkoutOpen: false,
+  profileOpen: false,
 }
 
 const uiSlice = createSlice({
@@ -40,6 +41,12 @@ const uiSlice = createSlice({
     closeCheckout(state) {
       state.checkoutOpen = false
     },
+    openProfile(state) {
+      state.profileOpen = true
+    },
+    closeProfile(state) {
+      state.profileOpen = false
+    },
   },
 })
 
@@ -52,6 +59,8 @@ export const {
   closeMyOrders,
   openCheckout,
   closeCheckout,
+  openProfile,
+  closeProfile,
 } = uiSlice.actions
 export default uiSlice.reducer
 
@@ -59,3 +68,4 @@ export const selectLoginOpen = (state) => state.ui.loginOpen
 export const selectRegisterOpen = (state) => state.ui.registerOpen
 export const selectMyOrdersOpen = (state) => state.ui.myOrdersOpen
 export const selectCheckoutOpen = (state) => state.ui.checkoutOpen
+export const selectProfileOpen = (state) => state.ui.profileOpen

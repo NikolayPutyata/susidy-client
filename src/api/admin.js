@@ -16,6 +16,11 @@ export const updateAdminProduct = (id, formData) =>
 
 export const deleteAdminProduct = (id) => apiClient.delete(`/admin/products/${id}`)
 
+export const updateAdminProductStop = (id, pickupPointId, stopped) =>
+  apiClient
+    .patch(`/admin/products/${id}/stop`, { pickupPointId, stopped })
+    .then((r) => r.data.data)
+
 export const fetchAdminUsers = (params) =>
   apiClient.get('/admin/users', { params }).then((r) => r.data)
 
