@@ -142,19 +142,19 @@ export const AdminUsersPage = () => {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Пошук за телефоном"
-            className="w-full rounded-xl border border-border bg-surface-raised py-1.5 pl-9 pr-3 text-text placeholder:text-text-subtle outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-xl border border-border bg-surface-raised py-1.5 pl-9 pr-3 text-xs text-text placeholder:text-text-subtle outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
           />
         </div>
         <button
           type="submit"
-          className="rounded-xl bg-primary px-3.5 py-1.5 font-semibold text-black transition hover:bg-primary-light"
+          className="rounded-xl bg-primary px-3.5 py-1.5 text-xs font-semibold text-black transition hover:bg-primary-light"
         >
           Знайти
         </button>
         <button
           type="button"
           onClick={handleResetSearch}
-          className="rounded-xl bg-surface px-3.5 py-1.5 font-medium text-text-muted transition hover:bg-surface-hover hover:text-text"
+          className="rounded-xl bg-surface px-3.5 py-1.5 text-xs font-medium text-text-muted transition hover:bg-surface-hover hover:text-text"
         >
           Скинути
         </button>
@@ -207,7 +207,7 @@ export const AdminUsersPage = () => {
           type="button"
           onClick={handleExport}
           disabled={exporting}
-          className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
+          className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
         >
           {exporting ? (
             <SpinnerIcon className="h-4 w-4 animate-spin" />
@@ -216,8 +216,6 @@ export const AdminUsersPage = () => {
           )}
           Вивантажити список клієнтів
         </button>
-        
-        
       </div>
 
       {error && (
@@ -278,7 +276,7 @@ export const AdminUsersPage = () => {
                       defaultValue={u.discount}
                       disabled={savingId === u._id}
                       onBlur={(e) => handleDiscountChange(u, e.target)}
-                      className="w-20 rounded-lg border border-border bg-surface-raised px-2 py-1 text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
+                      className="w-20 rounded-lg border border-border bg-surface-raised px-2.5 py-1.5 text-xs text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
                     />
                   </td>
                 </tr>

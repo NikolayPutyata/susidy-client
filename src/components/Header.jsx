@@ -18,7 +18,7 @@ const CLOSE_ANIMATION_MS = 200
 const MobileMenu = ({ open, onClose, onLoginClick }) => {
   const { user, isAdmin, logout } = useAuth()
   const { city, setCity } = useCity()
-  const { openProfile } = useModals()
+  const { openProfile, openMyOrders } = useModals()
   const navigate = useNavigate()
   const [rendered, setRendered] = useState(open)
   const [closing, setClosing] = useState(false)
@@ -119,6 +119,17 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
               className={`text-left ${menuLinkClass}`}
             >
               Мій профіль
+            </button>
+          )}
+          {user && (
+            <button
+              onClick={() => {
+                onClose()
+                openMyOrders()
+              }}
+              className={`text-left ${menuLinkClass}`}
+            >
+              Мої замовлення
             </button>
           )}
           {isAdmin && (
