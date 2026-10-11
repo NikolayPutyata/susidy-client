@@ -16,6 +16,7 @@ import { LoginModal } from './components/LoginModal.jsx'
 import { RegisterModal } from './components/RegisterModal.jsx'
 import { MyOrdersModal } from './components/MyOrdersModal.jsx'
 import { CheckoutModal } from './components/CheckoutModal.jsx'
+import { ProfileModal } from './components/ProfileModal.jsx'
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute.jsx'
 import { CatalogPage } from './pages/CatalogPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
@@ -69,6 +70,7 @@ function App() {
       <RegisterModal />
       <MyOrdersModal />
       <CheckoutModal />
+      <ProfileModal />
     </div>
   )
 }

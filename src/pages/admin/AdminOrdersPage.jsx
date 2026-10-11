@@ -33,7 +33,7 @@ const OrdersTable = ({ orders }) => {
 
   if (orders.length === 0) {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-8 text-center text-text-muted">
+      <div className="rounded-2xl border border-border bg-surface p-6 text-center text-text-muted">
         Немає замовлень.
       </div>
     )
@@ -41,15 +41,15 @@ const OrdersTable = ({ orders }) => {
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
-      <table className="w-full text-left text-sm">
+      <table className="w-full text-left text-xs">
         <thead>
           <tr className="border-b border-border text-text-subtle">
-            <th className="p-3 font-medium">Час</th>
-            <th className="p-3 font-medium">Клієнт</th>
-            <th className="p-3 font-medium">Телефон</th>
-            <th className="p-3 font-medium">Товари</th>
-            <th className="p-3 font-medium">Доставка</th>
-            <th className="w-28 p-3 text-right font-medium">Сума</th>
+            <th className="p-2 font-medium">Час</th>
+            <th className="p-2 font-medium">Клієнт</th>
+            <th className="p-2 font-medium">Телефон</th>
+            <th className="p-2 font-medium">Товари</th>
+            <th className="p-2 font-medium">Доставка</th>
+            <th className="w-28 p-2 text-right font-medium">Сума</th>
           </tr>
         </thead>
         <tbody>
@@ -63,15 +63,15 @@ const OrdersTable = ({ orders }) => {
                   onClick={() => setExpandedId(expanded ? null : order._id)}
                   className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-hover"
                 >
-                  <td className="whitespace-nowrap p-3 text-text-muted">
+                  <td className="whitespace-nowrap p-2 text-text-muted">
                     {new Date(order.createdAt).toLocaleString('uk-UA')}
                   </td>
-                  <td className="p-3 font-medium">{order.name}</td>
-                  <td className="p-3 text-text-muted">{order.phoneNumber}</td>
-                  <td className="max-w-[220px] truncate p-3 text-text-muted">
+                  <td className="p-2 font-medium">{order.name}</td>
+                  <td className="p-2 text-text-muted">{order.phoneNumber}</td>
+                  <td className="max-w-[220px] truncate p-2 text-text-muted">
                     {summarizeItems(order.items)}
                   </td>
-                  <td className="p-3 text-text-muted">
+                  <td className="p-2 text-text-muted">
                     <div>{formatFulfillment(order)}</div>
                     {requestedTime && (
                       <div className="text-xs text-text-subtle">
@@ -79,21 +79,21 @@ const OrdersTable = ({ orders }) => {
                       </div>
                     )}
                   </td>
-                  <td className="whitespace-nowrap p-3 text-right font-semibold text-accent">
+                  <td className="whitespace-nowrap p-2 text-right font-semibold text-accent">
                     {order.total} ₴
                   </td>
                 </tr>
                 {expanded && (
                   <tr className="border-b border-border bg-surface-raised/40 last:border-0">
-                    <td colSpan={6} className="p-4">
-                      <div className="grid gap-4 sm:grid-cols-2">
+                    <td colSpan={6} className="p-3">
+                      <div className="grid gap-3 sm:grid-cols-2">
                         <div>
-                          <p className="mb-1.5 font-medium text-text">Товари</p>
+                          <p className="mb-1 font-medium text-text">Товари</p>
                           <ul className="space-y-1 divide-y divide-border text-text-muted">
                             {order.items.map((item) => (
                               <li
                                 key={item.product_id}
-                                className="flex justify-between gap-3 py-1"
+                                className="flex justify-between gap-2 py-1"
                               >
                                 <span>
                                   {item.productName} × {item.quantity}
@@ -144,7 +144,7 @@ const OrdersTable = ({ orders }) => {
 const TabButton = ({ active, onClick, children }) => (
   <button
     onClick={onClick}
-    className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+    className={`rounded-full px-3.5 py-1 text-xs font-medium transition ${
       active
         ? 'bg-primary text-black'
         : 'bg-surface text-text-muted hover:bg-surface-hover hover:text-text'
@@ -216,9 +216,9 @@ export const AdminOrdersPage = () => {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-extrabold">Замовлення</h1>
+      <h1 className="mb-3 text-xl font-extrabold">Замовлення</h1>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-1.5">
         <TabButton active={tab === 'today'} onClick={() => handleTabChange('today')}>
           Сьогодні
         </TabButton>
@@ -233,7 +233,7 @@ export const AdminOrdersPage = () => {
           <select
             value={pointFilter}
             onChange={(e) => handlePointFilterChange(e.target.value)}
-            className="ml-auto rounded-full border border-border bg-surface-raised px-3.5 py-1.5 text-sm text-text outline-none focus:border-primary"
+            className="ml-auto rounded-full border border-border bg-surface-raised px-3 py-1 text-xs text-text outline-none focus:border-primary"
           >
             <option value="">Усі точки</option>
             {LOCATIONS.map((point) => (
@@ -246,14 +246,14 @@ export const AdminOrdersPage = () => {
       </div>
 
       {error && (
-        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-accent">
+        <p className="mb-3 rounded-xl border border-accent/30 bg-accent/10 px-3.5 py-2.5 text-accent">
           {error}
         </p>
       )}
 
       {tab !== 'search' &&
         (loading ? (
-          <p className="flex items-center gap-2 text-text-muted">
+          <p className="flex items-center gap-1.5 text-text-muted">
             <SpinnerIcon className="h-4 w-4 animate-spin" /> Завантаження…
           </p>
         ) : (
@@ -265,25 +265,25 @@ export const AdminOrdersPage = () => {
 
       {tab === 'search' && (
         <div>
-          <form onSubmit={handleSearch} className="mb-4 flex gap-2">
+          <form onSubmit={handleSearch} className="mb-3 flex gap-1.5">
             <div className="relative w-64">
               <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
               <input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Номер телефону"
-                className="w-full rounded-xl border border-border bg-surface-raised py-2 pl-9 pr-3 text-text placeholder:text-text-subtle outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+                className="w-full rounded-xl border border-border bg-surface-raised py-1.5 pl-9 pr-3 text-text placeholder:text-text-subtle outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
               />
             </div>
             <button
               type="submit"
-              className="rounded-xl bg-primary px-4 py-2 font-semibold text-black transition hover:bg-primary-light"
+              className="rounded-xl bg-primary px-3.5 py-1.5 font-semibold text-black transition hover:bg-primary-light"
             >
               Знайти
             </button>
           </form>
           {loading ? (
-            <p className="flex items-center gap-2 text-text-muted">
+            <p className="flex items-center gap-1.5 text-text-muted">
               <SpinnerIcon className="h-4 w-4 animate-spin" /> Завантаження…
             </p>
           ) : (

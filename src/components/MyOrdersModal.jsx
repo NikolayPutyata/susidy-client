@@ -1,20 +1,13 @@
 import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { updateMyBirthday } from '../api/auth.js'
 import { fetchMyOrders } from '../api/orders.js'
 import { fetchAllProducts } from '../api/products.js'
 import { useCart } from '../hooks/useCart.js'
 import { useCity } from '../hooks/useCity.js'
 import { useModals } from '../hooks/useModals.js'
 import { getErrorMessage } from '../lib/errors.js'
-import { selectUser, setUser } from '../store/userSlice.js'
 import { CloseIcon, ReceiptIcon, SpinnerIcon } from './icons.jsx'
 
-const todayIso = () => new Date().toISOString().slice(0, 10)
-
 export const MyOrdersModal = () => {
-  const dispatch = useDispatch()
-  const user = useSelector(selectUser)
   const { addItems } = useCart()
   const { getPrice } = useCity()
   const { myOrdersOpen: open, closeMyOrders, openCheckout } = useModals()
@@ -23,8 +16,6 @@ export const MyOrdersModal = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [repeatingId, setRepeatingId] = useState(null)
-  const [birthdayInput, setBirthdayInput] = useState('')
-  const [savingBirthday, setSavingBirthday] = useState(false)
 
   useEffect(() => {
     if (!open) return
@@ -40,22 +31,6 @@ export const MyOrdersModal = () => {
   }, [open])
 
   if (!open) return null
-
-  const handleSaveBirthday = async (e) => {
-    e.preventDefault()
-    if (!birthdayInput) return
-
-    setSavingBirthday(true)
-    setError('')
-    try {
-      const updated = await updateMyBirthday(birthdayInput)
-      dispatch(setUser(updated))
-    } catch (err) {
-      setError(getErrorMessage(err))
-    } finally {
-      setSavingBirthday(false)
-    }
-  }
 
   const handleRepeat = async (order) => {
     setRepeatingId(order._id)
@@ -100,40 +75,6 @@ export const MyOrdersModal = () => {
         </div>
 
         <div className="overflow-y-auto">
-          <div className="mb-4 rounded-2xl border border-border bg-surface-raised p-4">
-            {user?.birthday ? (
-              <p className="text-sm text-text-muted">
-                День народження:{' '}
-                <span className="font-medium text-text">
-                  {new Date(user.birthday).toLocaleDateString('uk-UA')}
-                </span>
-              </p>
-            ) : (
-              <form onSubmit={handleSaveBirthday} className="flex flex-wrap items-end gap-2">
-                <div>
-                  <label className="mb-1 block text-sm text-text-muted">
-                    День народження (необов'язково, вказати можна лише раз)
-                  </label>
-                  <input
-                    type="date"
-                    value={birthdayInput}
-                    onChange={(e) => setBirthdayInput(e.target.value)}
-                    max={todayIso()}
-                    className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={!birthdayInput || savingBirthday}
-                  className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
-                >
-                  {savingBirthday && <SpinnerIcon className="h-3.5 w-3.5 animate-spin" />}
-                  Зберегти
-                </button>
-              </form>
-            )}
-          </div>
-
           {error && (
             <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-accent">
               {error}

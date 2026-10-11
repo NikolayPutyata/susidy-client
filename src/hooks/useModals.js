@@ -4,14 +4,17 @@ import {
   closeCheckout,
   closeLogin,
   closeMyOrders,
+  closeProfile,
   closeRegister,
   openCheckout,
   openLogin,
   openMyOrders,
+  openProfile,
   openRegister,
   selectCheckoutOpen,
   selectLoginOpen,
   selectMyOrdersOpen,
+  selectProfileOpen,
   selectRegisterOpen,
 } from '../store/uiSlice.js'
 
@@ -26,6 +29,7 @@ export const useModals = () => {
     registerOpen: useAppSelector(selectRegisterOpen),
     myOrdersOpen: useAppSelector(selectMyOrdersOpen),
     checkoutOpen: useAppSelector(selectCheckoutOpen),
+    profileOpen: useAppSelector(selectProfileOpen),
     openLogin: useCallback(() => dispatch(openLogin()), [dispatch]),
     closeLogin: useCallback(() => dispatch(closeLogin()), [dispatch]),
     openRegister: useCallback(() => dispatch(openRegister()), [dispatch]),
@@ -34,5 +38,7 @@ export const useModals = () => {
     closeMyOrders: useCallback(() => dispatch(closeMyOrders()), [dispatch]),
     openCheckout: useCallback(() => dispatch(openCheckout()), [dispatch]),
     closeCheckout: useCallback(() => dispatch(closeCheckout()), [dispatch]),
+    openProfile: useCallback(() => dispatch(openProfile()), [dispatch]),
+    closeProfile: useCallback(() => dispatch(closeProfile()), [dispatch]),
   }
 }

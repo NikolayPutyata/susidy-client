@@ -13,13 +13,14 @@ import { Pagination } from '../../components/Pagination.jsx'
 
 const toIsoDate = (date) => (date ? date.toISOString().slice(0, 10) : undefined)
 
-const PER_PAGE = 10
+const PER_PAGE_OPTIONS = [20, 50, 100]
 
 export const AdminUsersPage = () => {
   const [users, setUsers] = useState([])
   const [phone, setPhone] = useState('')
   const [activePhone, setActivePhone] = useState('')
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(PER_PAGE_OPTIONS[0])
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -28,15 +29,16 @@ export const AdminUsersPage = () => {
   const [exportTo, setExportTo] = useState(null)
   const [exportCity, setExportCity] = useState('')
   const [exporting, setExporting] = useState(false)
+  const [sortBy, setSortBy] = useState('')
   const [sortDir, setSortDir] = useState('')
 
   useEffect(() => {
     setLoading(true)
     setError('')
-    const sortParams = sortDir ? { sortBy: 'ordersCount', sortDir } : {}
+    const sortParams = sortBy ? { sortBy, sortDir } : {}
     const request = activePhone
-      ? searchAdminUsers({ phone: activePhone, page, perPage: PER_PAGE, ...sortParams })
-      : fetchAdminUsers({ page, perPage: PER_PAGE, ...sortParams })
+      ? searchAdminUsers({ phone: activePhone, page, perPage, ...sortParams })
+      : fetchAdminUsers({ page, perPage, ...sortParams })
 
     request
       .then((res) => {
@@ -45,11 +47,30 @@ export const AdminUsersPage = () => {
       })
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false))
-  }, [page, activePhone, sortDir])
+  }, [page, perPage, activePhone, sortBy, sortDir])
 
-  const toggleOrdersSort = () => {
+  const toggleSort = (field) => {
     setPage(1)
-    setSortDir((prev) => (prev === 'desc' ? 'asc' : 'desc'))
+    if (sortBy !== field) {
+      setSortBy(field)
+      setSortDir('desc')
+    } else {
+      setSortDir((prev) => (prev === 'desc' ? 'asc' : 'desc'))
+    }
+  }
+
+  const handlePerPageChange = (value) => {
+    setPage(1)
+    setPerPage(value)
+  }
+
+  const sortIcon = (field) => {
+    if (sortBy !== field) return <SortDescIcon className="h-3.5 w-3.5 opacity-30" />
+    return sortDir === 'asc' ? (
+      <SortAscIcon className="h-3.5 w-3.5" />
+    ) : (
+      <SortDescIcon className="h-3.5 w-3.5" />
+    )
   }
 
   const handleSearch = (e) => {
@@ -112,37 +133,37 @@ export const AdminUsersPage = () => {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-extrabold">Клієнти</h1>
+      <h1 className="mb-3 text-xl font-extrabold">Клієнти</h1>
 
-      <form onSubmit={handleSearch} className="mb-4 flex flex-wrap gap-2">
+      <form onSubmit={handleSearch} className="mb-3 flex flex-wrap gap-1.5">
         <div className="relative w-64">
           <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Пошук за телефоном"
-            className="w-full rounded-xl border border-border bg-surface-raised py-2 pl-9 pr-3 text-text placeholder:text-text-subtle outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-xl border border-border bg-surface-raised py-1.5 pl-9 pr-3 text-text placeholder:text-text-subtle outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
           />
         </div>
         <button
           type="submit"
-          className="rounded-xl bg-primary px-4 py-2 font-semibold text-black transition hover:bg-primary-light"
+          className="rounded-xl bg-primary px-3.5 py-1.5 font-semibold text-black transition hover:bg-primary-light"
         >
           Знайти
         </button>
         <button
           type="button"
           onClick={handleResetSearch}
-          className="rounded-xl bg-surface px-4 py-2 font-medium text-text-muted transition hover:bg-surface-hover hover:text-text"
+          className="rounded-xl bg-surface px-3.5 py-1.5 font-medium text-text-muted transition hover:bg-surface-hover hover:text-text"
         >
           Скинути
         </button>
       </form>
 
-      <div className="mb-6 flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-surface p-4">
+      <div className="mb-4 flex flex-wrap items-end gap-2 rounded-2xl border border-border bg-surface p-3">
         <div>
-          <p className="mb-1.5 text-sm text-text-muted">Період (необов'язково)</p>
-          <div className="flex items-center gap-2">
+          <p className="mb-1 text-xs text-text-muted">Період (необов'язково)</p>
+          <div className="flex items-center gap-1.5">
             <DatePicker
               selected={exportFrom}
               onChange={setExportFrom}
@@ -151,7 +172,7 @@ export const AdminUsersPage = () => {
               endDate={exportTo}
               dateFormat="dd.MM.yyyy"
               placeholderText="Від"
-              className="w-32 rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+              className="w-32 rounded-xl border border-border bg-surface-raised px-2.5 py-1.5 text-xs text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
             />
             <span className="text-text-subtle">—</span>
             <DatePicker
@@ -163,16 +184,16 @@ export const AdminUsersPage = () => {
               minDate={exportFrom}
               dateFormat="dd.MM.yyyy"
               placeholderText="До"
-              className="w-32 rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+              className="w-32 rounded-xl border border-border bg-surface-raised px-2.5 py-1.5 text-xs text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </div>
         <div>
-          <p className="mb-1.5 text-sm text-text-muted">Місто (необов'язково)</p>
+          <p className="mb-1 text-xs text-text-muted">Місто (необов'язково)</p>
           <select
             value={exportCity}
             onChange={(e) => setExportCity(e.target.value)}
-            className="rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+            className="rounded-xl border border-border bg-surface-raised px-2.5 py-1.5 text-xs text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
           >
             <option value="">Усі міста</option>
             {CITIES.map((c) => (
@@ -186,7 +207,7 @@ export const AdminUsersPage = () => {
           type="button"
           onClick={handleExport}
           disabled={exporting}
-          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
+          className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
         >
           {exporting ? (
             <SpinnerIcon className="h-4 w-4 animate-spin" />
@@ -200,39 +221,43 @@ export const AdminUsersPage = () => {
       </div>
 
       {error && (
-        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-accent">
+        <p className="mb-3 rounded-xl border border-accent/30 bg-accent/10 px-3.5 py-2.5 text-accent">
           {error}
         </p>
       )}
 
       {loading ? (
-        <p className="flex items-center gap-2 text-text-muted">
+        <p className="flex items-center gap-1.5 text-text-muted">
           <SpinnerIcon className="h-4 w-4 animate-spin" /> Завантаження…
         </p>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-border text-text-subtle">
-                <th className="p-3 font-medium">Ім'я</th>
-                <th className="p-3 font-medium">Телефон</th>
-                <th className="p-3 font-medium">
+                <th className="p-2 font-medium">Ім'я</th>
+                <th className="p-2 font-medium">Телефон</th>
+                <th className="p-2 font-medium">
                   <button
                     type="button"
-                    onClick={toggleOrdersSort}
+                    onClick={() => toggleSort('ordersCount')}
                     className="flex items-center gap-1 font-medium text-text-subtle transition hover:text-text"
                   >
                     Замовлень
-                    {sortDir === 'asc' ? (
-                      <SortAscIcon className="h-3.5 w-3.5" />
-                    ) : sortDir === 'desc' ? (
-                      <SortDescIcon className="h-3.5 w-3.5" />
-                    ) : (
-                      <SortDescIcon className="h-3.5 w-3.5 opacity-30" />
-                    )}
+                    {sortIcon('ordersCount')}
                   </button>
                 </th>
-                <th className="p-3 font-medium">Знижка, %</th>
+                <th className="p-2 font-medium">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('totalSpent')}
+                    className="flex items-center gap-1 font-medium text-text-subtle transition hover:text-text"
+                  >
+                    Сума, ₴
+                    {sortIcon('totalSpent')}
+                  </button>
+                </th>
+                <th className="p-2 font-medium">Знижка, %</th>
               </tr>
             </thead>
             <tbody>
@@ -241,10 +266,11 @@ export const AdminUsersPage = () => {
                   key={u._id}
                   className="border-b border-border last:border-0 hover:bg-surface-hover"
                 >
-                  <td className="p-3 font-medium">{u.name}</td>
-                  <td className="p-3 text-text-muted">{u.phoneNumber}</td>
-                  <td className="p-3 text-text-muted">{u.ordersCount ?? 0}</td>
-                  <td className="p-3">
+                  <td className="p-2 font-medium">{u.name}</td>
+                  <td className="p-2 text-text-muted">{u.phoneNumber}</td>
+                  <td className="p-2 text-text-muted">{u.ordersCount ?? 0}</td>
+                  <td className="p-2 text-text-muted">{u.totalSpent ?? 0} ₴</td>
+                  <td className="p-2">
                     <input
                       type="number"
                       min={0}
@@ -262,7 +288,14 @@ export const AdminUsersPage = () => {
         </div>
       )}
 
-      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        perPage={perPage}
+        perPageOptions={PER_PAGE_OPTIONS}
+        onPerPageChange={handlePerPageChange}
+      />
     </div>
   )
 }

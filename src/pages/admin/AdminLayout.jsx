@@ -2,7 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { BoxIcon, ReceiptIcon, UsersIcon } from '../../components/icons.jsx'
 
 const linkClass = ({ isActive }) =>
-  `flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium transition ${
+  `flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition ${
     isActive
       ? 'bg-primary text-black'
       : 'text-text-muted hover:bg-surface-hover hover:text-text'
@@ -10,12 +10,12 @@ const linkClass = ({ isActive }) =>
 
 export const AdminLayout = () => {
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:gap-8 mt-12">
+    <div className="flex flex-col gap-4 lg:flex-row lg:gap-6 mt-8">
       <aside className="lg:w-56 lg:shrink-0">
-        <p className="mb-3 hidden text-xs font-semibold uppercase tracking-widest text-text-subtle lg:block">
+        <p className="mb-2 hidden text-xs font-semibold uppercase tracking-widest text-text-subtle lg:block">
           Адмін панель
         </p>
-        <nav className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
+        <nav className="flex gap-1.5 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
           <NavLink to="/admin/orders" className={linkClass}>
             <ReceiptIcon className="h-4.5 w-4.5" />
             Замовлення

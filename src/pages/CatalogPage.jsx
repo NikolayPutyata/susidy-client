@@ -1,12 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { fetchAllProducts, fetchProductsByCategory } from '../api/products.js'
-import { useModals } from '../hooks/useModals.js'
-import { CATEGORIES, FAVORITES_CATEGORY } from '../lib/constants.js'
+import { CATEGORIES } from '../lib/constants.js'
 import { ProductCard } from '../components/ProductCard.jsx'
 import { getErrorMessage } from '../lib/errors.js'
-import { selectIsAuthenticated, selectUser } from '../store/userSlice.js'
 
 // TODO: замінити --hero-bg на реальне фото (наразі — абстрактний градієнт-заглушка).
 const Hero = () => (
@@ -28,9 +25,6 @@ const Hero = () => (
 )
 
 export const CatalogPage = () => {
-  const user = useSelector(selectUser)
-  const isAuthenticated = useSelector(selectIsAuthenticated)
-  const { openLogin } = useModals()
   const [searchParams, setSearchParams] = useSearchParams()
   const category = searchParams.get('category') || 'all'
   const [products, setProducts] = useState([])
@@ -38,11 +32,6 @@ export const CatalogPage = () => {
   const [error, setError] = useState('')
 
   const setCategory = (value) => {
-    if (value === FAVORITES_CATEGORY.value && !isAuthenticated) {
-      openLogin()
-      return
-    }
-
     if (value === 'all') {
       setSearchParams({})
     } else {
@@ -55,11 +44,8 @@ export const CatalogPage = () => {
     setLoading(true)
     setError('')
 
-    // "Улюблене" is not a real backend category — it's a client-side
-    // filter over whatever the user has favorited, which can span any
-    // category, so it fetches the whole catalog like "Все меню" does.
     const request =
-      category === 'all' || category === FAVORITES_CATEGORY.value
+      category === 'all'
         ? fetchAllProducts()
         : fetchProductsByCategory(category)
 
@@ -79,16 +65,14 @@ export const CatalogPage = () => {
     }
   }, [category])
 
-  const displayedProducts = useMemo(() => {
-    if (category !== FAVORITES_CATEGORY.value) return products
-    return products.filter((product) => user?.favorites?.includes(product._id))
-  }, [products, category, user])
-
   return (
     <div>
       <Hero />
 
-      <div className="sticky top-0 z-10 -mx-4 mb-6 hidden bg-bg/95 px-4 py-3 backdrop-blur sm:block">
+      {/* z-20: must paint above ProductCard's favorite-heart button (z-10) —
+          with equal z-index, the later-in-DOM product grid would otherwise
+          win the tie-break and show through this bar while scrolling. */}
+      <div className="sticky top-0 z-20 -mx-4 mb-6 hidden bg-bg/95 px-4 py-3 backdrop-blur sm:block">
         <div className="flex justify-center gap-2 overflow-x-auto pb-1">
           <button
             onClick={() => setCategory('all')}
@@ -113,16 +97,6 @@ export const CatalogPage = () => {
               {c.label}
             </button>
           ))}
-          <button
-            onClick={() => setCategory(FAVORITES_CATEGORY.value)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition ${
-              category === FAVORITES_CATEGORY.value
-                ? 'bg-primary text-black'
-                : 'bg-surface text-text-muted hover:bg-surface-hover hover:text-text'
-            }`}
-          >
-            {FAVORITES_CATEGORY.label}
-          </button>
         </div>
       </div>
 
@@ -132,16 +106,14 @@ export const CatalogPage = () => {
         </p>
       )}
 
-      {!loading && displayedProducts.length === 0 && !error && (
+      {!loading && products.length === 0 && !error && (
         <p className="py-12 text-center text-text-muted">
-          {category === FAVORITES_CATEGORY.value
-            ? 'У вас поки немає улюблених позицій.'
-            : 'У цій категорії поки нічого немає.'}
+          У цій категорії поки нічого немає.
         </p>
       )}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        {displayedProducts.map((product) => (
+        {products.map((product) => (
           <ProductCard key={product._id} product={product} />
         ))}
       </div>

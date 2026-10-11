@@ -13,6 +13,9 @@ export const refreshRequest = () =>
 
 export const fetchMe = () => apiClient.get('/auth/me').then((r) => r.data.data)
 
+export const updateMyProfile = (payload) =>
+  apiClient.patch('/auth/me', payload).then((r) => r.data.data)
+
 export const updateMyBirthday = (birthday) =>
   apiClient.patch('/auth/me/birthday', { birthday }).then((r) => r.data.data)
 
