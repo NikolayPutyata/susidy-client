@@ -12,10 +12,9 @@ import { SpinnerIcon, TrashIcon, UploadIcon } from '../../components/icons.jsx'
 
 const pointById = Object.fromEntries(LOCATIONS.map((point) => [point.id, point]))
 
-const pointLabel = (pointId) => {
-  const point = pointById[pointId]
-  return point ? `${CITY_LABELS[point.city]} · ${point.address}` : pointId
-}
+// Short label for the per-product stop chips — just the address, no city,
+// so it fits on one line instead of wrapping inside the table column.
+const pointAddress = (pointId) => pointById[pointId]?.address ?? pointId
 
 const emptyForm = {
   name: '',
@@ -287,15 +286,20 @@ export const AdminProductsPage = () => {
                   {category.label} · {categoryProducts.length}
                 </h3>
                 <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full table-fixed text-left text-xs">
+                    <colgroup>
+                      <col className="w-[180px]" />
+                      <col className="w-[100px]" />
+                      <col className="w-[220px]" />
+                      <col className="w-[160px]" />
+                      <col className="w-[190px]" />
+                    </colgroup>
                     <thead>
                       <tr className="border-b border-border text-text-subtle">
                         <th className="p-2 font-medium">Назва</th>
                         <th className="p-2 font-medium">Ціна, Київ / Харків</th>
                         <th className="p-2 font-medium">Стоп на точках</th>
-                        {pointFilter && (
-                          <th className="p-2 font-medium">На обраній точці</th>
-                        )}
+                        <th className="p-2 font-medium">На обраній точці</th>
                         <th className="p-2 font-medium">Дії</th>
                       </tr>
                     </thead>
@@ -312,7 +316,7 @@ export const AdminProductsPage = () => {
                               stoppedHere ? 'bg-accent/5' : ''
                             }`}
                           >
-                            <td className="p-2 font-medium">
+                            <td className="truncate p-2 font-medium">
                               {product.name}
                               {product.weight > 0 && (
                                 <span className="ml-1 text-xs font-normal text-text-subtle">
@@ -329,13 +333,13 @@ export const AdminProductsPage = () => {
                                   {product.stoppedPoints.map((pointId) => (
                                     <span
                                       key={pointId}
-                                      className={`rounded-full px-2 py-0.5 text-xs ${
+                                      className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs ${
                                         pointId === pointFilter
                                           ? 'bg-accent/20 text-accent'
                                           : 'bg-surface-raised text-text-subtle'
                                       }`}
                                     >
-                                      {pointLabel(pointId)}
+                                      {pointAddress(pointId)}
                                     </span>
                                   ))}
                                 </div>
@@ -343,23 +347,25 @@ export const AdminProductsPage = () => {
                                 <span className="text-xs text-text-subtle">—</span>
                               )}
                             </td>
-                            {pointFilter && (
-                              <td className="p-2">
+                            <td className="p-2">
+                              {pointFilter ? (
                                 <button
                                   onClick={() => handleToggleStop(product)}
                                   disabled={stopBusyId === product._id}
-                                  className={`rounded-full px-2.5 py-1 text-xs font-semibold transition disabled:opacity-50 ${
+                                  className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold transition disabled:opacity-50 ${
                                     stoppedHere
                                       ? 'bg-accent/20 text-accent hover:bg-accent/30'
                                       : 'bg-primary/15 text-primary-light hover:bg-primary/25'
                                   }`}
                                 >
-                                  {stoppedHere
-                                    ? 'Немає на точці · повернути'
-                                    : 'В продажі · поставити на стоп'}
+                                  {stoppedHere ? 'Повернути' : 'Поставити на стоп'}
                                 </button>
-                              </td>
-                            )}
+                              ) : (
+                                <span className="text-xs text-text-subtle">
+                                  Оберіть точку
+                                </span>
+                              )}
+                            </td>
                             <td className="p-2">
                               <div className="flex gap-2 text-xs">
                                 <button
