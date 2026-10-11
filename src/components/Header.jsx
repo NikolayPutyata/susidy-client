@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useCity } from '../hooks/useCity.js'
+import { useModals } from '../hooks/useModals.js'
 import { CATEGORIES, CITIES, SOCIAL_LINKS } from '../lib/constants.js'
 import { Logo } from './Logo.jsx'
-import { LoginModal } from './LoginModal.jsx'
 import { CartIcon, CloseIcon, FacebookIcon, InstagramIcon, MenuIcon } from './icons.jsx'
 
 const menuLinkClass =
@@ -18,6 +18,7 @@ const CLOSE_ANIMATION_MS = 200
 const MobileMenu = ({ open, onClose, onLoginClick }) => {
   const { user, isAdmin, logout } = useAuth()
   const { city, setCity } = useCity()
+  const { openMyOrders } = useModals()
   const navigate = useNavigate()
   const [rendered, setRendered] = useState(open)
   const [closing, setClosing] = useState(false)
@@ -110,9 +111,15 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
 
         <div className="mt-auto flex flex-col gap-1 border-t border-border px-3 py-3">
           {user && (
-            <Link to="/orders" onClick={onClose} className={menuLinkClass}>
+            <button
+              onClick={() => {
+                onClose()
+                openMyOrders()
+              }}
+              className={`text-left ${menuLinkClass}`}
+            >
               Мої замовлення
-            </Link>
+            </button>
           )}
           {isAdmin && (
             <Link to="/admin" onClick={onClose} className={menuLinkClass}>
@@ -174,8 +181,8 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
 
 export const Header = () => {
   const { itemsCount, openDrawer } = useCart()
+  const { openLogin } = useModals()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [loginOpen, setLoginOpen] = useState(false)
 
   return (
     <>
@@ -205,9 +212,8 @@ export const Header = () => {
       <MobileMenu
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
-        onLoginClick={() => setLoginOpen(true)}
+        onLoginClick={openLogin}
       />
-      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </>
   )
 }

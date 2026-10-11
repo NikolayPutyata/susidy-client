@@ -14,6 +14,11 @@ export const CATEGORY_LABELS = Object.fromEntries(
   CATEGORIES.map((category) => [category.value, category.label]),
 )
 
+// Not a real product category — a client-side filter over the user's own
+// favorites, so it's kept out of CATEGORIES (used for product creation
+// and real category matching) and handled separately in CatalogPage.
+export const FAVORITES_CATEGORY = { value: 'favorites', label: 'Улюблене' }
+
 export const CITIES = [
   { value: 'kyiv', label: 'Київ', priceField: 'priceKiev' },
   { value: 'kharkiv', label: 'Харків', priceField: 'priceKharkov' },

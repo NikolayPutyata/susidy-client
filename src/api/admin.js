@@ -19,9 +19,9 @@ export const deleteAdminProduct = (id) => apiClient.delete(`/admin/products/${id
 export const fetchAdminUsers = (params) =>
   apiClient.get('/admin/users', { params }).then((r) => r.data)
 
-export const searchAdminUsers = ({ phone, page, perPage }) =>
+export const searchAdminUsers = ({ phone, page, perPage, sortBy, sortDir }) =>
   apiClient
-    .get('/admin/users/search', { params: { phone, page, perPage } })
+    .get('/admin/users/search', { params: { phone, page, perPage, sortBy, sortDir } })
     .then((r) => r.data)
 
 export const updateUserDiscountRequest = (id, discount) =>

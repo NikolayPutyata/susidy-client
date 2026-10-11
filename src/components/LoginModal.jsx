@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
+import { useModals } from '../hooks/useModals.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { CloseIcon, SpinnerIcon } from './icons.jsx'
 
@@ -9,13 +9,14 @@ const inputClass =
 
 const emptyForm = { phoneNumber: '', password: '' }
 
-export const LoginModal = ({ open, onClose }) => {
+export const LoginModal = () => {
   const { login } = useAuth()
+  const { loginOpen: open, closeLogin, openRegister } = useModals()
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  // Компонент ніколи не розмонтовується (Header завжди його рендерить, сам
+  // Компонент ніколи не розмонтовується (App завжди його рендерить, сам
   // лише ховає) — без цього стара пошта/пароль лишались би в полях між
   // логінами.
   useEffect(() => {
@@ -36,7 +37,7 @@ export const LoginModal = ({ open, onClose }) => {
     setError('')
     try {
       await login(form)
-      onClose()
+      closeLogin()
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {
@@ -48,7 +49,7 @@ export const LoginModal = ({ open, onClose }) => {
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 animate-fade-in">
       <div className="relative w-full max-w-sm rounded-3xl border border-border bg-surface p-6">
         <button
-          onClick={onClose}
+          onClick={closeLogin}
           aria-label="Закрити"
           className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-hover hover:text-text"
         >
@@ -87,9 +88,13 @@ export const LoginModal = ({ open, onClose }) => {
         </form>
         <p className="mt-4 text-center text-sm text-text-muted">
           Немає акаунта?{' '}
-          <Link to="/register" onClick={onClose} className="text-primary-light underline">
+          <button
+            type="button"
+            onClick={openRegister}
+            className="text-primary-light underline"
+          >
             Зареєструватися
-          </Link>
+          </button>
         </p>
       </div>
     </div>

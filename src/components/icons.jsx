@@ -161,6 +161,34 @@ export const PhoneIcon = (props) => (
   </svg>
 )
 
+export const SortAscIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+    <path d="M12 19V5m0 0-5 5m5-5 5 5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
+export const SortDescIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+    <path d="M12 5v14m0 0-5-5m5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
+export const HeartIcon = ({ filled, ...props }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    strokeWidth="1.8"
+    {...props}
+  >
+    <path
+      d="M12 20.3 4.6 13c-2-2-2-5.3 0-7.3 2-2 5.2-2 7.1.1l.3.3.3-.3c1.9-2.1 5.1-2.1 7.1-.1 2 2 2 5.3 0 7.3L12 20.3Z"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
 export const SpinnerIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="none" {...props}>
     <circle
