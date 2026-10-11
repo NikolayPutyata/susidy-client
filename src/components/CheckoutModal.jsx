@@ -1,0 +1,426 @@
+import { useEffect, useState } from 'react'
+import { useCart } from '../hooks/useCart.js'
+import { useAuth } from '../hooks/useAuth.js'
+import { useCity } from '../hooks/useCity.js'
+import { useModals } from '../hooks/useModals.js'
+import { getErrorMessage } from '../lib/errors.js'
+import { LOCATIONS, TIME_SLOTS } from '../lib/constants.js'
+import { CheckCircleIcon, CloseIcon, SpinnerIcon } from './icons.jsx'
+import { QuantityStepper } from './QuantityStepper.jsx'
+import { PaymentMethodModal } from './PaymentMethodModal.jsx'
+import { OrderTotal, useDiscountedTotal } from './OrderTotal.jsx'
+
+const Field = ({ label, children }) => (
+  <div>
+    <label className="mb-1.5 block text-sm text-text-muted">{label}</label>
+    {children}
+  </div>
+)
+
+const inputClass =
+  'w-full rounded-xl border border-border bg-surface-raised px-4 py-2.5 text-text placeholder:text-text-subtle outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30'
+
+const segmentButtonClass = (active) =>
+  `flex-1 rounded-xl py-2.5 text-sm font-semibold transition ${
+    active
+      ? 'bg-primary text-black'
+      : 'bg-surface-raised text-text-muted hover:text-text'
+  }`
+
+const initialForm = (user) => ({
+  name: user?.name || '',
+  phoneNumber: user?.phoneNumber || '',
+  fulfillment: 'delivery',
+  street: '',
+  building: '',
+  apartment: '',
+  isPrivateHouse: false,
+  pickupPointId: '',
+  requestedTime: 'asap',
+  cutlery: 1,
+  details: '',
+  noCallback: false,
+})
+
+export const CheckoutModal = () => {
+  const { items, total, checkout } = useCart()
+  const { user } = useAuth()
+  const { city, cityLabel } = useCity()
+  const { discounted } = useDiscountedTotal(total)
+  const { checkoutOpen: open, closeCheckout } = useModals()
+  const [form, setForm] = useState(() => initialForm(user))
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  const [orderResult, setOrderResult] = useState(null)
+
+  const pickupOptions = LOCATIONS.filter((l) => l.city === city)
+
+  // Компонент не розмонтовується між відкриттями — скидаємо форму і
+  // результат попереднього замовлення щоразу, коли модалка відкривається.
+  useEffect(() => {
+    if (!open) return
+    setForm(initialForm(user))
+    setError('')
+    setOrderResult(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+
+  // Дефолтна точка самовивозу — перша для обраного міста, і перемикається
+  // разом з ним (а також перераховується щоразу, коли модалку відкривають
+  // наново, бо ефект вище щойно скинув pickupPointId).
+  useEffect(() => {
+    setForm((prev) =>
+      pickupOptions.some((p) => p.id === prev.pickupPointId)
+        ? prev
+        : { ...prev, pickupPointId: pickupOptions[0]?.id || '' },
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [city, open])
+
+  if (!open) return null
+
+  const handleChange = (e) => {
+    const { name, type, checked, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setSubmitting(true)
+    setError('')
+    try {
+      const pickupPoint = pickupOptions.find((p) => p.id === form.pickupPointId)
+      const order = await checkout({
+        ...form,
+        city,
+        paymentMethod: 'cod',
+        pickupAddress: pickupPoint?.address || '',
+      })
+      setOrderResult(order)
+    } catch (err) {
+      setError(getErrorMessage(err))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 animate-fade-in">
+      <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-3xl border border-border bg-surface p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold">
+            {orderResult ? 'Замовлення оформлено' : 'Ваше замовлення, любий сусіде:'}
+          </h2>
+          <button
+            onClick={closeCheckout}
+            aria-label="Закрити"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-hover hover:text-text"
+          >
+            <CloseIcon className="h-4.5 w-4.5" />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto">
+          {orderResult ? (
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-primary-light">
+                <CheckCircleIcon className="h-9 w-9" />
+              </div>
+              <p className="mb-6 text-text-muted">
+                Дякуємо за замовлення! Ми зателефонуємо для підтвердження найближчим часом.
+              </p>
+
+              <div className="rounded-2xl border border-border bg-surface-raised p-5 text-left">
+                <p className="mb-3 font-semibold">
+                  Замовлення №{orderResult._id.slice(-6).toUpperCase()}
+                </p>
+                <ul className="mb-3 divide-y divide-border">
+                  {orderResult.items.map((item) => (
+                    <li
+                      key={item.product_id}
+                      className="flex justify-between py-1.5 text-sm text-text-muted"
+                    >
+                      <span>
+                        {item.productName} × {item.quantity}
+                      </span>
+                      <span className="text-text">
+                        {item.price * item.quantity} ₴
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex items-center justify-between border-t border-border pt-3">
+                  <span className="text-text-muted">Разом до сплати:</span>
+                  <span className="text-xl font-extrabold text-accent">
+                    {orderResult.total} ₴
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={closeCheckout}
+                className="mt-6 inline-block rounded-full bg-primary px-5 py-2 font-semibold text-black transition hover:bg-primary-light"
+              >
+                Повернутись до меню
+              </button>
+            </div>
+          ) : items.length === 0 ? (
+            <p className="py-16 text-center text-text-muted">Кошик порожній.</p>
+          ) : (
+            <>
+              <div className="mb-6 rounded-2xl border border-border bg-surface-raised p-5">
+                <ul className="mb-3 space-y-1.5 divide-y divide-border text-sm">
+                  {items.map((item) => (
+                    <li
+                      key={item.product_id}
+                      className="flex items-center gap-3 py-1.5 text-text-muted"
+                    >
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-black">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.productName}
+                            className="h-full w-full object-contain"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-sm">
+                            🍣
+                          </div>
+                        )}
+                      </div>
+                      <span className="min-w-0 flex-1 truncate">
+                        {item.productName} × {item.quantity}
+                      </span>
+                      <span className="shrink-0 text-text">
+                        {item.price * item.quantity} ₴
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="border-t border-border pt-3">
+                  <OrderTotal total={total} size="lg" />
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="flex items-center justify-between rounded-xl bg-surface-raised px-4 py-2.5 text-sm">
+                  <span className="text-text-muted">Місто</span>
+                  <span className="font-semibold text-text">{cityLabel}</span>
+                </div>
+
+                <Field label="Ім'я">
+                  <input
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                    className={inputClass}
+                  />
+                </Field>
+
+                <Field label="Телефон (10 цифр)">
+                  <input
+                    name="phoneNumber"
+                    value={form.phoneNumber}
+                    onChange={handleChange}
+                    required
+                    pattern="[0-9]{10}"
+                    placeholder="0991234567"
+                    className={inputClass}
+                  />
+                </Field>
+
+                <div>
+                  <label className="mb-1.5 block text-sm text-text-muted">Отримання</label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, fulfillment: 'delivery' }))}
+                      className={segmentButtonClass(form.fulfillment === 'delivery')}
+                    >
+                      Доставка
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          fulfillment: 'pickup',
+                          requestedTime:
+                            prev.requestedTime === 'asap' ? TIME_SLOTS[0] : prev.requestedTime,
+                        }))
+                      }
+                      className={segmentButtonClass(form.fulfillment === 'pickup')}
+                    >
+                      Самовивіз
+                    </button>
+                  </div>
+                </div>
+
+                <Field label={form.fulfillment === 'pickup' ? 'Час самовивозу' : 'Час доставки'}>
+                  <select
+                    name="requestedTime"
+                    value={form.requestedTime}
+                    onChange={handleChange}
+                    required
+                    className={inputClass}
+                  >
+                    {form.fulfillment === 'delivery' && (
+                      <option value="asap">Якнайшвидше</option>
+                    )}
+                    {TIME_SLOTS.map((slot) => (
+                      <option key={slot} value={slot}>
+                        {slot}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                {form.fulfillment === 'pickup' ? (
+                  <div>
+                    <label className="mb-1.5 block text-sm text-text-muted">
+                      Точка самовивозу
+                    </label>
+                    <div className="space-y-2">
+                      {pickupOptions.map((point) => (
+                        <label
+                          key={point.id}
+                          className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm transition ${
+                            form.pickupPointId === point.id
+                              ? 'border-primary bg-primary/10 text-text'
+                              : 'border-border bg-surface-raised text-text-muted hover:text-text'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="pickupPointId"
+                            value={point.id}
+                            checked={form.pickupPointId === point.id}
+                            onChange={handleChange}
+                            className="h-4 w-4 accent-primary"
+                          />
+                          {point.address}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Вулиця">
+                        <input
+                          name="street"
+                          value={form.street}
+                          onChange={handleChange}
+                          required
+                          className={inputClass}
+                        />
+                      </Field>
+                      <Field label="Будинок">
+                        <input
+                          name="building"
+                          value={form.building}
+                          onChange={handleChange}
+                          required
+                          className={inputClass}
+                        />
+                      </Field>
+                    </div>
+
+                    {!form.isPrivateHouse && (
+                      <Field label="Квартира">
+                        <input
+                          name="apartment"
+                          value={form.apartment}
+                          onChange={handleChange}
+                          required
+                          className={inputClass}
+                        />
+                      </Field>
+                    )}
+                    <label className="flex items-center gap-2 text-sm text-text-muted">
+                      <input
+                        type="checkbox"
+                        name="isPrivateHouse"
+                        checked={form.isPrivateHouse}
+                        onChange={handleChange}
+                        className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
+                      />
+                      Приватний будинок
+                    </label>
+                  </>
+                )}
+
+                <div>
+                  <label className="mb-1.5 block text-sm text-text-muted">
+                    Кількість приборів
+                  </label>
+                  <QuantityStepper
+                    quantity={form.cutlery}
+                    onDecrease={() =>
+                      setForm((prev) => ({ ...prev, cutlery: Math.max(1, prev.cutlery - 1) }))
+                    }
+                    onIncrease={() =>
+                      setForm((prev) => ({ ...prev, cutlery: Math.min(20, prev.cutlery + 1) }))
+                    }
+                  />
+                </div>
+
+                <Field label="Коментар до замовлення">
+                  <textarea
+                    name="details"
+                    value={form.details}
+                    onChange={handleChange}
+                    rows={3}
+                    placeholder="побажання, уточнення, алергії"
+                    className={inputClass}
+                  />
+                </Field>
+
+                <label className="flex items-center gap-2 text-sm text-text-muted">
+                  <input
+                    type="checkbox"
+                    name="noCallback"
+                    checked={form.noCallback}
+                    onChange={handleChange}
+                    className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
+                  />
+                  Не передзвонювати мені
+                </label>
+
+                {error && <p className="text-accent">{error}</p>}
+
+                <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentModalOpen(true)}
+                    className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light"
+                  >
+                    Сплатити · {discounted} ₴
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={submitting || form.noCallback}
+                    title={
+                      form.noCallback
+                        ? 'Недоступно з "не передзвонювати мені" — оплатіть одразу'
+                        : undefined
+                    }
+                    className="flex items-center justify-center gap-2 rounded-full border border-border bg-surface-raised py-3 text-sm font-semibold text-text transition hover:bg-surface-hover disabled:opacity-40"
+                  >
+                    {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
+                    {submitting ? 'Оформлюємо…' : 'Сплачу при отриманні'}
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
+        </div>
+      </div>
+
+      <PaymentMethodModal open={paymentModalOpen} onClose={() => setPaymentModalOpen(false)} />
+    </div>
+  )
+}

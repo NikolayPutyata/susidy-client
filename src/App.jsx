@@ -12,14 +12,12 @@ import { Header } from './components/Header.jsx'
 import { Footer } from './components/Footer.jsx'
 import { CartDrawer } from './components/CartDrawer.jsx'
 import { CityModal } from './components/CityModal.jsx'
+import { LoginModal } from './components/LoginModal.jsx'
+import { RegisterModal } from './components/RegisterModal.jsx'
+import { MyOrdersModal } from './components/MyOrdersModal.jsx'
+import { CheckoutModal } from './components/CheckoutModal.jsx'
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute.jsx'
-import { ProtectedRoute } from './components/ProtectedRoute.jsx'
 import { CatalogPage } from './pages/CatalogPage.jsx'
-import { CheckoutPage } from './pages/CheckoutPage.jsx'
-import { OrderSuccessPage } from './pages/OrderSuccessPage.jsx'
-import { MyOrdersPage } from './pages/MyOrdersPage.jsx'
-import { LoginPage } from './pages/LoginPage.jsx'
-import { RegisterPage } from './pages/RegisterPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { AdminLayout } from './pages/admin/AdminLayout.jsx'
 import { AdminProductsPage } from './pages/admin/AdminProductsPage.jsx'
@@ -51,14 +49,6 @@ function App() {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-8">
         <Routes>
           <Route path="/" element={<CatalogPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/order/success" element={<OrderSuccessPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-
-          <Route element={<ProtectedRoute />}>
-            <Route path="/orders" element={<MyOrdersPage />} />
-          </Route>
 
           <Route element={<ProtectedAdminRoute />}>
             <Route path="/admin" element={<AdminLayout />}>
@@ -75,6 +65,10 @@ function App() {
       <Footer />
       <CartDrawer />
       <CityModal />
+      <LoginModal />
+      <RegisterModal />
+      <MyOrdersModal />
+      <CheckoutModal />
     </div>
   )
 }

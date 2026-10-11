@@ -1,10 +1,18 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
+import { useModals } from '../hooks/useModals.js'
 import { SpinnerIcon } from './icons.jsx'
 
 export const ProtectedAdminRoute = () => {
   const { isAdmin, isAuthenticated, initializing } = useAuth()
-  const location = useLocation()
+  const { openLogin } = useModals()
+
+  // Логін тепер модалка, не сторінка — замість редіректу на /login
+  // відкриваємо її поверх головної.
+  useEffect(() => {
+    if (!initializing && !isAuthenticated) openLogin()
+  }, [initializing, isAuthenticated, openLogin])
 
   if (initializing) {
     return (
@@ -16,7 +24,7 @@ export const ProtectedAdminRoute = () => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return <Navigate to="/" replace />
   }
 
   if (!isAdmin) {

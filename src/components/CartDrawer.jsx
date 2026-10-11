@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
+import { useModals } from '../hooks/useModals.js'
 import { CartItemsList } from './CartItemsList.jsx'
 import { CartIcon, CloseIcon } from './icons.jsx'
 import { OrderTotal } from './OrderTotal.jsx'
@@ -11,7 +11,7 @@ const CLOSE_ANIMATION_MS = 200
 
 export const CartDrawer = () => {
   const { items, loading, isDrawerOpen, closeDrawer, total } = useCart()
-  const navigate = useNavigate()
+  const { openCheckout } = useModals()
   const [error, setError] = useState('')
   const [rendered, setRendered] = useState(isDrawerOpen)
   const [closing, setClosing] = useState(false)
@@ -46,7 +46,7 @@ export const CartDrawer = () => {
 
   const goToCheckout = () => {
     closeDrawer()
-    navigate('/checkout')
+    openCheckout()
   }
 
   return (
