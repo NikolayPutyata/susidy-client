@@ -1,16 +1,30 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import { APILoadingStatus, useApiLoadingStatus } from '@vis.gl/react-google-maps'
+import { addMySavedAddress } from '../api/auth.js'
 import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useCity } from '../hooks/useCity.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { LOCATIONS, TIME_SLOTS } from '../lib/constants.js'
+import { setUser } from '../store/userSlice.js'
 import { CheckCircleIcon, CloseIcon, SpinnerIcon } from '../components/icons.jsx'
-import { AddressPicker } from '../components/AddressPicker.jsx'
+import { DeliveryAddressFields } from '../components/DeliveryAddressFields.jsx'
 import { QuantityStepper } from '../components/QuantityStepper.jsx'
 import { PaymentMethodModal } from '../components/PaymentMethodModal.jsx'
 import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
+
+const addressExtrasLabel = (addr) =>
+  addr.isPrivateHouse
+    ? 'Приватний будинок'
+    : [
+        addr.apartment ? `кв. ${addr.apartment}` : null,
+        addr.entrance ? `під'їзд ${addr.entrance}` : null,
+        addr.floor ? `поверх ${addr.floor}` : null,
+      ]
+        .filter(Boolean)
+        .join(', ')
 
 const Field = ({ label, children }) => (
   <div>
@@ -63,8 +77,9 @@ const getAvailableTimeSlots = () => {
 
 export const CheckoutPage = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const { items, total, checkout } = useCart()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const { city, cityLabel } = useCity()
   const { discounted } = useDiscountedTotal(total)
   const [form, setForm] = useState(() => initialForm(user))
@@ -74,8 +89,19 @@ export const CheckoutPage = () => {
   const [orderResult, setOrderResult] = useState(null)
   const mapsLoaded = useApiLoadingStatus() === APILoadingStatus.LOADED
   const [availableTimeSlots] = useState(getAvailableTimeSlots)
+  const [selectedSavedAddressId, setSelectedSavedAddressId] = useState(null)
+  const [saveNewAddress, setSaveNewAddress] = useState(false)
 
   const pickupOptions = LOCATIONS.filter((l) => l.city === city)
+  // Memoized so the auto-select-default effect below only re-runs when the
+  // underlying list actually changes (new city, address added/removed) —
+  // otherwise a new array from this filter on every render would re-fire
+  // that effect on every render too, stomping over the customer's own
+  // choice of "Нова адреса" right after they made it.
+  const savedAddressesForCity = useMemo(
+    () => (user?.savedAddresses || []).filter((a) => a.city === city),
+    [user?.savedAddresses, city],
+  )
 
   // Сторінка монтується заново щоразу, коли на неї переходять — форма вже
   // чиста за замовчуванням, тож це лише підставляє поточного юзера.
@@ -94,6 +120,49 @@ export const CheckoutPage = () => {
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city])
+
+  const applySavedAddress = (addr) => {
+    setSelectedSavedAddressId(addr._id)
+    setForm((prev) => ({
+      ...prev,
+      street: addr.street,
+      building: addr.building || '',
+      apartment: addr.apartment || '',
+      entrance: addr.entrance || '',
+      floor: addr.floor || '',
+      isPrivateHouse: addr.isPrivateHouse || false,
+      deliveryLat: addr.lat ?? null,
+      deliveryLng: addr.lng ?? null,
+      formattedAddress: addr.formattedAddress || '',
+    }))
+  }
+
+  // Першу ж збережену адресу для поточного міста підставляємо сама —
+  // зручніше, ніж змушувати щоразу вибирати вручну, а список лишається
+  // доступним, якщо треба іншу.
+  useEffect(() => {
+    if (selectedSavedAddressId || form.fulfillment !== 'delivery') return
+    const defaultAddress =
+      savedAddressesForCity.find((a) => a.isDefault) || savedAddressesForCity[0]
+    if (defaultAddress) applySavedAddress(defaultAddress)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedAddressesForCity, form.fulfillment])
+
+  const clearSavedAddressSelection = () => {
+    setSelectedSavedAddressId(null)
+    setForm((prev) => ({
+      ...prev,
+      street: '',
+      building: '',
+      apartment: '',
+      entrance: '',
+      floor: '',
+      isPrivateHouse: false,
+      deliveryLat: null,
+      deliveryLng: null,
+      formattedAddress: '',
+    }))
+  }
 
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target
@@ -122,6 +191,30 @@ export const CheckoutPage = () => {
         pickupAddress: pickupPoint?.address || '',
       })
       setOrderResult(order)
+
+      // Best-effort — a failure here shouldn't taint an otherwise
+      // successful order, so it's silent rather than surfaced as an error.
+      if (
+        saveNewAddress &&
+        !selectedSavedAddressId &&
+        form.fulfillment === 'delivery' &&
+        isAuthenticated
+      ) {
+        addMySavedAddress({
+          city,
+          street: form.street,
+          building: form.building,
+          apartment: form.apartment,
+          entrance: form.entrance,
+          floor: form.floor,
+          isPrivateHouse: form.isPrivateHouse,
+          lat: form.deliveryLat,
+          lng: form.deliveryLng,
+          formattedAddress: form.formattedAddress,
+        })
+          .then((updatedUser) => dispatch(setUser(updatedUser)))
+          .catch((err) => console.error('Failed to save address', err))
+      }
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {
@@ -340,93 +433,89 @@ export const CheckoutPage = () => {
                   </div>
                 ) : (
                   <>
-                    {mapsLoaded ? (
-                      <AddressPicker
-                        city={city}
-                        value={{
-                          street: form.street,
-                          building: form.building,
-                          lat: form.deliveryLat,
-                          lng: form.deliveryLng,
-                          formattedAddress: form.formattedAddress,
-                        }}
-                        onChange={({ street, building, lat, lng, formattedAddress }) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            street,
-                            building,
-                            deliveryLat: lat,
-                            deliveryLng: lng,
-                            formattedAddress,
-                          }))
-                        }
-                      />
-                    ) : (
-                      // Карта недоступна (не завантажилась) — даємо ввести
-                      // адресу вручну, як було до появи AddressPicker.
-                      <>
-                        <Field label="Вулиця">
-                          <input
-                            name="street"
-                            value={form.street}
-                            onChange={handleChange}
-                            required
-                            className={inputClass}
-                          />
-                        </Field>
-                        <Field label="Будинок">
-                          <input
-                            name="building"
-                            value={form.building}
-                            onChange={handleChange}
-                            required
-                            className={inputClass}
-                          />
-                        </Field>
-                      </>
-                    )}
-
-                    {!form.isPrivateHouse && (
-                      <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                        <Field label="Квартира">
-                          <input
-                            name="apartment"
-                            value={form.apartment}
-                            onChange={handleChange}
-                            required
-                            className={inputClass}
-                          />
-                        </Field>
-                        <Field label="Під'їзд">
-                          <input
-                            name="entrance"
-                            value={form.entrance}
-                            onChange={handleChange}
-                            required
-                            className={inputClass}
-                          />
-                        </Field>
-                        <Field label="Поверх">
-                          <input
-                            name="floor"
-                            value={form.floor}
-                            onChange={handleChange}
-                            required
-                            className={inputClass}
-                          />
-                        </Field>
+                    {savedAddressesForCity.length > 0 && (
+                      // No section label here — AddressPicker shows its own
+                      // "Адреса доставки" below once "Нова адреса" is
+                      // picked, and a saved one is self-explanatory either
+                      // way.
+                      <div>
+                        <div className="space-y-2">
+                          {savedAddressesForCity.map((addr) => (
+                            <label
+                              key={addr._id}
+                              className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm transition ${
+                                selectedSavedAddressId === addr._id
+                                  ? 'border-primary bg-primary/10 text-text'
+                                  : 'border-border bg-surface-raised text-text-muted hover:text-text'
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                name="savedAddress"
+                                checked={selectedSavedAddressId === addr._id}
+                                onChange={() => applySavedAddress(addr)}
+                                className="h-4 w-4 shrink-0 accent-primary"
+                              />
+                              <span className="min-w-0 flex-1">
+                                <span className="flex items-center gap-1.5">
+                                  <span className="truncate">
+                                    {addr.formattedAddress || addr.street}
+                                  </span>
+                                  {addr.isDefault && (
+                                    <span className="shrink-0 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold text-primary-light">
+                                      За замовчуванням
+                                    </span>
+                                  )}
+                                </span>
+                                {addressExtrasLabel(addr) && (
+                                  <span className="block truncate text-xs text-text-subtle">
+                                    {addressExtrasLabel(addr)}
+                                  </span>
+                                )}
+                              </span>
+                            </label>
+                          ))}
+                          <label
+                            className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm transition ${
+                              selectedSavedAddressId === null
+                                ? 'border-primary bg-primary/10 text-text'
+                                : 'border-border bg-surface-raised text-text-muted hover:text-text'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="savedAddress"
+                              checked={selectedSavedAddressId === null}
+                              onChange={clearSavedAddressSelection}
+                              className="h-4 w-4 accent-primary"
+                            />
+                            Нова адреса
+                          </label>
+                        </div>
                       </div>
                     )}
-                    <label className="flex items-center gap-2 text-sm text-text-muted">
-                      <input
-                        type="checkbox"
-                        name="isPrivateHouse"
-                        checked={form.isPrivateHouse}
-                        onChange={handleChange}
-                        className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
-                      />
-                      Приватний будинок
-                    </label>
+
+                    {!selectedSavedAddressId && (
+                      <>
+                        <DeliveryAddressFields
+                          city={city}
+                          mapsLoaded={mapsLoaded}
+                          value={form}
+                          onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
+                        />
+                        {isAuthenticated && savedAddressesForCity.length < 3 && (
+                          <label className="flex items-center gap-2 text-sm text-text-muted">
+                            <input
+                              type="checkbox"
+                              checked={saveNewAddress}
+                              onChange={(e) => setSaveNewAddress(e.target.checked)}
+                              className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
+                            />
+                            Зберегти цю адресу
+                          </label>
+                        )}
+                      </>
+                    )}
                   </>
                 )}
 

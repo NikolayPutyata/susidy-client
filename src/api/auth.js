@@ -24,3 +24,12 @@ export const addMyFavorite = (productId) =>
 
 export const removeMyFavorite = (productId) =>
   apiClient.delete(`/auth/me/favorites/${productId}`).then((r) => r.data.data)
+
+export const addMySavedAddress = (address) =>
+  apiClient.post('/auth/me/addresses', address).then((r) => r.data.data)
+
+export const removeMySavedAddress = (addressId) =>
+  apiClient.delete(`/auth/me/addresses/${addressId}`).then((r) => r.data.data)
+
+export const setMyDefaultSavedAddress = (addressId) =>
+  apiClient.patch(`/auth/me/addresses/${addressId}/default`).then((r) => r.data.data)
