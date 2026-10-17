@@ -80,11 +80,22 @@ export const DeliveryMapModal = ({ open, city, initialPosition, onClose, onConfi
     setGeocoding(true)
     geocoderRef.current.geocode({ location: position }, (results, status) => {
       setGeocoding(false)
-      if (status === 'OK' && results?.[0]) {
-        setAddress(results[0].formatted_address)
-      } else {
+      const result = results?.[0]
+      if (status !== 'OK' || !result) {
         setError('Не вдалось визначити адресу за цією точкою — спробуйте іншу.')
+        return
       }
+      // A pin can land on a street with no specific building (e.g. a road
+      // segment, a park) — require a street number so the confirmed address
+      // always points at an actual building, same as the autocomplete input.
+      const hasBuildingNumber = result.address_components?.some((c) =>
+        c.types.includes('street_number'),
+      )
+      if (!hasBuildingNumber) {
+        setError('Ця точка не відповідає конкретній будівлі з номером — спробуйте точніше.')
+        return
+      }
+      setAddress(result.formatted_address)
     })
   }, [])
 

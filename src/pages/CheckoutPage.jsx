@@ -101,6 +101,15 @@ export const CheckoutPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    // The address picker's input isn't a native <input required> (it's a
+    // Google web component), so it needs its own submit-time check —
+    // without this, a delivery order could go out with no address at all.
+    if (form.fulfillment === 'delivery' && mapsLoaded && form.deliveryLat == null) {
+      setError('Вкажіть адресу доставки з номером будинку.')
+      return
+    }
+
     setSubmitting(true)
     setError('')
     try {
