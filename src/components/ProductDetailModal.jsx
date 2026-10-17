@@ -1,3 +1,4 @@
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CloseIcon, SpinnerIcon } from './icons.jsx'
 import { QuantityStepper } from './QuantityStepper.jsx'
 
@@ -24,6 +25,8 @@ export const ProductDetailModal = ({
   onIncrease,
   onDecrease,
 }) => {
+  useBodyScrollLock(open)
+
   if (!open) return null
 
   return (

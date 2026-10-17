@@ -5,6 +5,7 @@ import { fetchAllProducts } from '../api/products.js'
 import { useCart } from '../hooks/useCart.js'
 import { useCity } from '../hooks/useCity.js'
 import { useModals } from '../hooks/useModals.js'
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { CloseIcon, ReceiptIcon, SpinnerIcon } from './icons.jsx'
 
@@ -18,6 +19,8 @@ export const MyOrdersModal = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [repeatingId, setRepeatingId] = useState(null)
+
+  useBodyScrollLock(open)
 
   useEffect(() => {
     if (!open) return

@@ -4,6 +4,7 @@ import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useCity } from '../hooks/useCity.js'
 import { useModals } from '../hooks/useModals.js'
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CATEGORIES, CITIES, SOCIAL_LINKS } from '../lib/constants.js'
 import { Logo } from './Logo.jsx'
 import { CartIcon, CloseIcon, FacebookIcon, InstagramIcon, MenuIcon } from './icons.jsx'
@@ -38,15 +39,13 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
     return () => clearTimeout(timeout)
   }, [open, rendered])
 
+  useBodyScrollLock(rendered)
+
   useEffect(() => {
     if (!rendered) return
     const onKeyDown = (e) => e.key === 'Escape' && onClose()
     document.addEventListener('keydown', onKeyDown)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      document.body.style.overflow = ''
-    }
+    return () => document.removeEventListener('keydown', onKeyDown)
   }, [rendered, onClose])
 
   if (!rendered) return null

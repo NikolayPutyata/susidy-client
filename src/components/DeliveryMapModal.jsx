@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AdvancedMarker, Map, useMap, useMapsLibrary } from '@vis.gl/react-google-maps'
 import { CITY_CENTERS, LOCATIONS } from '../lib/constants.js'
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CloseIcon, SpinnerIcon } from './icons.jsx'
 
 // Markers for the business's own pickup points, so the customer can see
@@ -98,6 +99,8 @@ export const DeliveryMapModal = ({ open, city, initialPosition, onClose, onConfi
       setAddress(result.formatted_address)
     })
   }, [])
+
+  useBodyScrollLock(open)
 
   if (!open) return null
 
