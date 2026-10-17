@@ -208,8 +208,12 @@ export const ProfileModal = () => {
   const savedAddresses = user.savedAddresses || []
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 animate-fade-in">
-      <div className="relative flex max-h-[85vh] w-full max-w-2xl flex-col rounded-3xl border border-border bg-surface p-6">
+    // Full-screen sheet on mobile (no outer gutter, square corners, no
+    // border) — same reasoning as CheckoutPage: an outer inset stacked with
+    // the card's own padding left fields narrower than they needed to be on
+    // a phone screen. From sm: up it reverts to a centered dialog.
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in sm:px-4">
+      <div className="relative flex h-full w-full flex-col rounded-none border-0 bg-surface p-4 sm:h-auto sm:max-h-[85vh] sm:max-w-2xl sm:rounded-3xl sm:border sm:border-border sm:p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold">Мій профіль</h2>
           <button
