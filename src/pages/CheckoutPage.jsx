@@ -39,6 +39,7 @@ const initialForm = (user) => ({
   deliveryLng: null,
   formattedAddress: '',
   apartment: '',
+  entrance: '',
   floor: '',
   isPrivateHouse: false,
   pickupPointId: '',
@@ -129,8 +130,15 @@ export const CheckoutPage = () => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
-      <div className="flex flex-col rounded-3xl border border-border bg-surface p-6">
+    // pt-14: the header's menu/cart buttons float (position: fixed) over
+    // the top of the page — on pages with a hero image behind them that's
+    // fine, but this page has none, so without this they sit on top of the
+    // card's rounded corner. rounded-none/border-0/p-4 on mobile (sm:
+    // reverts to the card look) avoids double side-insets stacking main's
+    // own px-4 with the card's own padding, which left fields narrower
+    // than they needed to be on a phone screen.
+    <div className="mx-auto w-full max-w-2xl pt-14">
+      <div className="flex flex-col rounded-none border-0 bg-surface p-4 sm:rounded-3xl sm:border sm:border-border sm:p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold">
             {orderResult ? 'Замовлення оформлено' : 'Ваше замовлення, любий сусіде:'}
@@ -379,11 +387,20 @@ export const CheckoutPage = () => {
                     )}
 
                     {!form.isPrivateHouse && (
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-3 gap-2 sm:gap-3">
                         <Field label="Квартира">
                           <input
                             name="apartment"
                             value={form.apartment}
+                            onChange={handleChange}
+                            required
+                            className={inputClass}
+                          />
+                        </Field>
+                        <Field label="Під'їзд">
+                          <input
+                            name="entrance"
+                            value={form.entrance}
                             onChange={handleChange}
                             required
                             className={inputClass}

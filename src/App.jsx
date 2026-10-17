@@ -13,8 +13,7 @@ import { Header } from './components/Header.jsx'
 import { Footer } from './components/Footer.jsx'
 import { CartDrawer } from './components/CartDrawer.jsx'
 import { CityModal } from './components/CityModal.jsx'
-import { LoginModal } from './components/LoginModal.jsx'
-import { RegisterModal } from './components/RegisterModal.jsx'
+import { AuthModal } from './components/AuthModal.jsx'
 import { MyOrdersModal } from './components/MyOrdersModal.jsx'
 import { ProfileModal } from './components/ProfileModal.jsx'
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute.jsx'
@@ -69,8 +68,7 @@ function App() {
         <Footer />
         <CartDrawer />
         <CityModal />
-        <LoginModal />
-        <RegisterModal />
+        <AuthModal />
         <MyOrdersModal />
         <ProfileModal />
       </div>
