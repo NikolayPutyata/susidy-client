@@ -9,7 +9,7 @@ import { CITY_CENTERS } from '../lib/constants.js'
 // pushed into it imperatively too, whenever it changes from the outside
 // (e.g. the customer picked a point on the map instead of a dropdown item)
 // — the component's own `.value` property is documented as settable.
-export const AddressAutocompleteInput = ({ city, value, onSelect, className }) => {
+export const AddressAutocompleteInput = ({ city, value, onSelect, onInvalidAddress, className }) => {
   const placesLib = useMapsLibrary('places')
   const containerRef = useRef(null)
   const elementRef = useRef(null)
@@ -20,6 +20,10 @@ export const AddressAutocompleteInput = ({ city, value, onSelect, className }) =
     const element = new placesLib.PlaceAutocompleteElement({
       includedRegionCodes: ['ua'],
       locationBias: { center: CITY_CENTERS[city], radius: 20000 },
+      // Best-effort narrowing to building-level results — the hard
+      // guarantee is the street_number check in handleSelect below, since
+      // this doesn't catch everything Google might still suggest.
+      includedPrimaryTypes: ['street_address', 'premise', 'subpremise'],
     })
     element.className = className
     if (value) element.value = value
@@ -28,7 +32,18 @@ export const AddressAutocompleteInput = ({ city, value, onSelect, className }) =
 
     const handleSelect = async (event) => {
       const place = event.placePrediction.toPlace()
-      await place.fetchFields({ fields: ['formattedAddress', 'location'] })
+      await place.fetchFields({ fields: ['formattedAddress', 'addressComponents', 'location'] })
+
+      // includedPrimaryTypes narrows the dropdown, but isn't a hard
+      // guarantee — reject anything without a building number outright
+      // rather than accept a bare street/avenue.
+      const hasBuildingNumber = (place.addressComponents || []).some((c) =>
+        c.types.includes('street_number'),
+      )
+      if (!hasBuildingNumber) {
+        onInvalidAddress?.()
+        return
+      }
 
       // The input is the full address (street + building) as one string —
       // same shape as what a map pin confirms, so downstream code (order
