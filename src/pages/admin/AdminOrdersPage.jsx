@@ -14,8 +14,18 @@ const formatFulfillment = (order) => {
   }
   if (!order.street) return city
 
-  const apartment = order.isPrivateHouse ? 'приватний будинок' : `кв. ${order.apartment}`
-  return `${city}, вул. ${order.street}, буд. ${order.building}, ${apartment}`
+  // Older orders (and the manual fallback when Maps fails to load) store
+  // street/building separately; the address picker's full address goes
+  // straight into `street` with `building` left empty.
+  const addressLine = order.building ? `вул. ${order.street}, буд. ${order.building}` : order.street
+
+  const extras = order.isPrivateHouse
+    ? ['приватний будинок']
+    : [order.apartment ? `кв. ${order.apartment}` : null, order.floor ? `поверх ${order.floor}` : null].filter(
+        Boolean,
+      )
+
+  return `${city}, ${addressLine}${extras.length ? `, ${extras.join(', ')}` : ''}`
 }
 
 const formatRequestedTime = (order) => {

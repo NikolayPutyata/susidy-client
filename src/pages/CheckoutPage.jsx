@@ -39,6 +39,7 @@ const initialForm = (user) => ({
   deliveryLng: null,
   formattedAddress: '',
   apartment: '',
+  floor: '',
   isPrivateHouse: false,
   pickupPointId: '',
   requestedTime: 'asap',
@@ -46,6 +47,18 @@ const initialForm = (user) => ({
   details: '',
   noCallback: false,
 })
+
+// Staff need at least 45 minutes' notice before a requested slot — filters
+// out anything earlier than that from "now", so the select only ever shows
+// times that are actually bookable.
+const getAvailableTimeSlots = () => {
+  const cutoff = new Date(Date.now() + 45 * 60 * 1000)
+  const cutoffMinutes = cutoff.getHours() * 60 + cutoff.getMinutes()
+  return TIME_SLOTS.filter((slot) => {
+    const [hours, minutes] = slot.split(':').map(Number)
+    return hours * 60 + minutes >= cutoffMinutes
+  })
+}
 
 export const CheckoutPage = () => {
   const navigate = useNavigate()
@@ -59,6 +72,7 @@ export const CheckoutPage = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [orderResult, setOrderResult] = useState(null)
   const mapsLoaded = useApiLoadingStatus() === APILoadingStatus.LOADED
+  const [availableTimeSlots] = useState(getAvailableTimeSlots)
 
   const pickupOptions = LOCATIONS.filter((l) => l.city === city)
 
@@ -248,7 +262,9 @@ export const CheckoutPage = () => {
                           ...prev,
                           fulfillment: 'pickup',
                           requestedTime:
-                            prev.requestedTime === 'asap' ? TIME_SLOTS[0] : prev.requestedTime,
+                            prev.requestedTime === 'asap'
+                              ? availableTimeSlots[0] || ''
+                              : prev.requestedTime,
                         }))
                       }
                       className={segmentButtonClass(form.fulfillment === 'pickup')}
@@ -269,7 +285,7 @@ export const CheckoutPage = () => {
                     {form.fulfillment === 'delivery' && (
                       <option value="asap">Якнайшвидше</option>
                     )}
-                    {TIME_SLOTS.map((slot) => (
+                    {availableTimeSlots.map((slot) => (
                       <option key={slot} value={slot}>
                         {slot}
                       </option>
@@ -305,52 +321,56 @@ export const CheckoutPage = () => {
                       ))}
                     </div>
                   </div>
-                ) : mapsLoaded ? (
-                  <AddressPicker
-                    city={city}
-                    value={{
-                      street: form.street,
-                      building: form.building,
-                      lat: form.deliveryLat,
-                      lng: form.deliveryLng,
-                      formattedAddress: form.formattedAddress,
-                    }}
-                    onChange={({ street, building, lat, lng, formattedAddress }) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        street,
-                        building,
-                        deliveryLat: lat,
-                        deliveryLng: lng,
-                        formattedAddress,
-                      }))
-                    }
-                  />
                 ) : (
-                  // Карта недоступна (не завантажилась) — даємо ввести адресу
-                  // вручну, як було до появи AddressPicker.
                   <>
-                    <Field label="Вулиця">
-                      <input
-                        name="street"
-                        value={form.street}
-                        onChange={handleChange}
-                        required
-                        className={inputClass}
+                    {mapsLoaded ? (
+                      <AddressPicker
+                        city={city}
+                        value={{
+                          street: form.street,
+                          building: form.building,
+                          lat: form.deliveryLat,
+                          lng: form.deliveryLng,
+                          formattedAddress: form.formattedAddress,
+                        }}
+                        onChange={({ street, building, lat, lng, formattedAddress }) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            street,
+                            building,
+                            deliveryLat: lat,
+                            deliveryLng: lng,
+                            formattedAddress,
+                          }))
+                        }
                       />
-                    </Field>
+                    ) : (
+                      // Карта недоступна (не завантажилась) — даємо ввести
+                      // адресу вручну, як було до появи AddressPicker.
+                      <>
+                        <Field label="Вулиця">
+                          <input
+                            name="street"
+                            value={form.street}
+                            onChange={handleChange}
+                            required
+                            className={inputClass}
+                          />
+                        </Field>
+                        <Field label="Будинок">
+                          <input
+                            name="building"
+                            value={form.building}
+                            onChange={handleChange}
+                            required
+                            className={inputClass}
+                          />
+                        </Field>
+                      </>
+                    )}
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field label="Будинок">
-                        <input
-                          name="building"
-                          value={form.building}
-                          onChange={handleChange}
-                          required
-                          className={inputClass}
-                        />
-                      </Field>
-                      {!form.isPrivateHouse && (
+                    {!form.isPrivateHouse && (
+                      <div className="grid grid-cols-2 gap-3">
                         <Field label="Квартира">
                           <input
                             name="apartment"
@@ -360,8 +380,17 @@ export const CheckoutPage = () => {
                             className={inputClass}
                           />
                         </Field>
-                      )}
-                    </div>
+                        <Field label="Поверх">
+                          <input
+                            name="floor"
+                            value={form.floor}
+                            onChange={handleChange}
+                            required
+                            className={inputClass}
+                          />
+                        </Field>
+                      </div>
+                    )}
                     <label className="flex items-center gap-2 text-sm text-text-muted">
                       <input
                         type="checkbox"

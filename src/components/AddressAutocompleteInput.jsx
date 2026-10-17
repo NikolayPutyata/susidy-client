@@ -2,24 +2,6 @@ import { useEffect, useRef } from 'react'
 import { useMapsLibrary } from '@vis.gl/react-google-maps'
 import { CITY_CENTERS } from '../lib/constants.js'
 
-// Pulls a usable street + building number out of Google's address
-// components — Ukrainian results don't always split them the same way, so
-// this falls back to the first line of the formatted address if the
-// components don't have what we need.
-const extractStreetAndBuilding = (place) => {
-  const components = place.addressComponents || []
-  const byType = (type) =>
-    components.find((c) => c.types.includes(type))?.longText || ''
-
-  const street = byType('route')
-  const building = byType('street_number')
-
-  if (street) return { street, building }
-
-  const firstLine = (place.formattedAddress || '').split(',')[0]?.trim() || ''
-  return { street: firstLine, building }
-}
-
 // New Places Autocomplete (google.maps.places.PlaceAutocompleteElement) —
 // the legacy google.maps.places.Autocomplete widget has been deprecated
 // since March 2025. It's a web component, not a controlled React input, so
@@ -46,17 +28,19 @@ export const AddressAutocompleteInput = ({ city, value, onSelect, className }) =
 
     const handleSelect = async (event) => {
       const place = event.placePrediction.toPlace()
-      await place.fetchFields({
-        fields: ['addressComponents', 'formattedAddress', 'location'],
-      })
+      await place.fetchFields({ fields: ['formattedAddress', 'location'] })
 
-      const { street, building } = extractStreetAndBuilding(place)
+      // The input is the full address (street + building) as one string —
+      // same shape as what a map pin confirms, so downstream code (order
+      // summary, Telegram message, admin view) doesn't need to care which
+      // of the two ways the customer picked it.
+      const formattedAddress = place.formattedAddress || ''
       onSelect({
-        street,
-        building,
+        street: formattedAddress,
+        building: '',
         lat: place.location?.lat(),
         lng: place.location?.lng(),
-        formattedAddress: place.formattedAddress || '',
+        formattedAddress,
       })
     }
 
