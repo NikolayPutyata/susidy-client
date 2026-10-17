@@ -10,7 +10,7 @@ import { MapIcon } from './icons.jsx'
 // component already draws its own internal focus affordance, and adding
 // our ring on top of that looked like a doubled border.
 const inputClass =
-  'w-full rounded-lg border border-border bg-surface-raised px-3 py-1.5 text-sm text-text placeholder:text-text-subtle outline-none transition focus:border-primary'
+  'w-full rounded-lg border border-border bg-surface-raised text-sm text-text placeholder:text-text-subtle outline-none transition focus:border-primary'
 
 // Small, non-interactive preview centered on whatever's currently picked —
 // center/zoom are controlled (not defaultCenter/defaultZoom) so it actually
