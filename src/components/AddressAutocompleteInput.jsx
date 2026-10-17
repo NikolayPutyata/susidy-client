@@ -23,10 +23,14 @@ const extractStreetAndBuilding = (place) => {
 // New Places Autocomplete (google.maps.places.PlaceAutocompleteElement) —
 // the legacy google.maps.places.Autocomplete widget has been deprecated
 // since March 2025. It's a web component, not a controlled React input, so
-// it's created imperatively and mounted into a container ref.
-export const AddressAutocompleteInput = ({ city, onSelect, className }) => {
+// it's created imperatively and mounted into a container ref; `value` is
+// pushed into it imperatively too, whenever it changes from the outside
+// (e.g. the customer picked a point on the map instead of a dropdown item)
+// — the component's own `.value` property is documented as settable.
+export const AddressAutocompleteInput = ({ city, value, onSelect, className }) => {
   const placesLib = useMapsLibrary('places')
   const containerRef = useRef(null)
+  const elementRef = useRef(null)
 
   useEffect(() => {
     if (!placesLib || !containerRef.current) return
@@ -36,6 +40,8 @@ export const AddressAutocompleteInput = ({ city, onSelect, className }) => {
       locationBias: { center: CITY_CENTERS[city], radius: 20000 },
     })
     element.className = className
+    if (value) element.value = value
+    elementRef.current = element
     containerRef.current.replaceChildren(element)
 
     const handleSelect = async (event) => {
@@ -55,9 +61,18 @@ export const AddressAutocompleteInput = ({ city, onSelect, className }) => {
     }
 
     element.addEventListener('gmp-select', handleSelect)
-    return () => element.removeEventListener('gmp-select', handleSelect)
+    return () => {
+      element.removeEventListener('gmp-select', handleSelect)
+      elementRef.current = null
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placesLib, city])
+
+  useEffect(() => {
+    if (elementRef.current && elementRef.current.value !== (value || '')) {
+      elementRef.current.value = value || ''
+    }
+  }, [value])
 
   return <div ref={containerRef} />
 }

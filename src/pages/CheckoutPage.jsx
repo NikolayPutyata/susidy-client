@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { APILoadingStatus, useApiLoadingStatus } from '@vis.gl/react-google-maps'
 import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useCity } from '../hooks/useCity.js'
@@ -57,6 +58,7 @@ export const CheckoutPage = () => {
   const [error, setError] = useState('')
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [orderResult, setOrderResult] = useState(null)
+  const mapsLoaded = useApiLoadingStatus() === APILoadingStatus.LOADED
 
   const pickupOptions = LOCATIONS.filter((l) => l.city === city)
 
@@ -303,50 +305,63 @@ export const CheckoutPage = () => {
                       ))}
                     </div>
                   </div>
+                ) : mapsLoaded ? (
+                  <AddressPicker
+                    city={city}
+                    value={{
+                      street: form.street,
+                      building: form.building,
+                      lat: form.deliveryLat,
+                      lng: form.deliveryLng,
+                      formattedAddress: form.formattedAddress,
+                    }}
+                    onChange={({ street, building, lat, lng, formattedAddress }) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        street,
+                        building,
+                        deliveryLat: lat,
+                        deliveryLng: lng,
+                        formattedAddress,
+                      }))
+                    }
+                  />
                 ) : (
+                  // Карта недоступна (не завантажилась) — даємо ввести адресу
+                  // вручну, як було до появи AddressPicker.
                   <>
-                    <AddressPicker
-                      city={city}
-                      value={{
-                        street: form.street,
-                        building: form.building,
-                        lat: form.deliveryLat,
-                        lng: form.deliveryLng,
-                        formattedAddress: form.formattedAddress,
-                      }}
-                      onChange={({ street, building, lat, lng, formattedAddress }) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          street,
-                          building,
-                          deliveryLat: lat,
-                          deliveryLng: lng,
-                          formattedAddress,
-                        }))
-                      }
-                    />
-
-                    <Field label="Будинок (уточніть за потреби)">
+                    <Field label="Вулиця">
                       <input
-                        name="building"
-                        value={form.building}
+                        name="street"
+                        value={form.street}
                         onChange={handleChange}
                         required
                         className={inputClass}
                       />
                     </Field>
 
-                    {!form.isPrivateHouse && (
-                      <Field label="Квартира">
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Будинок">
                         <input
-                          name="apartment"
-                          value={form.apartment}
+                          name="building"
+                          value={form.building}
                           onChange={handleChange}
                           required
                           className={inputClass}
                         />
                       </Field>
-                    )}
+                      {!form.isPrivateHouse && (
+                        <Field label="Квартира">
+                          <input
+                            name="apartment"
+                            value={form.apartment}
+                            onChange={handleChange}
+                            required
+                            className={inputClass}
+                          />
+                        </Field>
+                      )}
+                    </div>
                     <label className="flex items-center gap-2 text-sm text-text-muted">
                       <input
                         type="checkbox"
