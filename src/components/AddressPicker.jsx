@@ -12,7 +12,7 @@ import { MapIcon } from './icons.jsx'
 // (text-base, not text-sm) — iOS Safari auto-zooms the page on focus for
 // any input under that, which felt broken on a phone.
 const inputClass =
-  'w-full rounded-lg border border-border bg-surface-raised px-3 py-1.5 text-base text-text placeholder:text-text-subtle outline-none transition focus:border-primary'
+  'w-full rounded-lg border border-border bg-surface-raised text-base text-text placeholder:text-text-subtle outline-none transition focus:border-primary'
 
 // Small, non-interactive preview centered on whatever's currently picked —
 // center/zoom are controlled (not defaultCenter/defaultZoom) so it actually
