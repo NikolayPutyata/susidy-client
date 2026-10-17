@@ -50,43 +50,43 @@ export const TIME_SLOTS = Array.from(
 )
 
 // lat/lng mirror the server's PICKUP_POINTS (src/constants/index.js there)
-// — null until geocoded. Markers for a point simply don't render on the
-// delivery map until it has real coordinates.
+// — provided directly by the business owner (Google Maps "What's here" pin
+// on each point), not geocoded from the address string.
 export const LOCATIONS = [
   {
     id: 'kyiv-berestejskyi',
     city: 'kyiv',
     address: 'просп. Берестейський, 9',
-    lat: null,
-    lng: null,
+    lat: 50.447806,
+    lng: 30.484361,
   },
   {
     id: 'kyiv-dragomanova',
     city: 'kyiv',
     address: 'вул. Драгоманова, 2А',
-    lat: null,
-    lng: null,
+    lat: 50.417611,
+    lng: 30.633111,
   },
   {
     id: 'kharkiv-valentynivska',
     city: 'kharkiv',
     address: 'вул. Валентинівська, 31В',
-    lat: null,
-    lng: null,
+    lat: 50.013667,
+    lng: 36.342028,
   },
   {
     id: 'kharkiv-divisions',
     city: 'kharkiv',
     address: 'вул. Харківських дивізій, 11/2',
-    lat: null,
-    lng: null,
+    lat: 49.957556,
+    lng: 36.332139,
   },
   {
     id: 'kharkiv-svobody',
     city: 'kharkiv',
     address: 'просп. Людвіга Свободи, 33',
-    lat: null,
-    lng: null,
+    lat: 50.051556,
+    lng: 36.204833,
   },
 ]
 
