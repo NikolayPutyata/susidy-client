@@ -21,9 +21,11 @@ const formatFulfillment = (order) => {
 
   const extras = order.isPrivateHouse
     ? ['приватний будинок']
-    : [order.apartment ? `кв. ${order.apartment}` : null, order.floor ? `поверх ${order.floor}` : null].filter(
-        Boolean,
-      )
+    : [
+        order.apartment ? `кв. ${order.apartment}` : null,
+        order.entrance ? `під'їзд ${order.entrance}` : null,
+        order.floor ? `поверх ${order.floor}` : null,
+      ].filter(Boolean)
 
   return `${city}, ${addressLine}${extras.length ? `, ${extras.join(', ')}` : ''}`
 }

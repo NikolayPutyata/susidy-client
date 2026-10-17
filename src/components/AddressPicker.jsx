@@ -8,9 +8,11 @@ import { MapIcon } from './icons.jsx'
 
 // No focus:ring here (unlike the site's other inputs) — the Places web
 // component already draws its own internal focus affordance, and adding
-// our ring on top of that looked like a doubled border.
+// our ring on top of that looked like a doubled border. Font stays at 16px
+// (text-base, not text-sm) — iOS Safari auto-zooms the page on focus for
+// any input under that, which felt broken on a phone.
 const inputClass =
-  'w-full rounded-lg border border-border bg-surface-raised text-sm text-text placeholder:text-text-subtle outline-none transition focus:border-primary'
+  'w-full rounded-lg border border-border bg-surface-raised px-3 py-1.5 text-base text-text placeholder:text-text-subtle outline-none transition focus:border-primary'
 
 // Small, non-interactive preview centered on whatever's currently picked —
 // center/zoom are controlled (not defaultCenter/defaultZoom) so it actually
@@ -45,13 +47,11 @@ const MiniMapPreview = ({ city, position, onClick }) => (
 // CheckoutPage) — the caller falls back to plain inputs otherwise.
 export const AddressPicker = ({ city, value, onChange }) => {
   const [mapOpen, setMapOpen] = useState(false)
-  const [invalidAddress, setInvalidAddress] = useState(false)
   const position = value.lat != null && value.lng != null ? { lat: value.lat, lng: value.lng } : null
   const nearest = useNearestPoint(position, city)
   const nearestPoint = nearest ? LOCATIONS.find((l) => l.id === nearest.pointId) : null
 
   const handleConfirmFromMap = ({ lat, lng, formattedAddress }) => {
-    setInvalidAddress(false)
     onChange({ street: formattedAddress, building: '', lat, lng, formattedAddress })
     setMapOpen(false)
   }
@@ -66,17 +66,10 @@ export const AddressPicker = ({ city, value, onChange }) => {
             city={city}
             value={value.formattedAddress || value.street}
             className={inputClass}
-            onSelect={({ street, building, lat, lng, formattedAddress }) => {
-              setInvalidAddress(false)
+            onSelect={({ street, building, lat, lng, formattedAddress }) =>
               onChange({ street, building, lat, lng, formattedAddress })
-            }}
-            onInvalidAddress={() => setInvalidAddress(true)}
+            }
           />
-          {invalidAddress && (
-            <p className="mt-1 px-1 text-sm text-accent">
-              Вкажіть точну адресу з номером будинку.
-            </p>
-          )}
         </div>
 
         <button
