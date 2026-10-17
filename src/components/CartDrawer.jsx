@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CartItemsList } from './CartItemsList.jsx'
 import { CartIcon, CloseIcon } from './icons.jsx'
 import { OrderTotal } from './OrderTotal.jsx'
@@ -31,15 +32,13 @@ export const CartDrawer = () => {
     return () => clearTimeout(timeout)
   }, [isDrawerOpen, rendered])
 
+  useBodyScrollLock(rendered)
+
   useEffect(() => {
     if (!rendered) return
     const onKeyDown = (e) => e.key === 'Escape' && closeDrawer()
     document.addEventListener('keydown', onKeyDown)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      document.body.style.overflow = ''
-    }
+    return () => document.removeEventListener('keydown', onKeyDown)
   }, [rendered, closeDrawer])
 
   if (!rendered) return null

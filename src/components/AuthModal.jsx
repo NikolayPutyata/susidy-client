@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth.js'
 import { useModals } from '../hooks/useModals.js'
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { CloseIcon, SpinnerIcon } from './icons.jsx'
 
@@ -31,6 +32,8 @@ export const AuthModal = () => {
   const [registerForm, setRegisterForm] = useState(emptyRegisterForm)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  useBodyScrollLock(Boolean(mode))
 
   useEffect(() => {
     if (!mode) return

@@ -1,8 +1,11 @@
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { AppleIcon, CloseIcon, GoogleIcon } from './icons.jsx'
 
 // Жоден зі способів тут поки не інтегрований — вибір лише показує, що
 // буде доступно, коли з'явиться реальна платіжна інтеграція.
 export const PaymentMethodModal = ({ open, onClose }) => {
+  useBodyScrollLock(open)
+
   if (!open) return null
 
   return (

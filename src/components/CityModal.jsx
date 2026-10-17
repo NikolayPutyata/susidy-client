@@ -1,10 +1,13 @@
 import { useCity } from '../hooks/useCity.js'
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CITIES } from '../lib/constants.js'
 
 // Показується, поки юзер жодного разу не обрав місто — від цього залежить,
 // яка з цін товару (priceKiev/priceKharkov) показується й додається в кошик.
 export const CityModal = () => {
   const { city, setCity } = useCity()
+
+  useBodyScrollLock(!city)
 
   if (city) return null
 

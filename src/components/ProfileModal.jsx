@@ -12,6 +12,7 @@ import {
 import { fetchAllProducts } from '../api/products.js'
 import { useCity } from '../hooks/useCity.js'
 import { useModals } from '../hooks/useModals.js'
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CITY_LABELS, FAVORITES_CATEGORY } from '../lib/constants.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { selectUser, setUser } from '../store/userSlice.js'
@@ -89,6 +90,8 @@ export const ProfileModal = () => {
       .catch((err) => setFavoritesError(getErrorMessage(err)))
       .finally(() => setFavoritesLoading(false))
   }, [open])
+
+  useBodyScrollLock(open && Boolean(user))
 
   if (!open || !user) return null
 
