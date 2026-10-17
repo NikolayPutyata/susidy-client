@@ -23,6 +23,8 @@ const emptyForm = {
   category: 'other',
   description: '',
   weight: '',
+  composition: '',
+  allergens: '',
 }
 
 const inputClass =
@@ -59,6 +61,8 @@ export const AdminProductsPage = () => {
       category: product.category,
       description: product.description || '',
       weight: product.weight || '',
+      composition: product.composition || '',
+      allergens: product.allergens || '',
     })
     setFiles([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -205,6 +209,22 @@ export const AdminProductsPage = () => {
           onChange={handleChange}
           placeholder="Опис"
           rows={3}
+          className={inputClass}
+        />
+        <textarea
+          name="composition"
+          value={form.composition}
+          onChange={handleChange}
+          placeholder="Склад (для набору — перелік ролів у ньому)"
+          rows={2}
+          className={inputClass}
+        />
+        <textarea
+          name="allergens"
+          value={form.allergens}
+          onChange={handleChange}
+          placeholder="Алергени"
+          rows={2}
           className={inputClass}
         />
 
