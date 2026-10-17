@@ -49,14 +49,50 @@ export const TIME_SLOTS = Array.from(
   },
 )
 
+// lat/lng mirror the server's PICKUP_POINTS (src/constants/index.js there)
+// — null until geocoded. Markers for a point simply don't render on the
+// delivery map until it has real coordinates.
 export const LOCATIONS = [
-  { id: 'kyiv-berestejskyi', city: 'kyiv', address: 'просп. Берестейський, 9' },
-  { id: 'kyiv-dragomanova', city: 'kyiv', address: 'вул. Драгоманова, 2А' },
-  { id: 'kharkiv-valentynivska', city: 'kharkiv', address: 'вул. Валентинівська, 31В' },
+  {
+    id: 'kyiv-berestejskyi',
+    city: 'kyiv',
+    address: 'просп. Берестейський, 9',
+    lat: null,
+    lng: null,
+  },
+  {
+    id: 'kyiv-dragomanova',
+    city: 'kyiv',
+    address: 'вул. Драгоманова, 2А',
+    lat: null,
+    lng: null,
+  },
+  {
+    id: 'kharkiv-valentynivska',
+    city: 'kharkiv',
+    address: 'вул. Валентинівська, 31В',
+    lat: null,
+    lng: null,
+  },
   {
     id: 'kharkiv-divisions',
     city: 'kharkiv',
     address: 'вул. Харківських дивізій, 11/2',
+    lat: null,
+    lng: null,
   },
-  { id: 'kharkiv-svobody', city: 'kharkiv', address: 'просп. Людвіга Свободи, 33' },
+  {
+    id: 'kharkiv-svobody',
+    city: 'kharkiv',
+    address: 'просп. Людвіга Свободи, 33',
+    lat: null,
+    lng: null,
+  },
 ]
+
+// Only used to center the map before the customer has picked an address —
+// not business data, so no geocoding dependency.
+export const CITY_CENTERS = {
+  kyiv: { lat: 50.4501, lng: 30.5234 },
+  kharkiv: { lat: 49.9935, lng: 36.2304 },
+}

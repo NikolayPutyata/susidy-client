@@ -6,6 +6,7 @@ import { useCity } from '../hooks/useCity.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { LOCATIONS, TIME_SLOTS } from '../lib/constants.js'
 import { CheckCircleIcon, CloseIcon, SpinnerIcon } from '../components/icons.jsx'
+import { AddressPicker } from '../components/AddressPicker.jsx'
 import { QuantityStepper } from '../components/QuantityStepper.jsx'
 import { PaymentMethodModal } from '../components/PaymentMethodModal.jsx'
 import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
@@ -33,6 +34,9 @@ const initialForm = (user) => ({
   fulfillment: 'delivery',
   street: '',
   building: '',
+  deliveryLat: null,
+  deliveryLng: null,
+  formattedAddress: '',
   apartment: '',
   isPrivateHouse: false,
   pickupPointId: '',
@@ -301,26 +305,36 @@ export const CheckoutPage = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field label="Вулиця">
-                        <input
-                          name="street"
-                          value={form.street}
-                          onChange={handleChange}
-                          required
-                          className={inputClass}
-                        />
-                      </Field>
-                      <Field label="Будинок">
-                        <input
-                          name="building"
-                          value={form.building}
-                          onChange={handleChange}
-                          required
-                          className={inputClass}
-                        />
-                      </Field>
-                    </div>
+                    <AddressPicker
+                      city={city}
+                      value={{
+                        street: form.street,
+                        building: form.building,
+                        lat: form.deliveryLat,
+                        lng: form.deliveryLng,
+                        formattedAddress: form.formattedAddress,
+                      }}
+                      onChange={({ street, building, lat, lng, formattedAddress }) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          street,
+                          building,
+                          deliveryLat: lat,
+                          deliveryLng: lng,
+                          formattedAddress,
+                        }))
+                      }
+                    />
+
+                    <Field label="Будинок (уточніть за потреби)">
+                      <input
+                        name="building"
+                        value={form.building}
+                        onChange={handleChange}
+                        required
+                        className={inputClass}
+                      />
+                    </Field>
 
                     {!form.isPrivateHouse && (
                       <Field label="Квартира">

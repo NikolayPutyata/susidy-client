@@ -151,6 +151,16 @@ export const MapPinIcon = (props) => (
   </svg>
 )
 
+export const MapIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <path
+      d="M9 4.5 3.5 6.5v13L9 17.5l6 2 5.5-2v-13l-5.5 2-6-2Z"
+      strokeLinejoin="round"
+    />
+    <path d="M9 4.5v13M15 6.5v13" strokeLinecap="round" />
+  </svg>
+)
+
 export const PhoneIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
     <path
