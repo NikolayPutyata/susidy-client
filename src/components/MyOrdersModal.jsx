@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { fetchMyOrders } from '../api/orders.js'
 import { fetchAllProducts } from '../api/products.js'
 import { useCart } from '../hooks/useCart.js'
@@ -8,9 +9,10 @@ import { getErrorMessage } from '../lib/errors.js'
 import { CloseIcon, ReceiptIcon, SpinnerIcon } from './icons.jsx'
 
 export const MyOrdersModal = () => {
+  const navigate = useNavigate()
   const { addItems } = useCart()
   const { getPrice } = useCity()
-  const { myOrdersOpen: open, closeMyOrders, openCheckout } = useModals()
+  const { myOrdersOpen: open, closeMyOrders } = useModals()
   const [orders, setOrders] = useState([])
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -52,7 +54,7 @@ export const MyOrdersModal = () => {
 
       await addItems(toAdd)
       closeMyOrders()
-      openCheckout()
+      navigate('/checkout')
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {

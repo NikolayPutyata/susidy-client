@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useCity } from '../hooks/useCity.js'
-import { useModals } from '../hooks/useModals.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { LOCATIONS, TIME_SLOTS } from '../lib/constants.js'
-import { CheckCircleIcon, CloseIcon, SpinnerIcon } from './icons.jsx'
-import { QuantityStepper } from './QuantityStepper.jsx'
-import { PaymentMethodModal } from './PaymentMethodModal.jsx'
-import { OrderTotal, useDiscountedTotal } from './OrderTotal.jsx'
+import { CheckCircleIcon, CloseIcon, SpinnerIcon } from '../components/icons.jsx'
+import { AddressPicker } from '../components/AddressPicker.jsx'
+import { QuantityStepper } from '../components/QuantityStepper.jsx'
+import { PaymentMethodModal } from '../components/PaymentMethodModal.jsx'
+import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
 
 const Field = ({ label, children }) => (
   <div>
@@ -33,6 +34,9 @@ const initialForm = (user) => ({
   fulfillment: 'delivery',
   street: '',
   building: '',
+  deliveryLat: null,
+  deliveryLng: null,
+  formattedAddress: '',
   apartment: '',
   isPrivateHouse: false,
   pickupPointId: '',
@@ -42,12 +46,12 @@ const initialForm = (user) => ({
   noCallback: false,
 })
 
-export const CheckoutModal = () => {
+export const CheckoutPage = () => {
+  const navigate = useNavigate()
   const { items, total, checkout } = useCart()
   const { user } = useAuth()
   const { city, cityLabel } = useCity()
   const { discounted } = useDiscountedTotal(total)
-  const { checkoutOpen: open, closeCheckout } = useModals()
   const [form, setForm] = useState(() => initialForm(user))
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -56,19 +60,15 @@ export const CheckoutModal = () => {
 
   const pickupOptions = LOCATIONS.filter((l) => l.city === city)
 
-  // Компонент не розмонтовується між відкриттями — скидаємо форму і
-  // результат попереднього замовлення щоразу, коли модалка відкривається.
+  // Сторінка монтується заново щоразу, коли на неї переходять — форма вже
+  // чиста за замовчуванням, тож це лише підставляє поточного юзера.
   useEffect(() => {
-    if (!open) return
     setForm(initialForm(user))
-    setError('')
-    setOrderResult(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
+  }, [])
 
   // Дефолтна точка самовивозу — перша для обраного міста, і перемикається
-  // разом з ним (а також перераховується щоразу, коли модалку відкривають
-  // наново, бо ефект вище щойно скинув pickupPointId).
+  // разом з ним.
   useEffect(() => {
     setForm((prev) =>
       pickupOptions.some((p) => p.id === prev.pickupPointId)
@@ -76,9 +76,7 @@ export const CheckoutModal = () => {
         : { ...prev, pickupPointId: pickupOptions[0]?.id || '' },
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [city, open])
-
-  if (!open) return null
+  }, [city])
 
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target
@@ -106,22 +104,22 @@ export const CheckoutModal = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 animate-fade-in">
-      <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-3xl border border-border bg-surface p-6">
+    <div className="mx-auto w-full max-w-2xl">
+      <div className="flex flex-col rounded-3xl border border-border bg-surface p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold">
             {orderResult ? 'Замовлення оформлено' : 'Ваше замовлення, любий сусіде:'}
           </h2>
           <button
-            onClick={closeCheckout}
-            aria-label="Закрити"
+            onClick={() => navigate('/')}
+            aria-label="На головну"
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-hover hover:text-text"
           >
             <CloseIcon className="h-4.5 w-4.5" />
           </button>
         </div>
 
-        <div className="overflow-y-auto">
+        <div>
           {orderResult ? (
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-primary-light">
@@ -159,7 +157,7 @@ export const CheckoutModal = () => {
               </div>
 
               <button
-                onClick={closeCheckout}
+                onClick={() => navigate('/')}
                 className="mt-6 inline-block rounded-full bg-primary px-5 py-2 font-semibold text-black transition hover:bg-primary-light"
               >
                 Повернутись до меню
@@ -307,26 +305,36 @@ export const CheckoutModal = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field label="Вулиця">
-                        <input
-                          name="street"
-                          value={form.street}
-                          onChange={handleChange}
-                          required
-                          className={inputClass}
-                        />
-                      </Field>
-                      <Field label="Будинок">
-                        <input
-                          name="building"
-                          value={form.building}
-                          onChange={handleChange}
-                          required
-                          className={inputClass}
-                        />
-                      </Field>
-                    </div>
+                    <AddressPicker
+                      city={city}
+                      value={{
+                        street: form.street,
+                        building: form.building,
+                        lat: form.deliveryLat,
+                        lng: form.deliveryLng,
+                        formattedAddress: form.formattedAddress,
+                      }}
+                      onChange={({ street, building, lat, lng, formattedAddress }) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          street,
+                          building,
+                          deliveryLat: lat,
+                          deliveryLng: lng,
+                          formattedAddress,
+                        }))
+                      }
+                    />
+
+                    <Field label="Будинок (уточніть за потреби)">
+                      <input
+                        name="building"
+                        value={form.building}
+                        onChange={handleChange}
+                        required
+                        className={inputClass}
+                      />
+                    </Field>
 
                     {!form.isPrivateHouse && (
                       <Field label="Квартира">

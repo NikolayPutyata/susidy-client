@@ -1,13 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // Видимість модалок, які раніше були окремими сторінками (логін, реєстрація,
-// мої замовлення, оформлення замовлення) — тепер відкриваються поверх
-// поточної сторінки, так само як кошик (cartSlice.isDrawerOpen).
+// мої замовлення) — тепер відкриваються поверх поточної сторінки, так само
+// як кошик (cartSlice.isDrawerOpen). Оформлення замовлення — знову окрема
+// сторінка (/checkout), не в цьому списку.
 const initialState = {
   loginOpen: false,
   registerOpen: false,
   myOrdersOpen: false,
-  checkoutOpen: false,
   profileOpen: false,
 }
 
@@ -35,12 +35,6 @@ const uiSlice = createSlice({
     closeMyOrders(state) {
       state.myOrdersOpen = false
     },
-    openCheckout(state) {
-      state.checkoutOpen = true
-    },
-    closeCheckout(state) {
-      state.checkoutOpen = false
-    },
     openProfile(state) {
       state.profileOpen = true
     },
@@ -57,8 +51,6 @@ export const {
   closeRegister,
   openMyOrders,
   closeMyOrders,
-  openCheckout,
-  closeCheckout,
   openProfile,
   closeProfile,
 } = uiSlice.actions
@@ -67,5 +59,4 @@ export default uiSlice.reducer
 export const selectLoginOpen = (state) => state.ui.loginOpen
 export const selectRegisterOpen = (state) => state.ui.registerOpen
 export const selectMyOrdersOpen = (state) => state.ui.myOrdersOpen
-export const selectCheckoutOpen = (state) => state.ui.checkoutOpen
 export const selectProfileOpen = (state) => state.ui.profileOpen

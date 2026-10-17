@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { APIProvider } from '@vis.gl/react-google-maps'
 import { Route, Routes } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from './store/hooks.js'
 import {
@@ -15,10 +16,10 @@ import { CityModal } from './components/CityModal.jsx'
 import { LoginModal } from './components/LoginModal.jsx'
 import { RegisterModal } from './components/RegisterModal.jsx'
 import { MyOrdersModal } from './components/MyOrdersModal.jsx'
-import { CheckoutModal } from './components/CheckoutModal.jsx'
 import { ProfileModal } from './components/ProfileModal.jsx'
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute.jsx'
 import { CatalogPage } from './pages/CatalogPage.jsx'
+import { CheckoutPage } from './pages/CheckoutPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { AdminLayout } from './pages/admin/AdminLayout.jsx'
 import { AdminProductsPage } from './pages/admin/AdminProductsPage.jsx'
@@ -45,33 +46,35 @@ function App() {
   }, [dispatch, initializing, isAuthenticated])
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg text-text">
-      <Header />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-8">
-        <Routes>
-          <Route path="/" element={<CatalogPage />} />
+    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}>
+      <div className="flex min-h-screen flex-col bg-bg text-text">
+        <Header />
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-8">
+          <Routes>
+            <Route path="/" element={<CatalogPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
 
-          <Route element={<ProtectedAdminRoute />}>
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminOrdersPage />} />
-              <Route path="orders" element={<AdminOrdersPage />} />
-              <Route path="products" element={<AdminProductsPage />} />
-              <Route path="users" element={<AdminUsersPage />} />
+            <Route element={<ProtectedAdminRoute />}>
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminOrdersPage />} />
+                <Route path="orders" element={<AdminOrdersPage />} />
+                <Route path="products" element={<AdminProductsPage />} />
+                <Route path="users" element={<AdminUsersPage />} />
+              </Route>
             </Route>
-          </Route>
 
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </main>
-      <Footer />
-      <CartDrawer />
-      <CityModal />
-      <LoginModal />
-      <RegisterModal />
-      <MyOrdersModal />
-      <CheckoutModal />
-      <ProfileModal />
-    </div>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </main>
+        <Footer />
+        <CartDrawer />
+        <CityModal />
+        <LoginModal />
+        <RegisterModal />
+        <MyOrdersModal />
+        <ProfileModal />
+      </div>
+    </APIProvider>
   )
 }
 

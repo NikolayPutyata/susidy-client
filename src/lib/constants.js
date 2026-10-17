@@ -49,14 +49,50 @@ export const TIME_SLOTS = Array.from(
   },
 )
 
+// lat/lng mirror the server's PICKUP_POINTS (src/constants/index.js there)
+// — provided directly by the business owner (Google Maps "What's here" pin
+// on each point), not geocoded from the address string.
 export const LOCATIONS = [
-  { id: 'kyiv-berestejskyi', city: 'kyiv', address: 'просп. Берестейський, 9' },
-  { id: 'kyiv-dragomanova', city: 'kyiv', address: 'вул. Драгоманова, 2А' },
-  { id: 'kharkiv-valentynivska', city: 'kharkiv', address: 'вул. Валентинівська, 31В' },
+  {
+    id: 'kyiv-berestejskyi',
+    city: 'kyiv',
+    address: 'просп. Берестейський, 9',
+    lat: 50.447806,
+    lng: 30.484361,
+  },
+  {
+    id: 'kyiv-dragomanova',
+    city: 'kyiv',
+    address: 'вул. Драгоманова, 2А',
+    lat: 50.417611,
+    lng: 30.633111,
+  },
+  {
+    id: 'kharkiv-valentynivska',
+    city: 'kharkiv',
+    address: 'вул. Валентинівська, 31В',
+    lat: 50.013667,
+    lng: 36.342028,
+  },
   {
     id: 'kharkiv-divisions',
     city: 'kharkiv',
     address: 'вул. Харківських дивізій, 11/2',
+    lat: 49.957556,
+    lng: 36.332139,
   },
-  { id: 'kharkiv-svobody', city: 'kharkiv', address: 'просп. Людвіга Свободи, 33' },
+  {
+    id: 'kharkiv-svobody',
+    city: 'kharkiv',
+    address: 'просп. Людвіга Свободи, 33',
+    lat: 50.051556,
+    lng: 36.204833,
+  },
 ]
+
+// Only used to center the map before the customer has picked an address —
+// not business data, so no geocoding dependency.
+export const CITY_CENTERS = {
+  kyiv: { lat: 50.4501, lng: 30.5234 },
+  kharkiv: { lat: 49.9935, lng: 36.2304 },
+}
