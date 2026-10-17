@@ -169,3 +169,27 @@ body {
 .react-datepicker__triangle {
   display: none;
 }
+
+/* Google Places Autocomplete (gmp-place-autocomplete): the predictions
+   dropdown is rendered via shadow-dom parts and defaults to a light theme
+   regardless of the input's own styling — repaint it to match the site. */
+gmp-place-autocomplete::part(prediction-list) {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  margin-top: 4px;
+  overflow: hidden;
+}
+gmp-place-autocomplete::part(prediction-item) {
+  background-color: transparent;
+  color: var(--color-text);
+}
+gmp-place-autocomplete::part(prediction-item-selected) {
+  background-color: var(--color-surface-hover);
+}
+gmp-place-autocomplete::part(prediction-item-main-text) {
+  color: var(--color-text);
+}
+gmp-place-autocomplete::part(prediction-item-match) {
+  color: var(--color-primary-light);
+}

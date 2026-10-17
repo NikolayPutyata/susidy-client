@@ -13,12 +13,12 @@ const PointMarkers = ({ city }) => {
 
   return points.map((point) => (
     <AdvancedMarker key={point.id} position={{ lat: point.lat, lng: point.lng }}>
-      <div
+      <img
+        src="/fav.png"
+        alt={point.address}
         title={point.address}
-        className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-primary text-sm shadow-lg"
-      >
-        🍣
-      </div>
+        className="h-7 w-7 rounded-full shadow-lg"
+      />
     </AdvancedMarker>
   ))
 }
@@ -36,7 +36,10 @@ const useMapClick = (onPick) => {
       if (!e.latLng) return
       onPick({ lat: e.latLng.lat(), lng: e.latLng.lng() })
     })
-    return () => listener.remove()
+    // addListener can come back empty if the map object never finished
+    // initializing (e.g. an auth failure on Google's side after the script
+    // itself loaded) — don't crash the whole page on cleanup over that.
+    return () => listener?.remove()
   }, [map, onPick])
 }
 

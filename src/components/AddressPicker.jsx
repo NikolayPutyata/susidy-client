@@ -17,7 +17,7 @@ const MiniMapPreview = ({ city, position, onClick }) => (
     type="button"
     onClick={onClick}
     aria-label="Відкрити карту"
-    className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-border transition hover:border-primary"
+    className="relative h-24 w-full overflow-hidden rounded-xl border border-border transition hover:border-primary"
   >
     <Map
       mapId="susidy-mini-map"
@@ -35,7 +35,10 @@ const MiniMapPreview = ({ city, position, onClick }) => (
 
 // Ties together the three ways a customer can give us a delivery address —
 // type-and-pick-from-dropdown, tap the mini map, or tap the map-icon
-// button — all three end up calling the same onChange with the same shape.
+// button — all three end up calling the same onChange with the same shape,
+// and the address input itself always reflects whichever was used last.
+// Only rendered once the Google Maps JS API has actually loaded (see
+// CheckoutPage) — the caller falls back to plain inputs otherwise.
 export const AddressPicker = ({ city, value, onChange }) => {
   const [mapOpen, setMapOpen] = useState(false)
   const position = value.lat != null && value.lng != null ? { lat: value.lat, lng: value.lng } : null
@@ -50,29 +53,26 @@ export const AddressPicker = ({ city, value, onChange }) => {
   return (
     <div className="space-y-2">
       <label className="mb-1.5 block text-sm text-text-muted">Адреса доставки</label>
-      <div className="flex gap-2">
-        <div className="min-w-0 flex-1 space-y-2">
-          <AddressAutocompleteInput
-            city={city}
-            className={inputClass}
-            onSelect={({ street, building, lat, lng, formattedAddress }) =>
-              onChange({ street, building, lat, lng, formattedAddress })
-            }
-          />
-          {value.street && (
-            <p className="truncate px-1 text-sm text-text-muted">
-              Обрано: {value.formattedAddress || `${value.street}, ${value.building}`}
-            </p>
-          )}
-        </div>
 
-        <MiniMapPreview city={city} position={position} onClick={() => setMapOpen(true)} />
+      <AddressAutocompleteInput
+        city={city}
+        value={value.formattedAddress || value.street}
+        className={inputClass}
+        onSelect={({ street, building, lat, lng, formattedAddress }) =>
+          onChange({ street, building, lat, lng, formattedAddress })
+        }
+      />
+
+      <div className="flex gap-2">
+        <div className="w-4/5">
+          <MiniMapPreview city={city} position={position} onClick={() => setMapOpen(true)} />
+        </div>
 
         <button
           type="button"
           onClick={() => setMapOpen(true)}
           aria-label="Обрати адресу на карті"
-          className="flex h-24 w-14 shrink-0 items-center justify-center rounded-xl border border-border bg-surface-raised text-text-muted transition hover:border-primary hover:text-primary"
+          className="flex h-24 w-1/5 shrink-0 items-center justify-center rounded-xl border border-border bg-surface-raised text-text-muted transition hover:border-primary hover:text-primary"
         >
           <MapIcon className="h-6 w-6" />
         </button>
@@ -80,7 +80,7 @@ export const AddressPicker = ({ city, value, onChange }) => {
 
       {nearestPoint && (
         <p className="px-1 text-sm text-text-muted">
-          Ваше замовлення готуватиме точка:{' '}
+          Ваше замовлення приїде з адреси:{' '}
           <span className="font-semibold text-text">{nearestPoint.address}</span>
         </p>
       )}
