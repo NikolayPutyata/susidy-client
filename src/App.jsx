@@ -15,10 +15,10 @@ import { CityModal } from './components/CityModal.jsx'
 import { LoginModal } from './components/LoginModal.jsx'
 import { RegisterModal } from './components/RegisterModal.jsx'
 import { MyOrdersModal } from './components/MyOrdersModal.jsx'
-import { CheckoutModal } from './components/CheckoutModal.jsx'
 import { ProfileModal } from './components/ProfileModal.jsx'
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute.jsx'
 import { CatalogPage } from './pages/CatalogPage.jsx'
+import { CheckoutPage } from './pages/CheckoutPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { AdminLayout } from './pages/admin/AdminLayout.jsx'
 import { AdminProductsPage } from './pages/admin/AdminProductsPage.jsx'
@@ -50,6 +50,7 @@ function App() {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-8">
         <Routes>
           <Route path="/" element={<CatalogPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
 
           <Route element={<ProtectedAdminRoute />}>
             <Route path="/admin" element={<AdminLayout />}>
@@ -69,7 +70,6 @@ function App() {
       <LoginModal />
       <RegisterModal />
       <MyOrdersModal />
-      <CheckoutModal />
       <ProfileModal />
     </div>
   )
