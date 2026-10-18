@@ -106,6 +106,21 @@ export const UsersIcon = (props) => (
   </svg>
 )
 
+// Points left by default; pass className="rotate-180" to point right —
+// used for both carousels' prev/next buttons.
+export const ChevronIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
+    <path d="M15 5 8 12l7 7" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
+export const UserIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <circle cx="12" cy="8" r="3.5" />
+    <path d="M4.5 19.5c1-3.5 3.8-5.5 7.5-5.5s6.5 2 7.5 5.5" strokeLinecap="round" />
+  </svg>
+)
+
 export const ImageIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
     <rect x="3" y="4" width="18" height="16" rx="2" />

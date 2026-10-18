@@ -170,6 +170,34 @@ body {
   display: none;
 }
 
+/* Promo carousel (PromoCarousel.jsx): the two neighboring slides around
+   the centered/active one are softened — mirrors sushiicons.com.ua's
+   "blur toward the screen edges" look on desktop's 3-slide view. Only the
+   active slide stays fully sharp. */
+.promo-swiper .swiper-slide {
+  opacity: 0.45;
+  filter: blur(1.5px) saturate(0.85);
+  transition:
+    opacity 0.35s ease,
+    filter 0.35s ease,
+    transform 0.35s ease;
+  transform: scale(0.92);
+}
+.promo-swiper .swiper-slide-active {
+  opacity: 1;
+  filter: none;
+  transform: scale(1);
+}
+
+/* Shared dark-theme pagination dots for both carousels. */
+.home-swiper .swiper-pagination-bullet {
+  background: var(--color-text-subtle);
+  opacity: 1;
+}
+.home-swiper .swiper-pagination-bullet-active {
+  background: var(--color-primary);
+}
+
 /* Google Places Autocomplete (gmp-place-autocomplete): the predictions
    dropdown is rendered via shadow-dom parts and defaults to a light theme
    regardless of the input's own styling — repaint it to match the site. */
