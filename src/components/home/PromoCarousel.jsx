@@ -71,7 +71,7 @@ export const PromoCarousel = () => {
         centeredSlides
         autoplay={
           banners.length > 1
-            ? { delay: 5000, disableOnInteraction: false }
+            ? { delay: 4000, disableOnInteraction: false }
             : false
         }
         pagination={{ clickable: true, dynamicBullets: true }}
