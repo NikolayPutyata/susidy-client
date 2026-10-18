@@ -28,6 +28,11 @@ const emptyForm = {
   posterProductId: '',
   featured: false,
   featuredOrder: '',
+  chefsPick: false,
+  chefsPickOrder: '',
+  proteins: '',
+  fats: '',
+  carbs: '',
 }
 
 const inputClass =
@@ -69,6 +74,11 @@ export const AdminProductsPage = () => {
       posterProductId: product.posterProductId || '',
       featured: product.featured || false,
       featuredOrder: product.featuredOrder || '',
+      chefsPick: product.chefsPick || false,
+      chefsPickOrder: product.chefsPickOrder || '',
+      proteins: product.proteins ?? '',
+      fats: product.fats ?? '',
+      carbs: product.carbs ?? '',
     })
     setFiles([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -199,6 +209,41 @@ export const AdminProductsPage = () => {
           placeholder="Вага, г"
           className={inputClass}
         />
+        <div>
+          <p className="mb-1 text-xs text-text-muted">БЖУ на 100г (необов'язково)</p>
+          <div className="flex gap-1.5">
+            <input
+              name="proteins"
+              type="number"
+              min="0"
+              step="0.1"
+              value={form.proteins}
+              onChange={handleChange}
+              placeholder="Білки"
+              className={inputClass}
+            />
+            <input
+              name="fats"
+              type="number"
+              min="0"
+              step="0.1"
+              value={form.fats}
+              onChange={handleChange}
+              placeholder="Жири"
+              className={inputClass}
+            />
+            <input
+              name="carbs"
+              type="number"
+              min="0"
+              step="0.1"
+              value={form.carbs}
+              onChange={handleChange}
+              placeholder="Вуглеводи"
+              className={inputClass}
+            />
+          </div>
+        </div>
         <select
           name="category"
           value={form.category}
@@ -260,6 +305,30 @@ export const AdminProductsPage = () => {
               name="featuredOrder"
               type="number"
               value={form.featuredOrder}
+              onChange={handleChange}
+              placeholder="Порядок"
+              className="w-20 rounded-lg border border-border bg-surface px-2 py-1 text-sm outline-none focus:border-primary"
+            />
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-raised px-3.5 py-2.5">
+          <input
+            type="checkbox"
+            id="chefsPick"
+            name="chefsPick"
+            checked={form.chefsPick}
+            onChange={handleChange}
+            className="h-4 w-4 rounded border-border bg-surface accent-primary"
+          />
+          <label htmlFor="chefsPick" className="flex-1 cursor-pointer text-sm">
+            Показувати в "Роли від шефа" на головній
+          </label>
+          {form.chefsPick && (
+            <input
+              name="chefsPickOrder"
+              type="number"
+              value={form.chefsPickOrder}
               onChange={handleChange}
               placeholder="Порядок"
               className="w-20 rounded-lg border border-border bg-surface px-2 py-1 text-sm outline-none focus:border-primary"

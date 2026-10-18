@@ -67,7 +67,7 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
 
   const goToCategory = (value) => {
     onClose()
-    navigate(value === 'all' ? '/' : `/?category=${value}`)
+    navigate(value === 'all' ? '/' : `/category/${value}`)
   }
 
   return (
@@ -205,9 +205,8 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
 }
 
 // Search box inline in the header — always a text input (no icon-to-expand
-// step), submitting routes to /?search=... the same way a category click
-// routes to /?category=... (handled in CatalogPage.jsx). Desktop-only
-// (sm:flex) — mobile search isn't in scope of this round.
+// step), submitting routes to /?search=... (handled in CatalogPage.jsx).
+// Desktop-only (sm:flex) — mobile search isn't in scope of this round.
 const SearchBox = () => {
   const navigate = useNavigate()
   const [value, setValue] = useState('')

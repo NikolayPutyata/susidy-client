@@ -7,10 +7,7 @@ import { CATEGORIES } from '../../lib/constants.js'
 // category — no separate "category image" field anywhere to manage, so
 // there's nothing for the admin to keep in sync (a new category just
 // starts showing a tile the moment its first product gets a photo).
-// Fetches the full catalog itself rather than taking it as a prop — this
-// section stays visible (and needs every category's image) regardless of
-// which single category CatalogPage currently has selected.
-export const CategoryTiles = ({ activeCategory }) => {
+export const CategoryTiles = () => {
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
 
@@ -48,11 +45,8 @@ export const CategoryTiles = ({ activeCategory }) => {
           <button
             key={tile.value}
             type="button"
-            aria-current={activeCategory === tile.value ? 'true' : undefined}
-            onClick={() => navigate(`/?category=${tile.value}`)}
-            className={`group relative aspect-square overflow-hidden rounded-2xl bg-surface text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
-              activeCategory === tile.value ? 'ring-2 ring-primary' : ''
-            }`}
+            onClick={() => navigate(`/category/${tile.value}`)}
+            className="group relative aspect-square overflow-hidden rounded-2xl bg-surface text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
           >
             <img
               src={tile.image}

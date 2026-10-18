@@ -72,6 +72,28 @@ export const ProductDetailModal = ({
           <p className="mb-3 text-sm text-text-subtle">{product.weight} г</p>
         )}
 
+        {(product.proteins || product.fats || product.carbs) && (
+          <div className="mb-3">
+            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-text-subtle">
+              БЖУ на 100г
+            </h3>
+            <div className="flex gap-4 rounded-xl border border-border bg-surface-raised px-3.5 py-2.5 text-sm">
+              <span>
+                <span className="text-text-subtle">Білки </span>
+                {product.proteins ?? '—'} г
+              </span>
+              <span>
+                <span className="text-text-subtle">Жири </span>
+                {product.fats ?? '—'} г
+              </span>
+              <span>
+                <span className="text-text-subtle">Вуглеводи </span>
+                {product.carbs ?? '—'} г
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3">
           {product.description && <DetailRow label="Опис">{product.description}</DetailRow>}
           {product.composition && <DetailRow label="Склад">{product.composition}</DetailRow>}

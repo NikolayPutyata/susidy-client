@@ -20,6 +20,7 @@ import { MyOrdersModal } from './components/MyOrdersModal.jsx'
 import { ProfileModal } from './components/ProfileModal.jsx'
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute.jsx'
 import { CatalogPage } from './pages/CatalogPage.jsx'
+import { CategoryPage } from './pages/CategoryPage.jsx'
 import { CheckoutPage } from './pages/CheckoutPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { AdminLayout } from './pages/admin/AdminLayout.jsx'
@@ -67,6 +68,7 @@ function App() {
         <main className="w-full flex-1 pb-8 pt-8">
           <Routes>
             <Route path="/" element={<CatalogPage />} />
+            <Route path="/category/:categoryValue" element={<CategoryPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
 
             <Route element={<ProtectedAdminRoute />}>
