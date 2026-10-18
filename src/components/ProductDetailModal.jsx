@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CloseIcon, SpinnerIcon } from './icons.jsx'
 import { QuantityStepper } from './QuantityStepper.jsx'
@@ -29,7 +30,13 @@ export const ProductDetailModal = ({
 
   if (!open) return null
 
-  return (
+  // Portalled to <body> — ProductCard (and this modal with it) can be
+  // rendered inside a Swiper slide (e.g. the "Обирають найчастіше"
+  // carousel), and Swiper applies a CSS transform to its slides for
+  // positioning. A transform on any ancestor turns position:fixed
+  // descendants into positioning relative to that ancestor instead of the
+  // viewport, which trapped this modal inside the carousel slide's box.
+  return createPortal(
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 animate-fade-in"
       onClick={onClose}
@@ -93,6 +100,7 @@ export const ProductDetailModal = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

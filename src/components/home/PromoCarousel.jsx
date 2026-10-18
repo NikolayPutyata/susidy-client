@@ -83,7 +83,7 @@ export const PromoCarousel = () => {
               type="button"
               onClick={() => handleBannerClick(banner.link)}
               disabled={!banner.link}
-              className={`relative block aspect-[16/9] w-full overflow-hidden rounded-3xl bg-surface text-left ${
+              className={`relative block aspect-[16/9] w-full overflow-hidden rounded-3xl bg-surface text-left sm:aspect-auto sm:h-[380px] md:h-[440px] lg:h-[520px] ${
                 banner.link ? 'cursor-pointer' : 'cursor-default'
               }`}
             >
