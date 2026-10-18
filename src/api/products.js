@@ -9,5 +9,8 @@ export const fetchProductsByCategory = (category) =>
 export const fetchFeaturedProducts = () =>
   apiClient.get('/products/featured').then((r) => r.data.data)
 
+export const fetchChefsPickProducts = () =>
+  apiClient.get('/products/chefs-picks').then((r) => r.data.data)
+
 export const fetchProductById = (productId) =>
   apiClient.get(`/products/${productId}`).then((r) => r.data.data)

@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
 import 'swiper/css'
-import { fetchFeaturedProducts } from '../../api/products.js'
 import { ProductCard } from '../ProductCard.jsx'
 import { ChevronIcon } from '../icons.jsx'
 
-// Smaller "Обирають найчастіше" carousel just below the promo one —
-// manually curated (products.featured), manual navigation only (no
-// autoplay). Reuses ProductCard as-is, same card as the regular grid.
-export const PopularCarousel = () => {
+// Generic manually-curated product carousel — used both for "Обирають
+// найчастіше" (products.featured) and "Роли від шефа" (products.chefsPick),
+// same mechanics, just a different heading and source list. Manual
+// navigation only (no autoplay). Reuses ProductCard as-is, same card as
+// the regular grid.
+export const ProductCarousel = ({ title, subtitle, fetchProducts }) => {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [swiper, setSwiper] = useState(null)
@@ -18,7 +19,8 @@ export const PopularCarousel = () => {
 
   useEffect(() => {
     let cancelled = false
-    fetchFeaturedProducts()
+    setLoading(true)
+    fetchProducts()
       .then((data) => {
         if (!cancelled) setProducts(data)
       })
@@ -31,7 +33,7 @@ export const PopularCarousel = () => {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [fetchProducts])
 
   if (loading || products.length === 0) return null
 
@@ -45,10 +47,8 @@ export const PopularCarousel = () => {
     <div>
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-extrabold sm:text-xl">
-            Обирають найчастіше
-          </h2>
-          <p className="text-sm text-text-muted">Тут зібрані справжні хіти меню</p>
+          <h2 className="text-lg font-extrabold sm:text-xl">{title}</h2>
+          <p className="text-sm text-text-muted">{subtitle}</p>
         </div>
 
         <div className="flex items-center gap-2.5 text-sm text-text-muted">

@@ -147,7 +147,7 @@ export const AdminBannersPage = () => {
           name="link"
           value={form.link}
           onChange={handleChange}
-          placeholder="Посилання (необов'язково), напр. /?category=sets"
+          placeholder="Посилання (необов'язково), напр. /category/sets"
           className={inputClass}
         />
         <div className="flex gap-1.5">
