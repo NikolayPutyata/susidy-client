@@ -28,10 +28,18 @@ export const useCity = () => {
     [city],
   )
 
+  // Re-runs the same reprice the city switch itself triggers — for when it
+  // failed the first time (catalog fetch error) and left the cart on the
+  // previous city's prices; see cartSlice.js's repriceError.
+  const retryReprice = useCallback(() => {
+    dispatch(repriceCartForCity(city))
+  }, [dispatch, city])
+
   return {
     city,
     cityLabel: city ? CITY_LABELS[city] : null,
     setCity,
     getPrice,
+    retryReprice,
   }
 }

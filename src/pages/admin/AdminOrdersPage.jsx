@@ -172,6 +172,11 @@ export const AdminOrdersPage = () => {
   const [dayOrders, setDayOrders] = useState([])
   const [phone, setPhone] = useState('')
   const [activePhone, setActivePhone] = useState('')
+  // Bumped on every search submit so re-searching the SAME phone number
+  // still re-fires the fetch below — without it, setActivePhone(phone)
+  // with an unchanged value is a no-op state update, so clicking "Знайти"
+  // again while already viewing those results silently did nothing.
+  const [searchNonce, setSearchNonce] = useState(0)
   const [searchResults, setSearchResults] = useState(null)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -207,7 +212,7 @@ export const AdminOrdersPage = () => {
       })
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false))
-  }, [tab, activePhone, page])
+  }, [tab, activePhone, page, searchNonce])
 
   const handleTabChange = (newTab) => {
     setTab(newTab)
@@ -224,6 +229,7 @@ export const AdminOrdersPage = () => {
     if (!phone.trim()) return
     setPage(1)
     setActivePhone(phone.trim())
+    setSearchNonce((n) => n + 1)
   }
 
   return (

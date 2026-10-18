@@ -69,12 +69,24 @@ export const AuthModal = () => {
     e.preventDefault()
     setSubmitting(true)
     setError('')
+    let registered = false
     try {
       await register(registerForm)
+      registered = true
       await login({ phoneNumber: registerForm.phoneNumber, password: registerForm.password })
       closeRegister()
     } catch (err) {
-      setError(getErrorMessage(err))
+      // A failure here could be register itself, or the auto-login right
+      // after a successful register (e.g. a transient network blip) — the
+      // account exists either way in the second case, and re-submitting
+      // this same form would now just fail as "phone already taken" with
+      // no clue why. Point at the "Увійти" link instead of the generic
+      // error for that case.
+      setError(
+        registered
+          ? 'Акаунт створено, але увійти автоматично не вдалось. Натисніть "Увійти" нижче і спробуйте ще раз.'
+          : getErrorMessage(err),
+      )
     } finally {
       setSubmitting(false)
     }
