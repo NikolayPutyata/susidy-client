@@ -79,11 +79,20 @@ export const PromoCarousel = () => {
         slidesPerView={1.1}
         spaceBetween={12}
         breakpoints={{
-          640: { slidesPerView: 2, spaceBetween: 20 },
+          // 'auto' + each slide's own fixed sm:w-[500px] (below) — instead
+          // of a fixed slidesPerView dividing a capped container — keeps
+          // the card at the same size on any wide screen while the
+          // carousel itself stays full-bleed, so extra neighbor slides
+          // naturally overflow past the viewport edges (softened by the
+          // edge-fade mask in index.css) rather than leaving empty space.
+          640: { slidesPerView: 'auto', spaceBetween: 20 },
         }}
       >
         {slidesToRender.map((banner, index) => (
-          <SwiperSlide key={`${banner._id}-${index}`}>
+          // sm:w-[500px] has to sit on the slide itself, not a descendant
+          // — Swiper's own base CSS sets .swiper-slide { width: 100% },
+          // which otherwise wins over a width class on a nested element.
+          <SwiperSlide key={`${banner._id}-${index}`} className="sm:!w-[500px]">
             <button
               type="button"
               onClick={() => handleBannerClick(banner.link)}

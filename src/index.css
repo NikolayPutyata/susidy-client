@@ -198,6 +198,33 @@ body {
   transform: scale(1);
 }
 
+/* Edge fade on sm+ (desktop): the carousel is full-bleed with a fixed
+   500px slide, so extra neighbor slides spill past the viewport edges —
+   this fades that spillover into transparency (revealing the page's own
+   black background behind it, not a drawn-on color) instead of a hard
+   clip. The fade band is a fixed pixel width, not a %, so it can never
+   eat into the centered active slide itself regardless of viewport
+   width. Mobile (slidesPerView:1.1, no spillover worth softening) is
+   untouched. */
+@media (min-width: 640px) {
+  .promo-swiper {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 48px,
+      black calc(100% - 48px),
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 48px,
+      black calc(100% - 48px),
+      transparent
+    );
+  }
+}
+
 /* Shared dark-theme pagination dots for both carousels. */
 .home-swiper .swiper-pagination-bullet {
   background: var(--color-text-subtle);
