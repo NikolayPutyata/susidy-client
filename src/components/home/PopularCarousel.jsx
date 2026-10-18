@@ -42,7 +42,7 @@ export const PopularCarousel = () => {
   )
 
   return (
-    <div className="mb-8">
+    <div>
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-extrabold sm:text-xl">
@@ -55,7 +55,7 @@ export const PopularCarousel = () => {
           <button
             onClick={() => swiper?.slidePrev()}
             aria-label="Назад"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-text transition hover:bg-surface-hover disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-text transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-40"
             disabled={currentPage <= 1}
           >
             <ChevronIcon className="h-4 w-4" />
@@ -66,7 +66,7 @@ export const PopularCarousel = () => {
           <button
             onClick={() => swiper?.slideNext()}
             aria-label="Вперед"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-text transition hover:bg-surface-hover disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-text transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-40"
             disabled={currentPage >= pageCount}
           >
             <ChevronIcon className="h-4 w-4 rotate-180" />
