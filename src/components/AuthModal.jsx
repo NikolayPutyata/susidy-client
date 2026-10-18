@@ -8,8 +8,38 @@ import { CloseIcon, SpinnerIcon } from './icons.jsx'
 const inputClass =
   'w-full rounded-xl border border-border bg-surface-raised px-4 py-2.5 text-text placeholder:text-text-subtle outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30'
 
+// Right half of a "country code pill + phone input" pair — same visual
+// treatment as inputClass, just rounded only on the right so it sits
+// flush against the pill.
+const phoneInputClass =
+  'w-full rounded-r-xl border border-border bg-surface-raised px-4 py-2.5 text-text placeholder:text-text-subtle outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30'
+
 const emptyLoginForm = { phoneNumber: '', password: '' }
 const emptyRegisterForm = { name: '', phoneNumber: '', password: '', city: '' }
+
+// "+38" (not the full "+380") sits directly against the existing 10-digit
+// input, which still starts with the trunk 0 exactly as before — read
+// together they form "+380991234567", the correct international number.
+// Purely decorative: the input's value, validation and what gets sent to
+// the API are all completely unchanged from before this field existed.
+// Ukraine-only on purpose (delivery is Kyiv/Kharkiv only, nothing to
+// detect or pick), so it's a static pill, not a country dropdown.
+const PhoneField = ({ value, onChange }) => (
+  <div className="flex">
+    <span className="flex shrink-0 items-center gap-1 rounded-l-xl border border-r-0 border-border bg-surface-raised px-3 text-sm text-text-muted">
+      🇺🇦 +38
+    </span>
+    <input
+      name="phoneNumber"
+      value={value}
+      onChange={onChange}
+      required
+      pattern="[0-9]{10}"
+      placeholder="0991234567"
+      className={phoneInputClass}
+    />
+  </div>
+)
 
 // Login and register used to be two separate modal components — switching
 // between them (via "Зареєструватися" / "Увійти") unmounted one full
@@ -107,15 +137,7 @@ export const AuthModal = () => {
           <>
             <h2 className="mb-5 text-center text-xl font-bold">Вхід в акаунт</h2>
             <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <input
-                name="phoneNumber"
-                value={loginForm.phoneNumber}
-                onChange={handleLoginChange}
-                required
-                pattern="[0-9]{10}"
-                placeholder="Телефон, 0991234567"
-                className={inputClass}
-              />
+              <PhoneField value={loginForm.phoneNumber} onChange={handleLoginChange} />
               <input
                 type="password"
                 name="password"
@@ -155,15 +177,7 @@ export const AuthModal = () => {
                 minLength={3}
                 className={inputClass}
               />
-              <input
-                name="phoneNumber"
-                value={registerForm.phoneNumber}
-                onChange={handleRegisterChange}
-                required
-                pattern="[0-9]{10}"
-                placeholder="Телефон, 0991234567"
-                className={inputClass}
-              />
+              <PhoneField value={registerForm.phoneNumber} onChange={handleRegisterChange} />
               <input
                 type="password"
                 name="password"
