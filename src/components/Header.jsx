@@ -312,7 +312,7 @@ export const Header = () => {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-white/5 bg-black">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-2.5 sm:px-10 md:px-16 lg:px-24">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3 sm:px-10 sm:py-4 md:px-16 lg:px-24">
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setMenuOpen(true)}
