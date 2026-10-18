@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { APILoadingStatus, useApiLoadingStatus } from '@vis.gl/react-google-maps'
@@ -78,9 +78,9 @@ const getAvailableTimeSlots = () => {
 export const CheckoutPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { items, total, checkout } = useCart()
+  const { items, total, checkout, repriceError } = useCart()
   const { user, isAuthenticated } = useAuth()
-  const { city, cityLabel } = useCity()
+  const { city, cityLabel, retryReprice } = useCity()
   const { discounted } = useDiscountedTotal(total)
   const [form, setForm] = useState(() => initialForm(user))
   const [submitting, setSubmitting] = useState(false)
@@ -118,6 +118,22 @@ export const CheckoutPage = () => {
         ? prev
         : { ...prev, pickupPointId: pickupOptions[0]?.id || '' },
     )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [city])
+
+  // A delivery address (manual, map-picked, or a selected saved one)
+  // belongs to one specific city — switching city mid-checkout (the header
+  // switcher works from any page, checkout included) used to leave the old
+  // city's address sitting in the form untouched, which could reach the
+  // server as e.g. Kyiv coordinates with city: 'kharkiv'. Dropping it the
+  // same way pickupPointId already resets above keeps the two in sync.
+  const isFirstCityRender = useRef(true)
+  useEffect(() => {
+    if (isFirstCityRender.current) {
+      isFirstCityRender.current = false
+      return
+    }
+    clearSavedAddressSelection()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city])
 
@@ -177,6 +193,23 @@ export const CheckoutPage = () => {
     // without this, a delivery order could go out with no address at all.
     if (form.fulfillment === 'delivery' && mapsLoaded && form.deliveryLat == null) {
       setError('Вкажіть адресу доставки з номером будинку.')
+      return
+    }
+
+    // The cart can be sitting on stale (previous-city) prices if the last
+    // reprice attempt failed — never let an order go out at the wrong
+    // price silently.
+    if (repriceError) {
+      setError('Ціни в кошику не оновлено під поточне місто — спробуйте ще раз нижче, перш ніж оформити замовлення.')
+      return
+    }
+
+    // The time <select> is replaced with a plain message once there's
+    // nothing left to pick for pickup today — requestedTime can be stuck
+    // at '' in that state, which the server would reject anyway, but a
+    // clear message here beats a generic "Data is not valid" round trip.
+    if (form.fulfillment === 'pickup' && availableTimeSlots.length === 0) {
+      setError('На сьогодні немає вільного часу для самовивозу — спробуйте завтра.')
       return
     }
 
@@ -325,6 +358,19 @@ export const CheckoutPage = () => {
                 <div className="border-t border-border pt-3">
                   <OrderTotal total={total} size="lg" />
                 </div>
+                {repriceError && (
+                  <p className="rounded-xl bg-accent/10 px-4 py-2.5 text-sm text-accent">
+                    Не вдалось оновити ціни під поточне місто — показані ціни
+                    можуть бути старими.{' '}
+                    <button
+                      type="button"
+                      onClick={retryReprice}
+                      className="underline underline-offset-2"
+                    >
+                      Спробувати ще раз
+                    </button>
+                  </p>
+                )}
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -385,22 +431,28 @@ export const CheckoutPage = () => {
                 </div>
 
                 <Field label={form.fulfillment === 'pickup' ? 'Час самовивозу' : 'Час доставки'}>
-                  <select
-                    name="requestedTime"
-                    value={form.requestedTime}
-                    onChange={handleChange}
-                    required
-                    className={inputClass}
-                  >
-                    {form.fulfillment === 'delivery' && (
-                      <option value="asap">Якнайшвидше</option>
-                    )}
-                    {availableTimeSlots.map((slot) => (
-                      <option key={slot} value={slot}>
-                        {slot}
-                      </option>
-                    ))}
-                  </select>
+                  {form.fulfillment === 'pickup' && availableTimeSlots.length === 0 ? (
+                    <p className="rounded-xl border border-border bg-surface-raised px-4 py-2.5 text-sm text-text-muted">
+                      На сьогодні немає вільного часу для самовивозу — спробуйте завтра.
+                    </p>
+                  ) : (
+                    <select
+                      name="requestedTime"
+                      value={form.requestedTime}
+                      onChange={handleChange}
+                      required
+                      className={inputClass}
+                    >
+                      {form.fulfillment === 'delivery' && (
+                        <option value="asap">Якнайшвидше</option>
+                      )}
+                      {availableTimeSlots.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {slot}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </Field>
 
                 {form.fulfillment === 'pickup' ? (
@@ -569,12 +621,7 @@ export const CheckoutPage = () => {
 
                   <button
                     type="submit"
-                    disabled={submitting || form.noCallback}
-                    title={
-                      form.noCallback
-                        ? 'Недоступно з "не передзвонювати мені" — оплатіть одразу'
-                        : undefined
-                    }
+                    disabled={submitting}
                     className="flex items-center justify-center gap-2 rounded-full border border-border bg-surface-raised py-3 text-sm font-semibold text-text transition hover:bg-surface-hover disabled:opacity-40"
                   >
                     {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}

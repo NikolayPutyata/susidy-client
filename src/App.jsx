@@ -3,12 +3,14 @@ import { APIProvider } from '@vis.gl/react-google-maps'
 import { Route, Routes } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from './store/hooks.js'
 import {
+  clearUser,
   hasHardcodedUser,
   restoreSession,
   selectAuthInitializing,
   selectIsAuthenticated,
 } from './store/userSlice.js'
 import { hasHardcodedCart, loadMyCart } from './store/cartSlice.js'
+import { setUnauthorizedHandler } from './api/client.js'
 import { Header } from './components/Header.jsx'
 import { Footer } from './components/Footer.jsx'
 import { CartDrawer } from './components/CartDrawer.jsx'
@@ -34,6 +36,14 @@ function App() {
     // Якщо в userSlice захардкоджений initialUser — не перетираємо його
     // реальним (майже напевно невдалим у цьому режимі) зверненням до бекенду.
     if (!hasHardcodedUser) dispatch(restoreSession())
+  }, [dispatch])
+
+  useEffect(() => {
+    // Коли refresh-токен більше не дійсний (сплив час сесії, кукі
+    // підчищена браузером) — api/client.js ловить це, але раніше нікому не
+    // повідомляв: юзер лишався "залогіненим" у Redux, поки кожен наступний
+    // захищений запит тихо не 401-ив. Тепер стан скидається одразу.
+    setUnauthorizedHandler(() => dispatch(clearUser()))
   }, [dispatch])
 
   useEffect(() => {

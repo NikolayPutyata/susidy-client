@@ -19,6 +19,11 @@ export const AdminUsersPage = () => {
   const [users, setUsers] = useState([])
   const [phone, setPhone] = useState('')
   const [activePhone, setActivePhone] = useState('')
+  // Bumped on every search submit so re-searching the SAME phone number
+  // still re-fires the fetch below — otherwise setActivePhone(phone) with
+  // an unchanged value is a no-op state update, and clicking "Знайти"
+  // again does nothing.
+  const [searchNonce, setSearchNonce] = useState(0)
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(PER_PAGE_OPTIONS[0])
   const [totalPages, setTotalPages] = useState(1)
@@ -47,7 +52,7 @@ export const AdminUsersPage = () => {
       })
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false))
-  }, [page, perPage, activePhone, sortBy, sortDir])
+  }, [page, perPage, activePhone, sortBy, sortDir, searchNonce])
 
   const toggleSort = (field) => {
     setPage(1)
@@ -77,6 +82,7 @@ export const AdminUsersPage = () => {
     e.preventDefault()
     setPage(1)
     setActivePhone(phone.trim())
+    setSearchNonce((n) => n + 1)
   }
 
   const handleResetSearch = () => {

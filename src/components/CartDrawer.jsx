@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
+import { useCity } from '../hooks/useCity.js'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CartItemsList } from './CartItemsList.jsx'
 import { CartIcon, CloseIcon } from './icons.jsx'
@@ -12,7 +13,8 @@ const CLOSE_ANIMATION_MS = 200
 
 export const CartDrawer = () => {
   const navigate = useNavigate()
-  const { items, loading, isDrawerOpen, closeDrawer, total } = useCart()
+  const { items, loading, isDrawerOpen, closeDrawer, total, repriceError } = useCart()
+  const { retryReprice } = useCity()
   const [error, setError] = useState('')
   const [rendered, setRendered] = useState(isDrawerOpen)
   const [closing, setClosing] = useState(false)
@@ -99,6 +101,19 @@ export const CartDrawer = () => {
         {items.length > 0 && (
           <div className="space-y-3 border-t border-border px-5 py-4">
             {error && <p className="text-sm text-accent">{error}</p>}
+            {repriceError && (
+              <p className="text-sm text-accent">
+                Не вдалось оновити ціни під нове місто — показані ціни можуть
+                бути старими.{' '}
+                <button
+                  type="button"
+                  onClick={retryReprice}
+                  className="underline underline-offset-2"
+                >
+                  Спробувати ще раз
+                </button>
+              </p>
+            )}
             <OrderTotal total={total} />
             <button
               onClick={goToCheckout}

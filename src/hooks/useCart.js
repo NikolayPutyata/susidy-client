@@ -14,6 +14,7 @@ import {
   selectCartLoading,
   selectIsDrawerOpen,
   selectItemsCount,
+  selectRepriceError,
   selectTotal,
   updateItemRemote,
   updateLocalItem,
@@ -30,6 +31,7 @@ export const useCart = () => {
   const isDrawerOpen = useAppSelector(selectIsDrawerOpen)
   const itemsCount = useAppSelector(selectItemsCount)
   const total = useAppSelector(selectTotal)
+  const repriceError = useAppSelector(selectRepriceError)
 
   const addItem = useCallback(
     (product, quantity, price) => {
@@ -112,6 +114,7 @@ export const useCart = () => {
     loading,
     itemsCount,
     total,
+    repriceError,
     addItem,
     addItems,
     updateItem,

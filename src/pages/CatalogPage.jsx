@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { fetchAllProducts, fetchProductsByCategory } from '../api/products.js'
 import { CATEGORIES } from '../lib/constants.js'
@@ -30,6 +30,8 @@ export const CatalogPage = () => {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const categoryBarRef = useRef(null)
+  const isFirstCategoryRender = useRef(true)
 
   const setCategory = (value) => {
     if (value === 'all') {
@@ -65,6 +67,20 @@ export const CatalogPage = () => {
     }
   }, [category])
 
+  // Switching category while scrolled far down a long grid used to leave
+  // the viewport stranded past the new (often shorter) grid's end, with
+  // the sticky category bar no longer pinned anywhere sensible — scroll it
+  // back into place, but not on the very first mount (don't fight a
+  // deep-linked ?category= or the browser's own back/forward scroll
+  // restoration).
+  useEffect(() => {
+    if (isFirstCategoryRender.current) {
+      isFirstCategoryRender.current = false
+      return
+    }
+    categoryBarRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [category])
+
   return (
     <div>
       <Hero />
@@ -72,7 +88,10 @@ export const CatalogPage = () => {
       {/* z-20: must paint above ProductCard's favorite-heart button (z-10) —
           with equal z-index, the later-in-DOM product grid would otherwise
           win the tie-break and show through this bar while scrolling. */}
-      <div className="sticky top-0 z-20 -mx-4 mb-6 hidden bg-bg/95 px-4 py-3 backdrop-blur sm:block">
+      <div
+        ref={categoryBarRef}
+        className="sticky top-0 z-20 -mx-4 mb-6 hidden bg-bg/95 px-4 py-3 backdrop-blur sm:block"
+      >
         <div className="flex justify-center gap-2 overflow-x-auto pb-1">
           <button
             onClick={() => setCategory('all')}

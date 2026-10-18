@@ -56,6 +56,11 @@ const initialState = {
   loading: false,
   isDrawerOpen: false,
   error: null,
+  // True when the last city switch couldn't actually reprice the cart
+  // (catalog fetch failed) — the items shown (and what checkout would
+  // submit) are still the OLD city's prices. Surfaced in CartDrawer/
+  // CheckoutPage so that never happens silently.
+  repriceError: false,
 }
 
 // ---- Кошик залогіненого юзера — завжди через сервер ----
@@ -133,7 +138,7 @@ export const repriceCartForCity = createAsyncThunk(
   async (city, { getState }) => {
     const state = getState()
     const items = state.cart.items
-    if (items.length === 0) return items
+    if (items.length === 0) return { items, failed: false }
 
     const priceField = city === 'kharkiv' ? 'priceKharkov' : 'priceKiev'
 
@@ -141,9 +146,11 @@ export const repriceCartForCity = createAsyncThunk(
     try {
       products = await fetchAllProducts()
     } catch {
-      // Без каталогу нема з чим звірити нову ціну — краще лишити стару,
-      // ніж впасти.
-      return items
+      // Без каталогу нема з чим звірити нову ціну — лишаємо стару, АЛЕ
+      // позначаємо репрайс як невдалий, щоб UI міг це показати: ці items
+      // досі за старою ціною й саме вони підуть у замовлення, якщо
+      // нічого не зробити.
+      return { items, failed: true }
     }
 
     const repriced = items.map((item) => {
@@ -164,7 +171,7 @@ export const repriceCartForCity = createAsyncThunk(
       writeLocalCart(repriced)
     }
 
-    return repriced
+    return { items: repriced, failed: false }
   },
 )
 
@@ -252,7 +259,8 @@ const cartSlice = createSlice({
         state.items = action.payload
       })
       .addCase(repriceCartForCity.fulfilled, (state, action) => {
-        state.items = action.payload
+        state.items = action.payload.items
+        state.repriceError = action.payload.failed
       })
       .addCase(checkout.fulfilled, (state) => {
         state.items = []
@@ -283,6 +291,7 @@ export default cartSlice.reducer
 export const selectCartItems = (state) => state.cart.items
 export const selectCartLoading = (state) => state.cart.loading
 export const selectIsDrawerOpen = (state) => state.cart.isDrawerOpen
+export const selectRepriceError = (state) => state.cart.repriceError
 export const selectItemsCount = (state) =>
   state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
 export const selectTotal = (state) =>
