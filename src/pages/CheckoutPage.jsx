@@ -256,11 +256,12 @@ export const CheckoutPage = () => {
   }
 
   return (
-    // rounded-none/border-0/p-4 on mobile (sm: reverts to the card look)
-    // avoids double side-insets stacking main's own px-4 with the card's
-    // own padding, which left fields narrower than they needed to be on a
-    // phone screen.
-    <div className="mx-auto w-full max-w-2xl">
+    // No side padding on mobile (full-bleed, rounded-none/border-0 card —
+    // avoids double side-insets stacking an outer gutter with the card's
+    // own p-4, which left fields narrower than they needed to be on a
+    // phone screen); sm:px-4 reintroduces an outer gutter once the card
+    // stops being full-bleed.
+    <div className="mx-auto w-full max-w-2xl sm:px-4">
       <div className="flex flex-col rounded-none border-0 bg-surface p-4 sm:rounded-3xl sm:border sm:border-border sm:p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold">
