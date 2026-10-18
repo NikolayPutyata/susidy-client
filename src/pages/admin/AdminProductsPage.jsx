@@ -25,6 +25,7 @@ const emptyForm = {
   weight: '',
   composition: '',
   allergens: '',
+  posterProductId: '',
 }
 
 const inputClass =
@@ -63,6 +64,7 @@ export const AdminProductsPage = () => {
       weight: product.weight || '',
       composition: product.composition || '',
       allergens: product.allergens || '',
+      posterProductId: product.posterProductId || '',
     })
     setFiles([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -225,6 +227,13 @@ export const AdminProductsPage = () => {
           onChange={handleChange}
           placeholder="Алергени"
           rows={2}
+          className={inputClass}
+        />
+        <input
+          name="posterProductId"
+          value={form.posterProductId}
+          onChange={handleChange}
+          placeholder="Poster product ID (для автовідправки замовлень у Poster)"
           className={inputClass}
         />
 
