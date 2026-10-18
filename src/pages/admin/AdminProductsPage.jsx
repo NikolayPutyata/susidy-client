@@ -26,6 +26,8 @@ const emptyForm = {
   composition: '',
   allergens: '',
   posterProductId: '',
+  featured: false,
+  featuredOrder: '',
 }
 
 const inputClass =
@@ -65,6 +67,8 @@ export const AdminProductsPage = () => {
       composition: product.composition || '',
       allergens: product.allergens || '',
       posterProductId: product.posterProductId || '',
+      featured: product.featured || false,
+      featuredOrder: product.featuredOrder || '',
     })
     setFiles([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -76,8 +80,10 @@ export const AdminProductsPage = () => {
     setFiles([])
   }
 
-  const handleChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  const handleChange = (e) => {
+    const { name, type, checked, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -236,6 +242,30 @@ export const AdminProductsPage = () => {
           placeholder="Poster product ID (для автовідправки замовлень у Poster)"
           className={inputClass}
         />
+
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-raised px-3.5 py-2.5">
+          <input
+            type="checkbox"
+            id="featured"
+            name="featured"
+            checked={form.featured}
+            onChange={handleChange}
+            className="h-4 w-4 rounded border-border bg-surface accent-primary"
+          />
+          <label htmlFor="featured" className="flex-1 cursor-pointer text-sm">
+            Показувати в "Обирають найчастіше" на головній
+          </label>
+          {form.featured && (
+            <input
+              name="featuredOrder"
+              type="number"
+              value={form.featuredOrder}
+              onChange={handleChange}
+              placeholder="Порядок"
+              className="w-20 rounded-lg border border-border bg-surface px-2 py-1 text-sm outline-none focus:border-primary"
+            />
+          )}
+        </div>
 
         <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-dashed border-border-strong px-3.5 py-2.5 text-xs text-text-muted transition hover:border-primary hover:text-text">
           <UploadIcon className="h-4 w-4" />

@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { BoxIcon, ReceiptIcon, UsersIcon } from '../../components/icons.jsx'
+import { BoxIcon, ImageIcon, ReceiptIcon, UsersIcon } from '../../components/icons.jsx'
 
 const linkClass = ({ isActive }) =>
   `flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition ${
@@ -23,6 +23,10 @@ export const AdminLayout = () => {
           <NavLink to="/admin/products" className={linkClass}>
             <BoxIcon className="h-4.5 w-4.5" />
             Товари
+          </NavLink>
+          <NavLink to="/admin/banners" className={linkClass}>
+            <ImageIcon className="h-4.5 w-4.5" />
+            Банери
           </NavLink>
           <NavLink to="/admin/users" className={linkClass}>
             <UsersIcon className="h-4.5 w-4.5" />

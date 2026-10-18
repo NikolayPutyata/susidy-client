@@ -26,6 +26,7 @@ import { AdminLayout } from './pages/admin/AdminLayout.jsx'
 import { AdminProductsPage } from './pages/admin/AdminProductsPage.jsx'
 import { AdminUsersPage } from './pages/admin/AdminUsersPage.jsx'
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage.jsx'
+import { AdminBannersPage } from './pages/admin/AdminBannersPage.jsx'
 
 function App() {
   const dispatch = useAppDispatch()
@@ -68,6 +69,7 @@ function App() {
                 <Route index element={<AdminOrdersPage />} />
                 <Route path="orders" element={<AdminOrdersPage />} />
                 <Route path="products" element={<AdminProductsPage />} />
+                <Route path="banners" element={<AdminBannersPage />} />
                 <Route path="users" element={<AdminUsersPage />} />
               </Route>
             </Route>
