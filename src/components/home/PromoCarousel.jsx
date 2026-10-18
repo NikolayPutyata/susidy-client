@@ -63,7 +63,7 @@ export const PromoCarousel = () => {
       : banners
 
   return (
-    <div className="relative">
+    <div className="relative mx-auto max-w-[1020px]">
       <Swiper
         modules={[Autoplay, Navigation, Pagination]}
         className="promo-swiper home-swiper !overflow-visible sm:!overflow-hidden"
