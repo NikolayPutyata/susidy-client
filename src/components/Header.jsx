@@ -224,14 +224,13 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
   )
 }
 
-// Search box inline in the floating header — click the icon, it widens
-// into a text input in place; submitting routes to /?search=... the same
-// way a category click routes to /?category=... (handled in
-// CatalogPage.jsx). Desktop-only (sm:flex) — mobile search isn't in scope
-// of this round, same as before.
+// Search box inline in the floating header — always a text input (no
+// icon-to-expand step), submitting routes to /?search=... the same way a
+// category click routes to /?category=... (handled in CatalogPage.jsx).
+// Desktop-only (sm:flex) — mobile search isn't in scope of this round,
+// same as before.
 const SearchBox = () => {
   const navigate = useNavigate()
-  const [open, setOpen] = useState(false)
   const [value, setValue] = useState('')
 
   const submit = (e) => {
@@ -241,29 +240,14 @@ const SearchBox = () => {
     navigate(`/?search=${encodeURIComponent(trimmed)}`)
   }
 
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        aria-label="Пошук"
-        className={`${floatingButtonClass} w-11`}
-      >
-        <SearchIcon className="h-5 w-5" />
-      </button>
-    )
-  }
-
   return (
-    <form onSubmit={submit} className="pointer-events-auto flex items-center">
+    <form onSubmit={submit} className="pointer-events-auto relative flex items-center">
+      <SearchIcon className="pointer-events-none absolute left-4 h-4 w-4 text-text-subtle" />
       <input
-        autoFocus
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        onBlur={() => {
-          if (!value.trim()) setOpen(false)
-        }}
         placeholder="Пошук страв…"
-        className="h-11 w-48 rounded-full border border-border-strong bg-black/60 px-4 text-sm text-text placeholder:text-text-subtle outline-none backdrop-blur-md focus:border-primary"
+        className="h-11 w-48 rounded-full border border-border-strong bg-black/60 pl-10 pr-4 text-sm text-text placeholder:text-text-subtle outline-none backdrop-blur-md transition-all focus:w-64 focus:border-primary"
       />
     </form>
   )
@@ -281,6 +265,14 @@ export const Header = () => {
   return (
     <>
       <div className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-start justify-between gap-2 p-4 sm:px-10 md:px-16 lg:px-24">
+        <Link
+          to="/"
+          aria-label="На головну"
+          className="pointer-events-auto absolute left-1/2 top-3 -translate-x-1/2 sm:top-4"
+        >
+          <Logo imgClassName="w-20 sm:w-28" />
+        </Link>
+
         <div className="flex items-center gap-2 mt-2">
           <button
             onClick={() => setMenuOpen(true)}

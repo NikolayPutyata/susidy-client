@@ -1,12 +1,32 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { fetchAllProducts } from '../../api/products.js'
 import { CATEGORIES } from '../../lib/constants.js'
 
 // Each tile's background is the first product's own photo from that
 // category — no separate "category image" field anywhere to manage, so
 // there's nothing for the admin to keep in sync (a new category just
 // starts showing a tile the moment its first product gets a photo).
-export const CategoryTiles = ({ products }) => {
+// Fetches the full catalog itself rather than taking it as a prop — this
+// section stays visible (and needs every category's image) regardless of
+// which single category CatalogPage currently has selected.
+export const CategoryTiles = ({ activeCategory }) => {
   const navigate = useNavigate()
+  const [products, setProducts] = useState([])
+
+  useEffect(() => {
+    let cancelled = false
+    fetchAllProducts()
+      .then((data) => {
+        if (!cancelled) setProducts(data)
+      })
+      .catch(() => {
+        // Non-critical section — fail silently, just don't render it.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const tiles = CATEGORIES.map((category) => {
     const representative = products.find(
@@ -29,7 +49,9 @@ export const CategoryTiles = ({ products }) => {
             key={tile.value}
             type="button"
             onClick={() => navigate(`/?category=${tile.value}`)}
-            className="group relative aspect-square overflow-hidden rounded-2xl bg-surface text-left"
+            className={`group relative aspect-square overflow-hidden rounded-2xl bg-surface text-left ${
+              activeCategory === tile.value ? 'ring-2 ring-primary' : ''
+            }`}
           >
             <img
               src={tile.image}
