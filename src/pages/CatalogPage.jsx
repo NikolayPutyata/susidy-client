@@ -9,6 +9,15 @@ import { CategoryTiles } from '../components/home/CategoryTiles.jsx'
 import { getErrorMessage } from '../lib/errors.js'
 import { CloseIcon } from '../components/icons.jsx'
 
+// Vertical gap between homepage sections. On sm+ it also carries a soft
+// black-to-gray glow band — a gentle visual seam between blocks instead of
+// a hard line, since the whole page is otherwise flat black.
+const SectionGap = () => (
+  <div aria-hidden className="h-8 sm:h-14">
+    <div className="hidden h-full bg-gradient-to-b from-transparent via-white/[0.045] to-transparent sm:block" />
+  </div>
+)
+
 export const CatalogPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const category = searchParams.get('category') || 'all'
@@ -80,12 +89,15 @@ export const CatalogPage = () => {
   const categoryLabel = CATEGORIES.find((c) => c.value === category)?.label
 
   return (
-    <div className="pt-14">
+    <div>
       {!search && (
         <>
           <PromoCarousel />
+          <SectionGap />
           <PopularCarousel />
+          <SectionGap />
           <CategoryTiles activeCategory={category} />
+          <SectionGap />
         </>
       )}
 

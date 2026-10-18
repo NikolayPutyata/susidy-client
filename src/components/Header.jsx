@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
@@ -9,6 +9,8 @@ import { CATEGORIES, CITIES, SOCIAL_LINKS } from '../lib/constants.js'
 import { Logo } from './Logo.jsx'
 import {
   CartIcon,
+  CheckCircleIcon,
+  ChevronDownIcon,
   CloseIcon,
   FacebookIcon,
   HeartIcon,
@@ -19,8 +21,8 @@ import {
   UserIcon,
 } from './icons.jsx'
 
-const floatingButtonClass =
-  'pointer-events-auto flex h-11 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-md transition hover:bg-black/70'
+const iconButtonClass =
+  'flex h-10 w-10 items-center justify-center rounded-full text-text transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60'
 
 const menuLinkClass =
   'rounded-xl px-3.5 py-2.5 text-sm font-medium text-text-muted transition hover:bg-surface-hover hover:text-text'
@@ -36,15 +38,6 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
   const navigate = useNavigate()
   const [rendered, setRendered] = useState(open)
   const [closing, setClosing] = useState(false)
-  const [searchValue, setSearchValue] = useState('')
-
-  const submitSearch = (e) => {
-    e.preventDefault()
-    const trimmed = searchValue.trim()
-    if (!trimmed) return
-    onClose()
-    navigate(`/?search=${encodeURIComponent(trimmed)}`)
-  }
 
   useEffect(() => {
     if (open) {
@@ -98,19 +91,6 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
             <CloseIcon className="h-5 w-5" />
           </button>
         </div>
-
-        <form
-          onSubmit={submitSearch}
-          className="flex items-center gap-2 border-b border-border px-3 py-3"
-        >
-          <SearchIcon className="h-4.5 w-4.5 shrink-0 text-text-subtle" />
-          <input
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Пошук страв…"
-            className="w-full bg-transparent text-sm text-text placeholder:text-text-subtle outline-none"
-          />
-        </form>
 
         <div className="flex gap-1.5 border-b border-border px-3 py-3">
           {CITIES.map((c) => (
@@ -224,11 +204,10 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
   )
 }
 
-// Search box inline in the floating header — always a text input (no
-// icon-to-expand step), submitting routes to /?search=... the same way a
-// category click routes to /?category=... (handled in CatalogPage.jsx).
-// Desktop-only (sm:flex) — mobile search isn't in scope of this round,
-// same as before.
+// Search box inline in the header — always a text input (no icon-to-expand
+// step), submitting routes to /?search=... the same way a category click
+// routes to /?category=... (handled in CatalogPage.jsx). Desktop-only
+// (sm:flex) — mobile search isn't in scope of this round.
 const SearchBox = () => {
   const navigate = useNavigate()
   const [value, setValue] = useState('')
@@ -241,96 +220,155 @@ const SearchBox = () => {
   }
 
   return (
-    <form onSubmit={submit} className="pointer-events-auto relative flex items-center">
+    <form onSubmit={submit} className="relative flex items-center">
       <SearchIcon className="pointer-events-none absolute left-4 h-4 w-4 text-text-subtle" />
       <input
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Пошук страв…"
-        className="h-11 w-48 rounded-full border border-border-strong bg-black/60 pl-10 pr-4 text-sm text-text placeholder:text-text-subtle outline-none backdrop-blur-md transition-all focus:w-64 focus:border-primary"
+        className="h-10 w-44 rounded-full border border-border bg-surface pl-10 pr-4 text-sm text-text placeholder:text-text-subtle outline-none transition-all focus:w-60 focus:border-primary"
       />
     </form>
+  )
+}
+
+// City picker as a proper dropdown — button shows the current city, click
+// opens a small list of every city with the active one checked. Closes on
+// selection, an outside click, or Escape. Desktop-only; the mobile side
+// menu already lists both cities directly as a 2-button row.
+const CityDropdown = () => {
+  const { city, cityLabel, setCity } = useCity()
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onPointerDown = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    const onKeyDown = (e) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open])
+
+  if (!city) return null
+
+  return (
+    <div ref={ref} className="relative hidden sm:block">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium text-text transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+      >
+        <MapPinIcon className="h-4 w-4 text-primary-light" />
+        {cityLabel}
+        <ChevronDownIcon
+          className={`h-3.5 w-3.5 text-text-subtle transition-transform ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {open && (
+        <div
+          role="listbox"
+          className="absolute left-0 top-full z-10 mt-1.5 min-w-[9rem] overflow-hidden rounded-2xl border border-border bg-surface-raised py-1.5 shadow-xl"
+        >
+          {CITIES.map((c) => (
+            <button
+              key={c.value}
+              type="button"
+              role="option"
+              aria-selected={city === c.value}
+              onClick={() => {
+                setCity(c.value)
+                setOpen(false)
+              }}
+              className={`flex w-full items-center justify-between gap-3 px-4 py-2 text-sm transition ${
+                city === c.value
+                  ? 'text-primary-light'
+                  : 'text-text-muted hover:bg-surface-hover hover:text-text'
+              }`}
+            >
+              {c.label}
+              {city === c.value && <CheckCircleIcon className="h-4 w-4" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
 export const Header = () => {
   const { itemsCount, openDrawer } = useCart()
   const { user, isAuthenticated } = useAuth()
-  const { city, cityLabel, setCity } = useCity()
   const { openLogin, openProfile } = useModals()
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const otherCity = CITIES.find((c) => c.value !== city) || CITIES[0]
-
   return (
     <>
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-start justify-between gap-2 p-4 sm:px-10 md:px-16 lg:px-24">
-        <Link
-          to="/"
-          aria-label="На головну"
-          className="pointer-events-auto absolute left-1/2 top-3 -translate-x-1/2 sm:top-4"
-        >
-          <Logo imgClassName="w-20 sm:w-28" />
-        </Link>
-
-        <div className="flex items-center gap-2 mt-2">
-          <button
-            onClick={() => setMenuOpen(true)}
-            aria-label="Меню"
-            className={`${floatingButtonClass} w-11`}
-          >
-            <MenuIcon className="h-5 w-5" />
-          </button>
-
-          {city && (
+      <header className="sticky top-0 z-40 border-b border-white/5 bg-black">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-2.5 sm:px-10 md:px-16 lg:px-24">
+          <div className="flex items-center gap-1.5">
             <button
-              onClick={() => setCity(otherCity.value)}
-              className={`${floatingButtonClass} hidden gap-1.5 px-4 text-sm font-medium sm:flex`}
+              onClick={() => setMenuOpen(true)}
+              aria-label="Меню"
+              className={iconButtonClass}
             >
-              <MapPinIcon className="h-4 w-4 text-primary-light" />
-              {cityLabel}
+              <MenuIcon className="h-5 w-5" />
             </button>
-          )}
-        </div>
 
-        <div className="flex items-center gap-2 mt-2">
-          <div className="hidden sm:block">
-            <SearchBox />
+            <CityDropdown />
           </div>
 
-          <button
-            onClick={() => (isAuthenticated ? openProfile() : openLogin())}
-            aria-label="Улюблене"
-            className={`${floatingButtonClass} hidden w-11 sm:flex`}
-          >
-            <HeartIcon
-              filled={Boolean(user?.favorites?.length)}
-              className={`h-5 w-5 ${user?.favorites?.length ? 'text-accent' : ''}`}
-            />
-          </button>
+          <Link to="/" aria-label="На головну" className="justify-self-center">
+            <Logo imgClassName="w-20 sm:w-24" />
+          </Link>
 
-          <button
-            onClick={() => (isAuthenticated ? openProfile() : openLogin())}
-            aria-label={isAuthenticated ? 'Мій профіль' : 'Увійти'}
-            className={`${floatingButtonClass} hidden w-11 sm:flex`}
-          >
-            <UserIcon className="h-5 w-5" />
-          </button>
+          <div className="flex items-center justify-end gap-1.5">
+            <div className="hidden sm:block">
+              <SearchBox />
+            </div>
 
-          {itemsCount > 0 && (
             <button
-              onClick={openDrawer}
-              aria-label="Відкрити кошик"
-              className={`${floatingButtonClass} relative w-11`}
+              onClick={() => (isAuthenticated ? openProfile() : openLogin())}
+              aria-label="Улюблене"
+              className={`${iconButtonClass} hidden sm:flex`}
             >
-              <CartIcon className="h-5 w-5" />
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-black ring-2 ring-black">
-                {itemsCount}
-              </span>
+              <HeartIcon
+                filled={Boolean(user?.favorites?.length)}
+                className={`h-5 w-5 ${user?.favorites?.length ? 'text-accent' : ''}`}
+              />
             </button>
-          )}
+
+            <button
+              onClick={() => (isAuthenticated ? openProfile() : openLogin())}
+              aria-label={isAuthenticated ? 'Мій профіль' : 'Увійти'}
+              className={`${iconButtonClass} hidden sm:flex`}
+            >
+              <UserIcon className="h-5 w-5" />
+            </button>
+
+            {itemsCount > 0 && (
+              <button
+                onClick={openDrawer}
+                aria-label="Відкрити кошик"
+                className={`${iconButtonClass} relative`}
+              >
+                <CartIcon className="h-5 w-5" />
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-black ring-2 ring-black">
+                  {itemsCount}
+                </span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      </header>
 
       <MobileMenu
         open={menuOpen}

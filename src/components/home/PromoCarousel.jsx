@@ -63,7 +63,7 @@ export const PromoCarousel = () => {
       : banners
 
   return (
-    <div className="relative mb-6">
+    <div className="relative">
       <Swiper
         modules={[Autoplay, Navigation, Pagination]}
         className="promo-swiper home-swiper !overflow-visible sm:!overflow-hidden"
@@ -120,13 +120,13 @@ export const PromoCarousel = () => {
         <>
           <button
             aria-label="Попередній банер"
-            className="promo-prev absolute left-1 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-sm transition hover:bg-black/70 sm:flex"
+            className="promo-prev absolute left-1 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-sm transition hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 sm:flex"
           >
             <ChevronIcon className="h-5 w-5" />
           </button>
           <button
             aria-label="Наступний банер"
-            className="promo-next absolute right-1 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-sm transition hover:bg-black/70 sm:flex"
+            className="promo-next absolute right-1 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-sm transition hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 sm:flex"
           >
             <ChevronIcon className="h-5 w-5 rotate-180" />
           </button>

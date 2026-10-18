@@ -38,7 +38,7 @@ export const CategoryTiles = ({ activeCategory }) => {
   if (tiles.length === 0) return null
 
   return (
-    <div className="mb-8">
+    <div>
       <h2 className="mb-4 flex items-center justify-center gap-2 text-center text-lg font-extrabold sm:text-xl">
         <span className="text-primary">✦</span> Наше меню{' '}
         <span className="text-primary">✦</span>
@@ -48,8 +48,9 @@ export const CategoryTiles = ({ activeCategory }) => {
           <button
             key={tile.value}
             type="button"
+            aria-current={activeCategory === tile.value ? 'true' : undefined}
             onClick={() => navigate(`/?category=${tile.value}`)}
-            className={`group relative aspect-square overflow-hidden rounded-2xl bg-surface text-left ${
+            className={`group relative aspect-square overflow-hidden rounded-2xl bg-surface text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
               activeCategory === tile.value ? 'ring-2 ring-primary' : ''
             }`}
           >
