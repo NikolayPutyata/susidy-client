@@ -106,6 +106,14 @@ export const UsersIcon = (props) => (
   </svg>
 )
 
+export const ImageIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <circle cx="8.5" cy="9.5" r="1.5" />
+    <path d="m4 17 5-5 3.5 3.5L17 11l3 3" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
 export const UploadIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
     <path

@@ -51,3 +51,22 @@ export const exportAdminUsers = (params) =>
   apiClient
     .get('/admin/users/export', { params, responseType: 'blob' })
     .then((r) => r.data)
+
+export const fetchAdminBanners = () =>
+  apiClient.get('/admin/banners').then((r) => r.data.data)
+
+export const createAdminBanner = (formData) =>
+  apiClient
+    .post('/admin/banners', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    .then((r) => r.data.data)
+
+export const updateAdminBanner = (id, formData) =>
+  apiClient
+    .patch(`/admin/banners/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    .then((r) => r.data.data)
+
+export const deleteAdminBanner = (id) => apiClient.delete(`/admin/banners/${id}`)
