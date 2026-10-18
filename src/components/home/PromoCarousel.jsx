@@ -8,11 +8,12 @@ import { fetchActiveBanners } from '../../api/banners.js'
 import { ChevronIcon } from '../icons.jsx'
 
 // Big autoplay promo carousel at the top of the homepage — news, price
-// changes, promos, manually curated by the admin (AdminBannersPage). Always
-// 3 slides visible on desktop (one centered + two blurred neighbors, see
-// index.css's .promo-swiper rules), 1 on mobile. Admin content, nothing
-// else in the app reacts to it — rendering nothing when there are no
-// active banners is the correct empty state, not an error.
+// changes, promos, manually curated by the admin (AdminBannersPage).
+// Square slides, centered + blurred neighbor peeking in on either side
+// (see index.css's .promo-swiper rules), always loops seamlessly back to
+// the start. Admin content, nothing else in the app reacts to it —
+// rendering nothing when there are no active banners is the correct empty
+// state, not an error.
 export const PromoCarousel = () => {
   const navigate = useNavigate()
   const [banners, setBanners] = useState([])
@@ -47,43 +48,47 @@ export const PromoCarousel = () => {
 
   if (loading || banners.length === 0) return null
 
-  // Swiper's loop mode clones slides to fake infinite scrolling, but with
-  // centeredSlides + slidesPerView:3 it needs a healthy multiple of
-  // slidesPerView real slides to build that clone buffer — below ~6 it
-  // renders a visibly broken gap instead of the third slide. Most admins
-  // will only ever add a handful of banners, so rather than require 6+
-  // banners just for looping to work, fall back to rewind (restart from
-  // the first slide after the last) below that threshold.
-  const canLoop = banners.length >= 6
+  // Swiper's loop mode needs a real slide count well above slidesPerView
+  // (confirmed down to 8+ real slides at slidesPerView:2 — below that it
+  // disables loop internally and the carousel just dead-ends at the last
+  // slide instead of wrapping). Admins will realistically only ever add a
+  // handful of banners, so instead of capping the UX to "loops only past
+  // 8 banners", pad out the rendered slide list by repeating the real
+  // banners until there's enough for Swiper's loop to engage — visually
+  // indistinguishable from a true infinite loop of the same few banners.
+  const MIN_LOOP_SLIDES = 8
+  const slidesToRender =
+    banners.length > 1 && banners.length < MIN_LOOP_SLIDES
+      ? Array.from({ length: Math.ceil(MIN_LOOP_SLIDES / banners.length) }, () => banners).flat()
+      : banners
 
   return (
     <div className="relative mb-6">
       <Swiper
         modules={[Autoplay, Navigation, Pagination]}
         className="promo-swiper home-swiper !overflow-visible sm:!overflow-hidden"
-        loop={canLoop}
-        rewind={!canLoop && banners.length > 1}
+        loop={banners.length > 1}
         centeredSlides
         autoplay={
           banners.length > 1
             ? { delay: 5000, disableOnInteraction: false }
             : false
         }
-        pagination={{ clickable: true }}
+        pagination={{ clickable: true, dynamicBullets: true }}
         navigation={{ prevEl: '.promo-prev', nextEl: '.promo-next' }}
-        slidesPerView={1.08}
+        slidesPerView={1.1}
         spaceBetween={12}
         breakpoints={{
-          640: { slidesPerView: 3, spaceBetween: 16 },
+          640: { slidesPerView: 2, spaceBetween: 20 },
         }}
       >
-        {banners.map((banner) => (
-          <SwiperSlide key={banner._id}>
+        {slidesToRender.map((banner, index) => (
+          <SwiperSlide key={`${banner._id}-${index}`}>
             <button
               type="button"
               onClick={() => handleBannerClick(banner.link)}
               disabled={!banner.link}
-              className={`relative block aspect-[16/9] w-full overflow-hidden rounded-3xl bg-surface text-left sm:aspect-auto sm:h-[380px] md:h-[440px] lg:h-[520px] ${
+              className={`relative block aspect-square w-full overflow-hidden rounded-3xl bg-surface text-left ${
                 banner.link ? 'cursor-pointer' : 'cursor-default'
               }`}
             >
