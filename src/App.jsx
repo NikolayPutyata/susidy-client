@@ -59,7 +59,12 @@ function App() {
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}>
       <div className="flex min-h-screen flex-col bg-bg text-text">
         <Header />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-8">
+        {/* No max-width/padding here on purpose — each page/section owns
+            its own horizontal containment, so full-bleed content (the
+            homepage's promo carousel and section dividers) can span the
+            real viewport edge-to-edge instead of being clipped by one
+            shared container. */}
+        <main className="w-full flex-1 pb-8 pt-8">
           <Routes>
             <Route path="/" element={<CatalogPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />

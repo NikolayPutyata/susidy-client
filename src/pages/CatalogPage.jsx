@@ -11,11 +11,21 @@ import { CloseIcon } from '../components/icons.jsx'
 
 // Vertical gap between homepage sections. On sm+ it also carries a soft
 // black-to-gray glow band — a gentle visual seam between blocks instead of
-// a hard line, since the whole page is otherwise flat black.
+// a hard line, since the whole page is otherwise flat black. Rendered
+// full-bleed (outside any max-width container) so the glow spans the real
+// viewport edge-to-edge instead of being cut off by a content container.
 const SectionGap = () => (
-  <div aria-hidden className="h-8 sm:h-14">
-    <div className="hidden h-full bg-gradient-to-b from-transparent via-white/[0.045] to-transparent sm:block" />
+  <div aria-hidden className="h-12 sm:h-16">
+    <div className="hidden h-full bg-gradient-to-b from-transparent via-white/[0.05] to-transparent sm:block" />
   </div>
+)
+
+// Everything except the promo carousel and the section dividers stays
+// readable-width on large screens — full-bleed only makes sense for a
+// background/decorative element or an edge-to-edge image carousel, not
+// for product cards and text.
+const Contained = ({ children }) => (
+  <div className="mx-auto w-full max-w-6xl px-4">{children}</div>
 )
 
 export const CatalogPage = () => {
@@ -94,61 +104,67 @@ export const CatalogPage = () => {
         <>
           <PromoCarousel />
           <SectionGap />
-          <PopularCarousel />
+          <Contained>
+            <PopularCarousel />
+          </Contained>
           <SectionGap />
-          <CategoryTiles activeCategory={category} />
+          <Contained>
+            <CategoryTiles activeCategory={category} />
+          </Contained>
           <SectionGap />
         </>
       )}
 
-      <div ref={resultsRef}>
-        {search ? (
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <h1 className="text-lg font-bold">
-              Результати пошуку: <span className="text-primary-light">{search}</span>
-            </h1>
-            <button
-              onClick={clearSearch}
-              aria-label="Скасувати пошук"
-              className="flex items-center gap-1 text-sm text-text-muted underline underline-offset-2 hover:text-text"
-            >
-              <CloseIcon className="h-3.5 w-3.5" />
-              Скасувати
-            </button>
-          </div>
-        ) : (
-          category !== 'all' && (
+      <Contained>
+        <div ref={resultsRef}>
+          {search ? (
             <div className="mb-4 flex items-center justify-between gap-2">
-              <h1 className="text-lg font-bold">{categoryLabel}</h1>
+              <h1 className="text-lg font-bold">
+                Результати пошуку: <span className="text-primary-light">{search}</span>
+              </h1>
               <button
-                onClick={() => setCategory('all')}
+                onClick={clearSearch}
+                aria-label="Скасувати пошук"
                 className="flex items-center gap-1 text-sm text-text-muted underline underline-offset-2 hover:text-text"
               >
                 <CloseIcon className="h-3.5 w-3.5" />
-                Все меню
+                Скасувати
               </button>
             </div>
-          )
-        )}
+          ) : (
+            category !== 'all' && (
+              <div className="mb-4 flex items-center justify-between gap-2">
+                <h1 className="text-lg font-bold">{categoryLabel}</h1>
+                <button
+                  onClick={() => setCategory('all')}
+                  className="flex items-center gap-1 text-sm text-text-muted underline underline-offset-2 hover:text-text"
+                >
+                  <CloseIcon className="h-3.5 w-3.5" />
+                  Все меню
+                </button>
+              </div>
+            )
+          )}
 
-        {error && (
-          <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-accent">
-            {error}
-          </p>
-        )}
+          {error && (
+            <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-accent">
+              {error}
+            </p>
+          )}
 
-        {!loading && products.length === 0 && !error && (
-          <p className="py-12 text-center text-text-muted">
-            {search ? 'Нічого не знайдено.' : 'У цій категорії поки нічого немає.'}
-          </p>
-        )}
+          {!loading && products.length === 0 && !error && (
+            <p className="py-12 text-center text-text-muted">
+              {search ? 'Нічого не знайдено.' : 'У цій категорії поки нічого немає.'}
+            </p>
+          )}
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
-          ))}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            {products.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
         </div>
-      </div>
+      </Contained>
     </div>
   )
 }
