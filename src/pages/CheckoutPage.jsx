@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { APILoadingStatus, useApiLoadingStatus } from '@vis.gl/react-google-maps'
@@ -15,13 +16,13 @@ import { QuantityStepper } from '../components/QuantityStepper.jsx'
 import { PaymentMethodModal } from '../components/PaymentMethodModal.jsx'
 import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
 
-const addressExtrasLabel = (addr) =>
+const addressExtrasLabel = (addr, t) =>
   addr.isPrivateHouse
-    ? 'Приватний будинок'
+    ? t('checkout.privateHouse')
     : [
-        addr.apartment ? `кв. ${addr.apartment}` : null,
-        addr.entrance ? `під'їзд ${addr.entrance}` : null,
-        addr.floor ? `поверх ${addr.floor}` : null,
+        addr.apartment ? t('checkout.apartmentShort', { value: addr.apartment }) : null,
+        addr.entrance ? t('checkout.entranceShort', { value: addr.entrance }) : null,
+        addr.floor ? t('checkout.floorShort', { value: addr.floor }) : null,
       ]
         .filter(Boolean)
         .join(', ')
@@ -76,6 +77,7 @@ const getAvailableTimeSlots = () => {
 }
 
 export const CheckoutPage = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { items, total, checkout, repriceError } = useCart()
@@ -192,7 +194,7 @@ export const CheckoutPage = () => {
     // Google web component), so it needs its own submit-time check —
     // without this, a delivery order could go out with no address at all.
     if (form.fulfillment === 'delivery' && mapsLoaded && form.deliveryLat == null) {
-      setError('Вкажіть адресу доставки з номером будинку.')
+      setError(t('checkout.addressRequired'))
       return
     }
 
@@ -200,7 +202,7 @@ export const CheckoutPage = () => {
     // reprice attempt failed — never let an order go out at the wrong
     // price silently.
     if (repriceError) {
-      setError('Ціни в кошику не оновлено під поточне місто — спробуйте ще раз нижче, перш ніж оформити замовлення.')
+      setError(t('checkout.repriceErrorBlocking'))
       return
     }
 
@@ -209,7 +211,7 @@ export const CheckoutPage = () => {
     // at '' in that state, which the server would reject anyway, but a
     // clear message here beats a generic "Data is not valid" round trip.
     if (form.fulfillment === 'pickup' && availableTimeSlots.length === 0) {
-      setError('На сьогодні немає вільного часу для самовивозу — спробуйте завтра.')
+      setError(t('checkout.noPickupSlotsToday'))
       return
     }
 
@@ -265,11 +267,11 @@ export const CheckoutPage = () => {
       <div className="flex flex-col rounded-none border-0 bg-surface p-4 sm:rounded-3xl sm:border sm:border-border sm:p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold">
-            {orderResult ? 'Замовлення оформлено' : 'Ваше замовлення, любий сусіде:'}
+            {orderResult ? t('checkout.titleDone') : t('checkout.title')}
           </h2>
           <button
             onClick={() => navigate('/')}
-            aria-label="На головну"
+            aria-label={t('header.home')}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-hover hover:text-text"
           >
             <CloseIcon className="h-4.5 w-4.5" />
@@ -282,13 +284,11 @@ export const CheckoutPage = () => {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-primary-light">
                 <CheckCircleIcon className="h-9 w-9" />
               </div>
-              <p className="mb-6 text-text-muted">
-                Дякуємо за замовлення! Ми зателефонуємо для підтвердження найближчим часом.
-              </p>
+              <p className="mb-6 text-text-muted">{t('checkout.thankYou')}</p>
 
               <div className="rounded-2xl border border-border bg-surface-raised p-5 text-left">
                 <p className="mb-3 font-semibold">
-                  Замовлення №{orderResult._id.slice(-6).toUpperCase()}
+                  {t('checkout.orderNumber', { number: orderResult._id.slice(-6).toUpperCase() })}
                 </p>
                 <ul className="mb-3 divide-y divide-border">
                   {orderResult.items.map((item) => (
@@ -306,7 +306,7 @@ export const CheckoutPage = () => {
                   ))}
                 </ul>
                 <div className="flex items-center justify-between border-t border-border pt-3">
-                  <span className="text-text-muted">Разом до сплати:</span>
+                  <span className="text-text-muted">{t('cart.total')}</span>
                   <span className="text-xl font-extrabold text-accent">
                     {orderResult.total} ₴
                   </span>
@@ -317,11 +317,11 @@ export const CheckoutPage = () => {
                 onClick={() => navigate('/')}
                 className="mt-6 inline-block rounded-full bg-primary px-5 py-2 font-semibold text-black transition hover:bg-primary-light"
               >
-                Повернутись до меню
+                {t('checkout.backToMenu')}
               </button>
             </div>
           ) : items.length === 0 ? (
-            <p className="py-16 text-center text-text-muted">Кошик порожній.</p>
+            <p className="py-16 text-center text-text-muted">{t('checkout.emptyCart')}</p>
           ) : (
             <>
               <div className="mb-6 rounded-2xl border border-border bg-surface-raised p-5">
@@ -358,14 +358,13 @@ export const CheckoutPage = () => {
                 </div>
                 {repriceError && (
                   <p className="rounded-xl bg-accent/10 px-4 py-2.5 text-sm text-accent">
-                    Не вдалось оновити ціни під поточне місто — показані ціни
-                    можуть бути старими.{' '}
+                    {t('cart.repriceError')}{' '}
                     <button
                       type="button"
                       onClick={retryReprice}
                       className="underline underline-offset-2"
                     >
-                      Спробувати ще раз
+                      {t('common.tryAgain')}
                     </button>
                   </p>
                 )}
@@ -373,11 +372,11 @@ export const CheckoutPage = () => {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="flex items-center justify-between rounded-xl bg-surface-raised px-4 py-2.5 text-sm">
-                  <span className="text-text-muted">Місто</span>
+                  <span className="text-text-muted">{t('checkout.city')}</span>
                   <span className="font-semibold text-text">{cityLabel}</span>
                 </div>
 
-                <Field label="Ім'я">
+                <Field label={t('checkout.name')}>
                   <input
                     name="name"
                     value={form.name}
@@ -387,7 +386,7 @@ export const CheckoutPage = () => {
                   />
                 </Field>
 
-                <Field label="Телефон (10 цифр)">
+                <Field label={t('checkout.phone')}>
                   <input
                     name="phoneNumber"
                     value={form.phoneNumber}
@@ -400,14 +399,14 @@ export const CheckoutPage = () => {
                 </Field>
 
                 <div>
-                  <label className="mb-1.5 block text-sm text-text-muted">Отримання</label>
+                  <label className="mb-1.5 block text-sm text-text-muted">{t('checkout.fulfillment')}</label>
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => setForm((prev) => ({ ...prev, fulfillment: 'delivery' }))}
                       className={segmentButtonClass(form.fulfillment === 'delivery')}
                     >
-                      Доставка
+                      {t('checkout.delivery')}
                     </button>
                     <button
                       type="button"
@@ -423,15 +422,15 @@ export const CheckoutPage = () => {
                       }
                       className={segmentButtonClass(form.fulfillment === 'pickup')}
                     >
-                      Самовивіз
+                      {t('checkout.pickup')}
                     </button>
                   </div>
                 </div>
 
-                <Field label={form.fulfillment === 'pickup' ? 'Час самовивозу' : 'Час доставки'}>
+                <Field label={form.fulfillment === 'pickup' ? t('checkout.pickupTime') : t('checkout.deliveryTime')}>
                   {form.fulfillment === 'pickup' && availableTimeSlots.length === 0 ? (
                     <p className="rounded-xl border border-border bg-surface-raised px-4 py-2.5 text-sm text-text-muted">
-                      На сьогодні немає вільного часу для самовивозу — спробуйте завтра.
+                      {t('checkout.noPickupSlotsToday')}
                     </p>
                   ) : (
                     <select
@@ -442,7 +441,7 @@ export const CheckoutPage = () => {
                       className={inputClass}
                     >
                       {form.fulfillment === 'delivery' && (
-                        <option value="asap">Якнайшвидше</option>
+                        <option value="asap">{t('checkout.asap')}</option>
                       )}
                       {availableTimeSlots.map((slot) => (
                         <option key={slot} value={slot}>
@@ -456,7 +455,7 @@ export const CheckoutPage = () => {
                 {form.fulfillment === 'pickup' ? (
                   <div>
                     <label className="mb-1.5 block text-sm text-text-muted">
-                      Точка самовивозу
+                      {t('checkout.pickupPoint')}
                     </label>
                     <div className="space-y-2">
                       {pickupOptions.map((point) => (
@@ -513,13 +512,13 @@ export const CheckoutPage = () => {
                                   </span>
                                   {addr.isDefault && (
                                     <span className="shrink-0 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold text-primary-light">
-                                      За замовчуванням
+                                      {t('checkout.defaultAddress')}
                                     </span>
                                   )}
                                 </span>
-                                {addressExtrasLabel(addr) && (
+                                {addressExtrasLabel(addr, t) && (
                                   <span className="block truncate text-xs text-text-subtle">
-                                    {addressExtrasLabel(addr)}
+                                    {addressExtrasLabel(addr, t)}
                                   </span>
                                 )}
                               </span>
@@ -539,7 +538,7 @@ export const CheckoutPage = () => {
                               onChange={clearSavedAddressSelection}
                               className="h-4 w-4 accent-primary"
                             />
-                            Нова адреса
+                            {t('checkout.newAddress')}
                           </label>
                         </div>
                       </div>
@@ -561,7 +560,7 @@ export const CheckoutPage = () => {
                               onChange={(e) => setSaveNewAddress(e.target.checked)}
                               className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
                             />
-                            Зберегти цю адресу
+                            {t('checkout.saveThisAddress')}
                           </label>
                         )}
                       </>
@@ -571,7 +570,7 @@ export const CheckoutPage = () => {
 
                 <div>
                   <label className="mb-1.5 block text-sm text-text-muted">
-                    Кількість приборів
+                    {t('checkout.cutlery')}
                   </label>
                   <QuantityStepper
                     quantity={form.cutlery}
@@ -584,13 +583,13 @@ export const CheckoutPage = () => {
                   />
                 </div>
 
-                <Field label="Коментар до замовлення">
+                <Field label={t('checkout.comment')}>
                   <textarea
                     name="details"
                     value={form.details}
                     onChange={handleChange}
                     rows={3}
-                    placeholder="побажання, уточнення, алергії"
+                    placeholder={t('checkout.commentPlaceholder')}
                     className={inputClass}
                   />
                 </Field>
@@ -603,7 +602,7 @@ export const CheckoutPage = () => {
                     onChange={handleChange}
                     className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
                   />
-                  Не передзвонювати мені
+                  {t('checkout.noCallback')}
                 </label>
 
                 {error && <p className="text-accent">{error}</p>}
@@ -614,7 +613,7 @@ export const CheckoutPage = () => {
                     onClick={() => setPaymentModalOpen(true)}
                     className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light"
                   >
-                    Сплатити · {discounted} ₴
+                    {t('checkout.payOnline', { value: discounted })}
                   </button>
 
                   <button
@@ -623,7 +622,7 @@ export const CheckoutPage = () => {
                     className="flex items-center justify-center gap-2 rounded-full border border-border bg-surface-raised py-3 text-sm font-semibold text-text transition hover:bg-surface-hover disabled:opacity-40"
                   >
                     {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
-                    {submitting ? 'Оформлюємо…' : 'Сплачу при отриманні'}
+                    {submitting ? t('checkout.submitting') : t('checkout.payCod')}
                   </button>
                 </div>
               </form>

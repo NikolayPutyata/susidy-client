@@ -105,7 +105,11 @@
     "cashTooLow": "Amount is less than the order total ({{value}} UAH)",
     "cashTooLowSubmit": "The cash amount is less than the order total ({{value}} UAH).",
     "change": "Change: {{value}} UAH",
-    "cashPaid": "Cash: {{amount}} UAH · change {{change}} UAH"
+    "cashPaid": "Cash: {{amount}} UAH · change {{change}} UAH",
+    "privateHouse": "Private house",
+    "apartmentShort": "apt. {{value}}",
+    "entranceShort": "entrance {{value}}",
+    "floorShort": "floor {{value}}"
   },
   "filters": {
     "noCheese": "No cheese",

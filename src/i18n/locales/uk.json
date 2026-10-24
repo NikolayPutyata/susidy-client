@@ -105,7 +105,11 @@
     "cashTooLow": "Сума менша за суму замовлення ({{value}} ₴)",
     "cashTooLowSubmit": "Сума готівки менша за суму замовлення ({{value}} ₴).",
     "change": "Решта: {{value}} ₴",
-    "cashPaid": "Готівкою: {{amount}} ₴ · решта {{change}} ₴"
+    "cashPaid": "Готівкою: {{amount}} ₴ · решта {{change}} ₴",
+    "privateHouse": "Приватний будинок",
+    "apartmentShort": "кв. {{value}}",
+    "entranceShort": "під'їзд {{value}}",
+    "floorShort": "поверх {{value}}"
   },
   "filters": {
     "noCheese": "Без сиру",
