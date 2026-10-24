@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AdvancedMarker, Map, useMap, useMapsLibrary } from '@vis.gl/react-google-maps'
 import { CITY_CENTERS, LOCATIONS } from '../lib/constants.js'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
@@ -50,6 +51,7 @@ const MapClickHandler = ({ onPick }) => {
 }
 
 export const DeliveryMapModal = ({ open, city, initialPosition, onClose, onConfirm }) => {
+  const { t } = useTranslation()
   const geocodingLib = useMapsLibrary('geocoding')
   const geocoderRef = useRef(null)
   const [marker, setMarker] = useState(initialPosition || null)
@@ -83,7 +85,7 @@ export const DeliveryMapModal = ({ open, city, initialPosition, onClose, onConfi
       setGeocoding(false)
       const result = results?.[0]
       if (status !== 'OK' || !result) {
-        setError('Не вдалось визначити адресу за цією точкою — спробуйте іншу.')
+        setError(t('address.geocodeFailed'))
         return
       }
       // A pin can land on a street with no specific building (e.g. a road
@@ -93,12 +95,12 @@ export const DeliveryMapModal = ({ open, city, initialPosition, onClose, onConfi
         c.types.includes('street_number'),
       )
       if (!hasBuildingNumber) {
-        setError('Ця точка не відповідає конкретній будівлі з номером — спробуйте точніше.')
+        setError(t('address.geocodeNoBuilding'))
         return
       }
       setAddress(result.formatted_address)
     })
-  }, [])
+  }, [t])
 
   useBodyScrollLock(open)
 
@@ -108,10 +110,10 @@ export const DeliveryMapModal = ({ open, city, initialPosition, onClose, onConfi
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 animate-fade-in">
       <div className="relative flex h-[85vh] w-full max-w-3xl flex-col rounded-3xl border border-border bg-surface p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Оберіть адресу на карті</h2>
+          <h2 className="text-lg font-bold">{t('address.pickOnMapTitle')}</h2>
           <button
             onClick={onClose}
-            aria-label="Закрити"
+            aria-label={t('cart.close')}
             className="flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-hover hover:text-text"
           >
             <CloseIcon className="h-4.5 w-4.5" />
@@ -145,14 +147,12 @@ export const DeliveryMapModal = ({ open, city, initialPosition, onClose, onConfi
         <div className="mt-3 space-y-2">
           {geocoding && (
             <p className="flex items-center gap-2 text-sm text-text-muted">
-              <SpinnerIcon className="h-4 w-4 animate-spin" /> Визначаємо адресу…
+              <SpinnerIcon className="h-4 w-4 animate-spin" /> {t('address.determiningAddress')}
             </p>
           )}
           {!geocoding && address && <p className="text-sm text-text">{address}</p>}
           {!geocoding && !address && !error && (
-            <p className="text-sm text-text-muted">
-              Торкніться карти або перетягніть позначку, щоб обрати адресу.
-            </p>
+            <p className="text-sm text-text-muted">{t('address.mapInstructions')}</p>
           )}
           {error && <p className="text-sm text-accent">{error}</p>}
 
@@ -164,7 +164,7 @@ export const DeliveryMapModal = ({ open, city, initialPosition, onClose, onConfi
             }
             className="w-full rounded-full bg-primary py-2.5 font-semibold text-black transition hover:bg-primary-light disabled:opacity-50"
           >
-            Підтвердити адресу
+            {t('address.confirmAddress')}
           </button>
         </div>
       </div>

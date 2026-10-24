@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Map, AdvancedMarker } from '@vis.gl/react-google-maps'
 import { CITY_CENTERS, LOCATIONS } from '../lib/constants.js'
 import { useNearestPoint } from '../hooks/useNearestPoint.js'
@@ -18,11 +19,13 @@ const inputClass =
 // center/zoom are controlled (not defaultCenter/defaultZoom) so it actually
 // recenters as the customer picks a different address, instead of being
 // stuck on wherever it first mounted.
-const MiniMapPreview = ({ city, position, onClick }) => (
+const MiniMapPreview = ({ city, position, onClick }) => {
+  const { t } = useTranslation()
+  return (
   <button
     type="button"
     onClick={onClick}
-    aria-label="Відкрити карту"
+    aria-label={t('address.openMap')}
     className="relative h-28 w-full overflow-hidden rounded-xl border border-border transition hover:border-primary"
   >
     <Map
@@ -37,7 +40,8 @@ const MiniMapPreview = ({ city, position, onClick }) => (
       {position && <AdvancedMarker position={position} />}
     </Map>
   </button>
-)
+  )
+}
 
 // Ties together the three ways a customer can give us a delivery address —
 // type-and-pick-from-dropdown, tap the mini map, or tap the map-icon
@@ -46,6 +50,7 @@ const MiniMapPreview = ({ city, position, onClick }) => (
 // Only rendered once the Google Maps JS API has actually loaded (see
 // CheckoutPage) — the caller falls back to plain inputs otherwise.
 export const AddressPicker = ({ city, value, onChange }) => {
+  const { t } = useTranslation()
   const [mapOpen, setMapOpen] = useState(false)
   const position = value.lat != null && value.lng != null ? { lat: value.lat, lng: value.lng } : null
   const nearest = useNearestPoint(position, city)
@@ -58,7 +63,7 @@ export const AddressPicker = ({ city, value, onChange }) => {
 
   return (
     <div className="space-y-2">
-      <label className="mb-1.5 block text-sm text-text-muted">Адреса доставки</label>
+      <label className="mb-1.5 block text-sm text-text-muted">{t('address.deliveryAddress')}</label>
 
       <div className="flex gap-2">
         <div className="min-w-0 flex-1">
@@ -75,7 +80,7 @@ export const AddressPicker = ({ city, value, onChange }) => {
         <button
           type="button"
           onClick={() => setMapOpen(true)}
-          aria-label="Обрати адресу на карті"
+          aria-label={t('address.pickOnMap')}
           className="flex w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-raised text-text-muted transition hover:border-primary hover:text-primary"
         >
           <MapIcon className="h-5 w-5" />
@@ -86,7 +91,7 @@ export const AddressPicker = ({ city, value, onChange }) => {
 
       {nearestPoint && (
         <p className="px-1 text-sm text-text-muted">
-          Ваше замовлення приїде з адреси:{' '}
+          {t('address.nearestPickup')}{' '}
           <span className="font-semibold text-text">{nearestPoint.address}</span>
         </p>
       )}

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 const pageButtonClass = (active) =>
   `min-w-[2.25rem] rounded-xl px-2.5 py-1.5 text-sm font-medium transition ${
     active
@@ -26,6 +28,7 @@ export const Pagination = ({
   perPageOptions,
   onPerPageChange,
 }) => {
+  const { t } = useTranslation()
   if (totalPages <= 1 && !perPageOptions) return null
 
   return (
@@ -81,7 +84,7 @@ export const Pagination = ({
 
       {perPageOptions && (
         <label className="flex items-center gap-2 text-sm text-text-muted">
-          Показувати:
+          {t('pagination.showPerPage')}
           <select
             value={perPage}
             onChange={(e) => onPerPageChange(Number(e.target.value))}

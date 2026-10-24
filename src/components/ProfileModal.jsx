@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { APILoadingStatus, useApiLoadingStatus } from '@vis.gl/react-google-maps'
 import {
@@ -13,9 +14,10 @@ import { fetchAllProducts } from '../api/products.js'
 import { useCity } from '../hooks/useCity.js'
 import { useModals } from '../hooks/useModals.js'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
-import { CITY_LABELS, FAVORITES_CATEGORY } from '../lib/constants.js'
+import { CITY_LABELS } from '../lib/constants.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { selectUser, setUser } from '../store/userSlice.js'
+import { getProductName } from '../lib/productI18n.js'
 import { DeliveryAddressFields } from './DeliveryAddressFields.jsx'
 import { CloseIcon, HeartIcon, MapPinIcon, PlusIcon, SpinnerIcon, TrashIcon } from './icons.jsx'
 
@@ -37,18 +39,19 @@ const emptyNewAddress = {
   isPrivateHouse: false,
 }
 
-const addressExtrasLabel = (addr) =>
+const addressExtrasLabel = (addr, t) =>
   addr.isPrivateHouse
-    ? 'Приватний будинок'
+    ? t('checkout.privateHouse')
     : [
-        addr.apartment ? `кв. ${addr.apartment}` : null,
-        addr.entrance ? `під'їзд ${addr.entrance}` : null,
-        addr.floor ? `поверх ${addr.floor}` : null,
+        addr.apartment ? t('checkout.apartmentShort', { value: addr.apartment }) : null,
+        addr.entrance ? t('checkout.entranceShort', { value: addr.entrance }) : null,
+        addr.floor ? t('checkout.floorShort', { value: addr.floor }) : null,
       ]
         .filter(Boolean)
         .join(', ')
 
 export const ProfileModal = () => {
+  const { t, i18n } = useTranslation()
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
   const { getPrice } = useCity()
@@ -149,7 +152,7 @@ export const ProfileModal = () => {
     // Same gap as CheckoutPage's delivery form — the Places web component
     // isn't a native <input required>.
     if (mapsLoaded && newAddress.deliveryLat == null) {
-      setAddressError('Вкажіть адресу з номером будинку.')
+      setAddressError(t('profile.addressRequired'))
       return
     }
 
@@ -215,10 +218,10 @@ export const ProfileModal = () => {
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in sm:px-4">
       <div className="relative flex h-full w-full flex-col rounded-none border-0 bg-surface p-4 sm:h-auto sm:max-h-[85vh] sm:max-w-2xl sm:rounded-3xl sm:border sm:border-border sm:p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">Мій профіль</h2>
+          <h2 className="text-xl font-bold">{t('profile.title')}</h2>
           <button
             onClick={closeProfile}
-            aria-label="Закрити"
+            aria-label={t('cart.close')}
             className="flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-hover hover:text-text"
           >
             <CloseIcon className="h-4.5 w-4.5" />
@@ -232,7 +235,7 @@ export const ProfileModal = () => {
                 name="name"
                 value={form.name}
                 onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                placeholder="Ім'я"
+                placeholder={t('auth.name')}
                 required
                 minLength={3}
                 className={inputClass}
@@ -242,14 +245,14 @@ export const ProfileModal = () => {
                 onChange={(e) => setForm((prev) => ({ ...prev, city: e.target.value }))}
                 className={inputClass}
               >
-                <option value="">Місто (необов'язково)</option>
-                <option value="Kyiv">Київ</option>
-                <option value="Kharkiv">Харків</option>
+                <option value="">{t('auth.cityOptional')}</option>
+                <option value="Kyiv">{t('auth.cityKyiv')}</option>
+                <option value="Kharkiv">{t('auth.cityKharkiv')}</option>
               </select>
 
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm text-text-muted">
-                  Ваша знижка:{' '}
+                  {t('profile.discount')}{' '}
                   <span className="font-semibold text-accent">{user.discount || 0}%</span>
                 </p>
                 <button
@@ -258,7 +261,7 @@ export const ProfileModal = () => {
                   className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
                 >
                   {savingProfile && <SpinnerIcon className="h-3.5 w-3.5 animate-spin" />}
-                  Зберегти
+                  {t('common.save')}
                 </button>
               </div>
               {profileError && <p className="text-sm text-accent">{profileError}</p>}
@@ -268,16 +271,18 @@ export const ProfileModal = () => {
           <div className="mb-4 rounded-2xl border border-border bg-surface-raised p-4">
             {user.birthday ? (
               <p className="text-sm text-text-muted">
-                День народження:{' '}
+                {t('profile.birthday')}{' '}
                 <span className="font-medium text-text">
-                  {new Date(user.birthday).toLocaleDateString('uk-UA')}
+                  {new Date(user.birthday).toLocaleDateString(
+                    i18n.language === 'en' ? 'en-US' : 'uk-UA',
+                  )}
                 </span>
               </p>
             ) : (
               <form onSubmit={handleSaveBirthday} className="flex flex-wrap items-end gap-2">
                 <div>
                   <label className="mb-1 block text-sm text-text-muted">
-                    День народження (необов'язково, вказати можна лише раз)
+                    {t('profile.birthdayOptional')}
                   </label>
                   <input
                     type="date"
@@ -293,7 +298,7 @@ export const ProfileModal = () => {
                   className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
                 >
                   {savingBirthday && <SpinnerIcon className="h-3.5 w-3.5 animate-spin" />}
-                  Зберегти
+                  {t('common.save')}
                 </button>
               </form>
             )}
@@ -304,13 +309,13 @@ export const ProfileModal = () => {
             onClick={handleGoToMyOrders}
             className="mb-4 w-full rounded-2xl bg-surface-raised px-4 py-3 text-left font-medium text-text transition hover:bg-surface-hover"
           >
-            Мої замовлення →
+            {t('profile.myOrdersLink')}
           </button>
 
           <div className="mb-4">
             <h3 className="mb-2 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-widest text-primary-light">
               <MapPinIcon className="h-4 w-4" />
-              Збережені адреси
+              {t('profile.savedAddresses')}
             </h3>
 
             {addressError && (
@@ -331,13 +336,13 @@ export const ProfileModal = () => {
                         <span className="truncate">{addr.formattedAddress || addr.street}</span>
                         {addr.isDefault && (
                           <span className="shrink-0 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold text-primary-light">
-                            За замовчуванням
+                            {t('checkout.defaultAddress')}
                           </span>
                         )}
                       </p>
                       <p className="truncate text-xs text-text-subtle">
                         {CITY_LABELS[addr.city] || addr.city}
-                        {addressExtrasLabel(addr) ? ` · ${addressExtrasLabel(addr)}` : ''}
+                        {addressExtrasLabel(addr, t) ? ` · ${addressExtrasLabel(addr, t)}` : ''}
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-3">
@@ -348,14 +353,14 @@ export const ProfileModal = () => {
                           disabled={addressBusyId === addr._id}
                           className="text-xs text-primary-light underline underline-offset-2 disabled:opacity-40"
                         >
-                          Зробити основною
+                          {t('profile.makeDefault')}
                         </button>
                       )}
                       <button
                         type="button"
                         onClick={() => handleRemoveAddress(addr._id)}
                         disabled={addressBusyId === addr._id}
-                        aria-label="Видалити адресу"
+                        aria-label={t('profile.removeAddress')}
                         className="text-accent transition hover:opacity-70 disabled:opacity-40"
                       >
                         <TrashIcon className="h-4 w-4" />
@@ -378,8 +383,8 @@ export const ProfileModal = () => {
                   }
                   className={inputClass}
                 >
-                  <option value="kyiv">Київ</option>
-                  <option value="kharkiv">Харків</option>
+                  <option value="kyiv">{t('auth.cityKyiv')}</option>
+                  <option value="kharkiv">{t('auth.cityKharkiv')}</option>
                 </select>
                 <DeliveryAddressFields
                   city={newAddress.city}
@@ -394,7 +399,7 @@ export const ProfileModal = () => {
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
                   >
                     {savingAddress && <SpinnerIcon className="h-3.5 w-3.5 animate-spin" />}
-                    Зберегти адресу
+                    {t('profile.saveAddress')}
                   </button>
                   <button
                     type="button"
@@ -405,7 +410,7 @@ export const ProfileModal = () => {
                     }}
                     className="rounded-xl bg-surface px-4 py-2 text-sm font-medium text-text-muted transition hover:text-text"
                   >
-                    Скасувати
+                    {t('common.cancel')}
                   </button>
                 </div>
               </form>
@@ -416,17 +421,17 @@ export const ProfileModal = () => {
                 className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-dashed border-border-strong px-4 py-3 text-sm text-text-muted transition hover:border-primary hover:text-text"
               >
                 <PlusIcon className="h-4 w-4" />
-                Додати адресу
+                {t('profile.addAddress')}
               </button>
             ) : (
-              <p className="text-xs text-text-subtle">Можна зберегти не більше 3 адрес.</p>
+              <p className="text-xs text-text-subtle">{t('profile.maxAddresses')}</p>
             )}
           </div>
 
           <div>
             <h3 className="mb-2 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-widest text-primary-light">
               <HeartIcon filled className="h-4 w-4" />
-              {FAVORITES_CATEGORY.label}
+              {t('categories.favorites')}
             </h3>
 
             {favoritesError && (
@@ -436,11 +441,9 @@ export const ProfileModal = () => {
             )}
 
             {favoritesLoading ? (
-              <p className="py-6 text-center text-text-muted">Завантаження…</p>
+              <p className="py-6 text-center text-text-muted">{t('common.loading')}</p>
             ) : favorites.length === 0 ? (
-              <p className="py-6 text-center text-text-muted">
-                У вас поки немає улюблених позицій.
-              </p>
+              <p className="py-6 text-center text-text-muted">{t('profile.noFavorites')}</p>
             ) : (
               <ul className="divide-y divide-border rounded-2xl border border-border bg-surface-raised px-4">
                 {favorites.map((product) => (
@@ -449,7 +452,7 @@ export const ProfileModal = () => {
                       {product.images?.[0] ? (
                         <img
                           src={product.images[0]}
-                          alt={product.name}
+                          alt={getProductName(product, i18n.language)}
                           className="h-full w-full object-contain"
                         />
                       ) : (
@@ -459,7 +462,7 @@ export const ProfileModal = () => {
                       )}
                     </div>
                     <span className="min-w-0 flex-1 truncate text-sm text-text">
-                      {product.name}
+                      {getProductName(product, i18n.language)}
                     </span>
                     <span className="shrink-0 text-sm text-text-muted">
                       {getPrice(product)} ₴
@@ -467,7 +470,7 @@ export const ProfileModal = () => {
                     <button
                       onClick={() => handleRemoveFavorite(product._id)}
                       disabled={favoriteBusyId === product._id}
-                      aria-label="Прибрати з улюблених"
+                      aria-label={t('product.removeFromFavorites')}
                       className="shrink-0 text-accent transition hover:opacity-70 disabled:opacity-40"
                     >
                       <HeartIcon filled className="h-4 w-4" />

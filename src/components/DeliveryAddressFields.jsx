@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { AddressPicker } from './AddressPicker.jsx'
 
 const Field = ({ label, children }) => (
@@ -16,6 +17,7 @@ const inputClass =
 // branch and ProfileModal's "add a saved address" form so the two don't
 // drift out of sync with each other.
 export const DeliveryAddressFields = ({ city, mapsLoaded, value, onChange }) => {
+  const { t } = useTranslation()
   const handleChange = (e) => {
     const { name, type, checked, value: fieldValue } = e.target
     onChange({ [name]: type === 'checkbox' ? checked : fieldValue })
@@ -40,7 +42,7 @@ export const DeliveryAddressFields = ({ city, mapsLoaded, value, onChange }) => 
       ) : (
         // Карта недоступна (не завантажилась) — даємо ввести адресу вручну.
         <>
-          <Field label="Вулиця">
+          <Field label={t('address.street')}>
             <input
               name="street"
               value={value.street}
@@ -49,7 +51,7 @@ export const DeliveryAddressFields = ({ city, mapsLoaded, value, onChange }) => 
               className={inputClass}
             />
           </Field>
-          <Field label="Будинок">
+          <Field label={t('address.building')}>
             <input
               name="building"
               value={value.building}
@@ -63,7 +65,7 @@ export const DeliveryAddressFields = ({ city, mapsLoaded, value, onChange }) => 
 
       {!value.isPrivateHouse && (
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <Field label="Квартира">
+          <Field label={t('address.apartment')}>
             <input
               name="apartment"
               value={value.apartment}
@@ -72,7 +74,7 @@ export const DeliveryAddressFields = ({ city, mapsLoaded, value, onChange }) => 
               className={inputClass}
             />
           </Field>
-          <Field label="Під'їзд">
+          <Field label={t('address.entrance')}>
             <input
               name="entrance"
               value={value.entrance}
@@ -81,7 +83,7 @@ export const DeliveryAddressFields = ({ city, mapsLoaded, value, onChange }) => 
               className={inputClass}
             />
           </Field>
-          <Field label="Поверх">
+          <Field label={t('address.floor')}>
             <input
               name="floor"
               value={value.floor}
@@ -100,7 +102,7 @@ export const DeliveryAddressFields = ({ city, mapsLoaded, value, onChange }) => 
           onChange={handleChange}
           className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
         />
-        Приватний будинок
+        {t('address.privateHouse')}
       </label>
     </>
   )

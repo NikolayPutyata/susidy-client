@@ -1,16 +1,19 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { addMyFavorite, removeMyFavorite } from '../api/auth.js'
 import { useCart } from '../hooks/useCart.js'
 import { useCity } from '../hooks/useCity.js'
 import { useModals } from '../hooks/useModals.js'
 import { getErrorMessage } from '../lib/errors.js'
+import { getProductDescription, getProductName } from '../lib/productI18n.js'
 import { selectIsAuthenticated, selectUser, setUser } from '../store/userSlice.js'
 import { QuantityStepper } from './QuantityStepper.jsx'
 import { ProductDetailModal } from './ProductDetailModal.jsx'
 import { HeartIcon, SpinnerIcon } from './icons.jsx'
 
 export const ProductCard = ({ product }) => {
+  const { t, i18n } = useTranslation()
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
   const isAuthenticated = useSelector(selectIsAuthenticated)
@@ -76,7 +79,7 @@ export const ProductCard = ({ product }) => {
               toggleFavorite()
             }}
             disabled={favoriteBusy}
-            aria-label={isFavorite ? 'Прибрати з улюблених' : 'Додати в улюблені'}
+            aria-label={isFavorite ? t('product.removeFromFavorites') : t('product.addToFavorites')}
             className="absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-sm transition hover:bg-black/70 disabled:opacity-60"
           >
             <HeartIcon
@@ -87,7 +90,7 @@ export const ProductCard = ({ product }) => {
           {product.images?.[0] ? (
             <img
               src={product.images[0]}
-              alt={product.name}
+              alt={getProductName(product, i18n.language)}
               loading="lazy"
               className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
             />
@@ -98,7 +101,7 @@ export const ProductCard = ({ product }) => {
           )}
           {product.weight > 0 && (
             <span className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-xs font-medium text-text backdrop-blur-sm">
-              {product.weight} г
+              {t('product.weight', { value: product.weight })}
             </span>
           )}
         </div>
@@ -107,9 +110,11 @@ export const ProductCard = ({ product }) => {
           {/* Fixed 2-line height regardless of whether the name wraps or
               not — otherwise cards in the same row end up different
               heights depending on title length. */}
-          <h3 className="line-clamp-2 min-h-[2.5rem] font-semibold text-text">{product.name}</h3>
+          <h3 className="line-clamp-2 min-h-[2.5rem] font-semibold text-text">
+            {getProductName(product, i18n.language)}
+          </h3>
           <p className="line-clamp-2 min-h-[2.5rem] text-sm text-text-muted">
-            {product.description || ''}
+            {getProductDescription(product, i18n.language)}
           </p>
 
           <div
@@ -125,7 +130,7 @@ export const ProductCard = ({ product }) => {
                 className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
               >
                 {busy && <SpinnerIcon className="h-3.5 w-3.5 animate-spin" />}
-                В кошик
+                {t('product.addToCart')}
               </button>
             ) : (
               <QuantityStepper

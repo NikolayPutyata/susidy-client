@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
 import 'swiper/css'
@@ -11,6 +12,7 @@ import { ChevronIcon } from '../icons.jsx'
 // navigation only (no autoplay). Reuses ProductCard as-is, same card as
 // the regular grid.
 export const ProductCarousel = ({ title, subtitle, fetchProducts }) => {
+  const { t } = useTranslation()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [swiper, setSwiper] = useState(null)
@@ -54,7 +56,7 @@ export const ProductCarousel = ({ title, subtitle, fetchProducts }) => {
         <div className="flex items-center gap-2.5 text-sm text-text-muted">
           <button
             onClick={() => swiper?.slidePrev()}
-            aria-label="Назад"
+            aria-label={t('catalog.prev')}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-text transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-40"
             disabled={currentPage <= 1}
           >
@@ -65,7 +67,7 @@ export const ProductCarousel = ({ title, subtitle, fetchProducts }) => {
           </span>
           <button
             onClick={() => swiper?.slideNext()}
-            aria-label="Вперед"
+            aria-label={t('catalog.next')}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-text transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-40"
             disabled={currentPage >= pageCount}
           >

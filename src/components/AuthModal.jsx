@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../hooks/useAuth.js'
 import { useModals } from '../hooks/useModals.js'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
@@ -48,6 +49,7 @@ const PhoneField = ({ value, onChange }) => (
 // wrapper here instead: it only (un)mounts when both are closed, so
 // switching mode just swaps the form fields inside it, no flash.
 export const AuthModal = () => {
+  const { t } = useTranslation()
   const { login, register } = useAuth()
   const {
     loginOpen,
@@ -112,11 +114,7 @@ export const AuthModal = () => {
       // this same form would now just fail as "phone already taken" with
       // no clue why. Point at the "Увійти" link instead of the generic
       // error for that case.
-      setError(
-        registered
-          ? 'Акаунт створено, але увійти автоматично не вдалось. Натисніть "Увійти" нижче і спробуйте ще раз.'
-          : getErrorMessage(err),
-      )
+      setError(registered ? t('auth.registeredLoginFailed') : getErrorMessage(err))
     } finally {
       setSubmitting(false)
     }
@@ -127,7 +125,7 @@ export const AuthModal = () => {
       <div className="relative w-full max-w-sm rounded-3xl border border-border bg-surface p-6">
         <button
           onClick={close}
-          aria-label="Закрити"
+          aria-label={t('cart.close')}
           className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-hover hover:text-text"
         >
           <CloseIcon className="h-4.5 w-4.5" />
@@ -135,7 +133,7 @@ export const AuthModal = () => {
 
         {mode === 'login' ? (
           <>
-            <h2 className="mb-5 text-center text-xl font-bold">Вхід в акаунт</h2>
+            <h2 className="mb-5 text-center text-xl font-bold">{t('auth.loginTitle')}</h2>
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <PhoneField value={loginForm.phoneNumber} onChange={handleLoginChange} />
               <input
@@ -143,7 +141,7 @@ export const AuthModal = () => {
                 name="password"
                 value={loginForm.password}
                 onChange={handleLoginChange}
-                placeholder="Пароль"
+                placeholder={t('auth.password')}
                 required
                 className={inputClass}
               />
@@ -154,25 +152,25 @@ export const AuthModal = () => {
                 className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
               >
                 {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
-                {submitting ? 'Входимо…' : 'Увійти'}
+                {submitting ? t('auth.loggingIn') : t('auth.login')}
               </button>
             </form>
             <p className="mt-4 text-center text-sm text-text-muted">
-              Немає акаунта?{' '}
+              {t('auth.noAccount')}{' '}
               <button type="button" onClick={openRegister} className="text-primary-light underline">
-                Зареєструватися
+                {t('auth.register')}
               </button>
             </p>
           </>
         ) : (
           <>
-            <h2 className="mb-5 text-center text-xl font-bold">Реєстрація</h2>
+            <h2 className="mb-5 text-center text-xl font-bold">{t('auth.registerTitle')}</h2>
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
               <input
                 name="name"
                 value={registerForm.name}
                 onChange={handleRegisterChange}
-                placeholder="Ім'я"
+                placeholder={t('auth.name')}
                 required
                 minLength={3}
                 className={inputClass}
@@ -183,7 +181,7 @@ export const AuthModal = () => {
                 name="password"
                 value={registerForm.password}
                 onChange={handleRegisterChange}
-                placeholder="Пароль"
+                placeholder={t('auth.password')}
                 required
                 className={inputClass}
               />
@@ -193,9 +191,9 @@ export const AuthModal = () => {
                 onChange={handleRegisterChange}
                 className={inputClass}
               >
-                <option value="">Місто (необов'язково)</option>
-                <option value="Kyiv">Київ</option>
-                <option value="Kharkiv">Харків</option>
+                <option value="">{t('auth.cityOptional')}</option>
+                <option value="Kyiv">{t('auth.cityKyiv')}</option>
+                <option value="Kharkiv">{t('auth.cityKharkiv')}</option>
               </select>
               {error && <p className="text-sm text-accent">{error}</p>}
               <button
@@ -204,13 +202,13 @@ export const AuthModal = () => {
                 className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
               >
                 {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
-                {submitting ? 'Реєструємо…' : 'Зареєструватися'}
+                {submitting ? t('auth.registering') : t('auth.register')}
               </button>
             </form>
             <p className="mt-4 text-center text-sm text-text-muted">
-              Вже є акаунт?{' '}
+              {t('auth.haveAccount')}{' '}
               <button type="button" onClick={openLogin} className="text-primary-light underline">
-                Увійти
+                {t('auth.login')}
               </button>
             </p>
           </>

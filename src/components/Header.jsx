@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
 import { useAuth } from '../hooks/useAuth.js'
@@ -7,6 +8,7 @@ import { useModals } from '../hooks/useModals.js'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CATEGORIES, CITIES, SOCIAL_LINKS } from '../lib/constants.js'
 import { Logo } from './Logo.jsx'
+import { LanguageSwitcher } from './LanguageSwitcher.jsx'
 import {
   CartIcon,
   CheckCircleIcon,
@@ -32,6 +34,7 @@ const menuLinkClass =
 const CLOSE_ANIMATION_MS = 200
 
 const MobileMenu = ({ open, onClose, onLoginClick }) => {
+  const { t } = useTranslation()
   const { user, isAdmin, logout } = useAuth()
   const { city, setCity } = useCity()
   const { openProfile, openMyOrders } = useModals()
@@ -73,7 +76,7 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
   return (
     <div className="fixed inset-0 z-[70]">
       <button
-        aria-label="Закрити меню"
+        aria-label={t('header.closeMenu')}
         onClick={onClose}
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm ${closing ? 'animate-fade-out' : 'animate-fade-in'}`}
       />
@@ -85,14 +88,14 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
           <Logo className="text-base" />
           <button
             onClick={onClose}
-            aria-label="Закрити"
+            aria-label={t('cart.close')}
             className="flex h-9 w-9 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-hover hover:text-text"
           >
             <CloseIcon className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex gap-1.5 border-b border-border px-3 py-3">
+        <div className="flex items-center gap-1.5 border-b border-border px-3 py-3">
           {CITIES.map((c) => (
             <button
               key={c.value}
@@ -106,11 +109,12 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
               {c.label}
             </button>
           ))}
+          <LanguageSwitcher />
         </div>
 
         <nav className="flex flex-col gap-1 px-3 py-3">
           <button onClick={() => goToCategory('all')} className={`${menuLinkClass} text-left`}>
-            Все меню
+            {t('header.allMenu')}
           </button>
           {CATEGORIES.map((c) => (
             <button
@@ -118,7 +122,7 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
               onClick={() => goToCategory(c.value)}
               className={`${menuLinkClass} text-left`}
             >
-              {c.label}
+              {t(`categories.${c.value}`)}
             </button>
           ))}
         </nav>
@@ -132,7 +136,7 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
               }}
               className={`text-left ${menuLinkClass}`}
             >
-              Мій профіль
+              {t('header.myProfile')}
             </button>
           )}
           {user && (
@@ -143,12 +147,12 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
               }}
               className={`text-left ${menuLinkClass}`}
             >
-              Мої замовлення
+              {t('header.myOrders')}
             </button>
           )}
           {isAdmin && (
             <Link to="/admin" onClick={onClose} className={menuLinkClass}>
-              Адмін панель
+              {t('header.admin')}
             </Link>
           )}
           {user ? (
@@ -159,7 +163,7 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
               }}
               className={`flex items-center gap-2 text-left ${menuLinkClass}`}
             >
-              Вийти ({user.name})
+              {t('header.logoutWithName', { name: user.name })}
               {user.discount > 0 && (
                 <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">
                   −{user.discount}%
@@ -174,7 +178,7 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
               }}
               className={`text-left ${menuLinkClass}`}
             >
-              Увійти
+              {t('header.login')}
             </button>
           )}
 
@@ -208,6 +212,7 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
 // step), submitting routes to /?search=... (handled in CatalogPage.jsx).
 // Desktop-only (sm:flex) — mobile search isn't in scope of this round.
 const SearchBox = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [value, setValue] = useState('')
 
@@ -224,7 +229,7 @@ const SearchBox = () => {
       <input
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Пошук страв…"
+        placeholder={t('header.searchPlaceholder')}
         className="h-10 w-44 rounded-full border border-border bg-surface pl-10 pr-4 text-sm text-text placeholder:text-text-subtle outline-none transition-all focus:w-60 focus:border-primary"
       />
     </form>
@@ -304,6 +309,7 @@ const CityDropdown = () => {
 }
 
 export const Header = () => {
+  const { t } = useTranslation()
   const { itemsCount, openDrawer } = useCart()
   const { user, isAuthenticated } = useAuth()
   const { openLogin, openProfile } = useModals()
@@ -316,7 +322,7 @@ export const Header = () => {
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setMenuOpen(true)}
-              aria-label="Меню"
+              aria-label={t('header.menu')}
               className={iconButtonClass}
             >
               <MenuIcon className="h-5 w-5" />
@@ -325,18 +331,20 @@ export const Header = () => {
             <CityDropdown />
           </div>
 
-          <Link to="/" aria-label="На головну" className="justify-self-center">
+          <Link to="/" aria-label={t('header.home')} className="justify-self-center">
             <Logo imgClassName="w-20 sm:w-24" />
           </Link>
 
           <div className="flex items-center justify-end gap-1.5">
+            <LanguageSwitcher className="hidden sm:inline-flex" />
+
             <div className="hidden sm:block">
               <SearchBox />
             </div>
 
             <button
               onClick={() => (isAuthenticated ? openProfile() : openLogin())}
-              aria-label="Улюблене"
+              aria-label={t('product.addToFavorites')}
               className={`${iconButtonClass} hidden sm:flex`}
             >
               <HeartIcon
@@ -347,7 +355,7 @@ export const Header = () => {
 
             <button
               onClick={() => (isAuthenticated ? openProfile() : openLogin())}
-              aria-label={isAuthenticated ? 'Мій профіль' : 'Увійти'}
+              aria-label={isAuthenticated ? t('header.myProfile') : t('header.login')}
               className={`${iconButtonClass} hidden sm:flex`}
             >
               <UserIcon className="h-5 w-5" />
@@ -356,7 +364,7 @@ export const Header = () => {
             {itemsCount > 0 && (
               <button
                 onClick={openDrawer}
-                aria-label="Відкрити кошик"
+                aria-label={t('header.openCart')}
                 className={`${iconButtonClass} relative`}
               >
                 <CartIcon className="h-5 w-5" />

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useCity } from '../hooks/useCity.js'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CITIES } from '../lib/constants.js'
@@ -5,6 +6,7 @@ import { CITIES } from '../lib/constants.js'
 // Показується, поки юзер жодного разу не обрав місто — від цього залежить,
 // яка з цін товару (priceKiev/priceKharkov) показується й додається в кошик.
 export const CityModal = () => {
+  const { t } = useTranslation()
   const { city, setCity } = useCity()
 
   useBodyScrollLock(!city)
@@ -14,7 +16,7 @@ export const CityModal = () => {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
       <div className="w-full max-w-sm rounded-3xl border border-border bg-surface p-6 text-center">
-        <h2 className="mb-1 text-xl font-extrabold">Оберіть місто</h2>
+        <h2 className="mb-1 text-xl font-extrabold">{t('address.chooseCity')}</h2>
         
         <div className="flex flex-col gap-2 mt-2">
           {CITIES.map((c) => (

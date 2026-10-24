@@ -4,12 +4,14 @@
 // value in a product's structured `ingredients` array (see the admin
 // product form's "Інгредієнти" field) — not free-text matching against
 // name/description/composition.
+// labelKey points at the `filters.*` namespace in src/i18n/locales/{uk,en}.json
+// — the single source for the displayed text, in whichever language is active.
 export const ROLL_FILTERS = [
-  { id: 'no-cheese', label: 'Без сиру', labelEn: 'No cheese', type: 'exclude', tag: 'сир' },
-  { id: 'shrimp', label: 'З креветкою', labelEn: 'With shrimp', type: 'include', tag: 'креветка' },
-  { id: 'eel', label: 'З вугрем', labelEn: 'With eel', type: 'include', tag: 'вугор' },
-  { id: 'salmon', label: 'З лососем', labelEn: 'With salmon', type: 'include', tag: 'лосось' },
-  { id: 'no-mayo', label: 'Без майонезу', labelEn: 'No mayo', type: 'exclude', tag: 'майонез' },
+  { id: 'no-cheese', labelKey: 'filters.noCheese', type: 'exclude', tag: 'сир' },
+  { id: 'shrimp', labelKey: 'filters.shrimp', type: 'include', tag: 'креветка' },
+  { id: 'eel', labelKey: 'filters.eel', type: 'include', tag: 'вугор' },
+  { id: 'salmon', labelKey: 'filters.salmon', type: 'include', tag: 'лосось' },
+  { id: 'no-mayo', labelKey: 'filters.noMayo', type: 'exclude', tag: 'майонез' },
 ]
 
 const filterById = Object.fromEntries(ROLL_FILTERS.map((f) => [f.id, f]))
