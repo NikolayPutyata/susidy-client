@@ -3,21 +3,20 @@
 // identically to what the server does for an authenticated cart.
 export const ADDON_TYPES = ['sauce', 'ginger', 'wasabi']
 
-const SET_CATEGORIES = new Set(['sets'])
-const ROLL_LIKE_CATEGORIES = new Set([
+// Having at least one roll-like item or set in the cart unlocks a flat 8
+// free units of each addon — doesn't scale with quantity or item count
+// (1 roll and 5 sets both grant exactly 8).
+const QUALIFYING_CATEGORIES = new Set([
   'rolls',
   'hotRolls',
   'bigRolls',
   'maki',
   'sushi',
   'hunkans',
+  'sets',
 ])
 
-const freeUnitsPerItem = (category) => {
-  if (SET_CATEGORIES.has(category)) return 4
-  if (ROLL_LIKE_CATEGORIES.has(category)) return 1
-  return 0
-}
+const FREE_ADDON_CAP = 8
 
 // Recomputes free-vs-paid sauce/ginger/wasabi quantities from the current
 // main items, shifting each addon line by the CHANGE in free allowance
@@ -27,12 +26,11 @@ const freeUnitsPerItem = (category) => {
 // an addon line down to zero must never be resurrected by calling this
 // afterward — that guard lives at the call site, not in this function.
 export const recomputeAddons = (items, addonCatalog) => {
-  const freeTotals = { sauce: 0, ginger: 0, wasabi: 0 }
-  for (const item of items) {
-    if (item.addonType) continue
-    const free = freeUnitsPerItem(item.category) * item.quantity
-    for (const type of ADDON_TYPES) freeTotals[type] += free
-  }
+  const qualifies = items.some(
+    (item) => !item.addonType && QUALIFYING_CATEGORIES.has(item.category),
+  )
+  const cap = qualifies ? FREE_ADDON_CAP : 0
+  const freeTotals = { sauce: cap, ginger: cap, wasabi: cap }
 
   const result = []
   const handled = new Set()
@@ -67,3 +65,8 @@ export const recomputeAddons = (items, addonCatalog) => {
 
 export const getChargeableQuantity = (item) =>
   Math.max(0, item.quantity - (item.freeQuantity || 0))
+
+// Sum of every line's chargeable (non-free) value — the real amount the
+// customer is paying for the order, addons included.
+export const getChargeableTotal = (items) =>
+  items.reduce((sum, item) => sum + getChargeableQuantity(item) * item.price, 0)

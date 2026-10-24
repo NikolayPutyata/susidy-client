@@ -47,11 +47,6 @@ export const CartItemsList = ({ onError, showImage = false }) => {
             <p className="truncate font-medium text-text">{item.productName}</p>
             <p className="text-sm text-text-muted">
               {t('product.priceUnit', { value: item.price })}
-              {item.addonType && item.freeQuantity > 0 && (
-                <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-xs font-semibold text-primary-light">
-                  {t('product.freeBadge', { count: Math.min(item.freeQuantity, item.quantity) })}
-                </span>
-              )}
             </p>
           </div>
 

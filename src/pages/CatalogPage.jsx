@@ -108,7 +108,7 @@ export const CatalogPage = () => {
       <Contained>
         <ProductCarousel
           title={t('catalog.featuredTitle')}
-          subtitle={t('catalog.featuredSubtitle')}
+          linkTo="/featured"
           fetchProducts={fetchFeaturedProducts}
         />
       </Contained>
@@ -122,7 +122,7 @@ export const CatalogPage = () => {
       <Contained>
         <ProductCarousel
           title={t('catalog.chefsPickTitle')}
-          subtitle={t('catalog.chefsPickSubtitle')}
+          linkTo="/chefs-picks"
           fetchProducts={fetchChefsPickProducts}
         />
       </Contained>

@@ -109,7 +109,6 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
               {c.label}
             </button>
           ))}
-          <LanguageSwitcher />
         </div>
 
         <nav className="flex flex-col gap-1 px-3 py-3">
@@ -221,6 +220,7 @@ const SearchBox = () => {
     const trimmed = value.trim()
     if (!trimmed) return
     navigate(`/?search=${encodeURIComponent(trimmed)}`)
+    setValue('')
   }
 
   return (
@@ -336,7 +336,7 @@ export const Header = () => {
           </Link>
 
           <div className="flex items-center justify-end gap-1.5">
-            <LanguageSwitcher className="hidden sm:inline-flex" />
+            <LanguageSwitcher className="hidden h-10 sm:inline-flex" />
 
             <div className="hidden sm:block">
               <SearchBox />
