@@ -5,13 +5,15 @@ export const fetchMyCart = () => apiClient.get('/cart/me').then((r) => r.data.da
 export const addToCartRequest = (payload) =>
   apiClient.post('/cart/add', payload).then((r) => r.data.data)
 
-export const updateCartItemRequest = (productId, quantity) =>
+export const updateCartItemRequest = (productId, quantity, city) =>
   apiClient
-    .patch(`/cart/items/${productId}`, { quantity })
+    .patch(`/cart/items/${productId}`, { quantity, city })
     .then((r) => r.data.data)
 
-export const removeCartItemRequest = (productId) =>
-  apiClient.delete(`/cart/items/${productId}`).then((r) => r.data.data)
+export const removeCartItemRequest = (productId, city) =>
+  apiClient
+    .delete(`/cart/items/${productId}`, { params: { city } })
+    .then((r) => r.data.data)
 
 export const checkoutRequest = (payload) =>
   apiClient.post('/cart/checkout', payload).then((r) => r.data.data)

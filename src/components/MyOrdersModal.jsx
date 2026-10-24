@@ -8,6 +8,7 @@ import { useCity } from '../hooks/useCity.js'
 import { useModals } from '../hooks/useModals.js'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { getErrorMessage } from '../lib/errors.js'
+import { getChargeableQuantity } from '../lib/addons.js'
 import { CloseIcon, ReceiptIcon, SpinnerIcon } from './icons.jsx'
 
 export const MyOrdersModal = () => {
@@ -125,7 +126,7 @@ export const MyOrdersModal = () => {
                           {item.productName} × {item.quantity}
                         </span>
                         <span className="text-text">
-                          {item.price * item.quantity} ₴
+                          {item.price * getChargeableQuantity(item)} ₴
                         </span>
                       </li>
                     ))}

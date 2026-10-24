@@ -10,6 +10,7 @@ import {
   selectIsAuthenticated,
 } from './store/userSlice.js'
 import { hasHardcodedCart, loadMyCart } from './store/cartSlice.js'
+import { loadAddonCatalog } from './store/addonsSlice.js'
 import { setUnauthorizedHandler } from './api/client.js'
 import { Header } from './components/Header.jsx'
 import { Footer } from './components/Footer.jsx'
@@ -55,6 +56,13 @@ function App() {
     if (hasHardcodedCart || initializing || !isAuthenticated) return
     dispatch(loadMyCart())
   }, [dispatch, initializing, isAuthenticated])
+
+  useEffect(() => {
+    // The free-addon system (cartSlice.js) needs the real sauce/ginger/
+    // wasabi catalog (name/price/image) to create a line from scratch —
+    // loaded once up front so it's ready before the first add-to-cart.
+    dispatch(loadAddonCatalog())
+  }, [dispatch])
 
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}>

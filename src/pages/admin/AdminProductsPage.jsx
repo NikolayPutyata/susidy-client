@@ -16,14 +16,25 @@ const pointById = Object.fromEntries(LOCATIONS.map((point) => [point.id, point])
 // so it fits on one line instead of wrapping inside the table column.
 const pointAddress = (pointId) => pointById[pointId]?.address ?? pointId
 
+const ADDON_TYPES = [
+  { value: '', label: 'Звичайний товар' },
+  { value: 'sauce', label: 'Соус' },
+  { value: 'ginger', label: 'Імбир' },
+  { value: 'wasabi', label: 'Васабі' },
+]
+
 const emptyForm = {
   name: '',
+  nameEn: '',
   priceKiev: '',
   priceKharkov: '',
   category: 'other',
+  addonType: '',
   description: '',
+  descriptionEn: '',
   weight: '',
   composition: '',
+  ingredients: '',
   allergens: '',
   posterProductId: '',
   featured: false,
@@ -64,12 +75,16 @@ export const AdminProductsPage = () => {
     setEditingId(product._id)
     setForm({
       name: product.name,
+      nameEn: product.nameEn || '',
       priceKiev: product.priceKiev,
       priceKharkov: product.priceKharkov,
       category: product.category,
+      addonType: product.addonType || '',
       description: product.description || '',
+      descriptionEn: product.descriptionEn || '',
       weight: product.weight || '',
       composition: product.composition || '',
+      ingredients: (product.ingredients || []).join(', '),
       allergens: product.allergens || '',
       posterProductId: product.posterProductId || '',
       featured: product.featured || false,
@@ -180,6 +195,13 @@ export const AdminProductsPage = () => {
           required
           className={inputClass}
         />
+        <input
+          name="nameEn"
+          value={form.nameEn}
+          onChange={handleChange}
+          placeholder="Назва (EN) — необов'язково, інакше показується українська"
+          className={inputClass}
+        />
         <div className="flex gap-1.5">
           <input
             name="priceKiev"
@@ -256,6 +278,24 @@ export const AdminProductsPage = () => {
             </option>
           ))}
         </select>
+        <select
+          name="addonType"
+          value={form.addonType}
+          onChange={handleChange}
+          className={inputClass}
+        >
+          {ADDON_TYPES.map((a) => (
+            <option key={a.value} value={a.value}>
+              {a.label}
+            </option>
+          ))}
+        </select>
+        {form.addonType && (
+          <p className="text-xs text-text-subtle">
+            Позначений як додаток — автоматично додається безкоштовно до ролів/наборів
+            у кошику.
+          </p>
+        )}
         <textarea
           name="description"
           value={form.description}
@@ -265,11 +305,26 @@ export const AdminProductsPage = () => {
           className={inputClass}
         />
         <textarea
+          name="descriptionEn"
+          value={form.descriptionEn}
+          onChange={handleChange}
+          placeholder="Опис (EN) — необов'язково, інакше показується українська"
+          rows={3}
+          className={inputClass}
+        />
+        <textarea
           name="composition"
           value={form.composition}
           onChange={handleChange}
           placeholder="Склад (для набору — перелік ролів у ньому)"
           rows={2}
+          className={inputClass}
+        />
+        <input
+          name="ingredients"
+          value={form.ingredients}
+          onChange={handleChange}
+          placeholder="Інгредієнти для фільтрів, через кому (напр. сир, креветка, лосось)"
           className={inputClass}
         />
         <textarea
@@ -449,6 +504,12 @@ export const AdminProductsPage = () => {
                               {product.weight > 0 && (
                                 <span className="ml-1 text-xs font-normal text-text-subtle">
                                   {product.weight} г
+                                </span>
+                              )}
+                              {product.addonType && (
+                                <span className="ml-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-normal text-primary-light">
+                                  {ADDON_TYPES.find((a) => a.value === product.addonType)
+                                    ?.label ?? product.addonType}
                                 </span>
                               )}
                             </td>

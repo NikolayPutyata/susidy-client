@@ -7,6 +7,7 @@ import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { CartItemsList } from './CartItemsList.jsx'
 import { CartIcon, CloseIcon } from './icons.jsx'
 import { OrderTotal } from './OrderTotal.jsx'
+import { TotalWeight } from './TotalWeight.jsx'
 
 // Замість миттєвого зникнення (яке виглядає як "мигання" сторінки під
 // кошиком) — програємо анімацію закриття і розмонтовуємо тільки після неї.
@@ -115,6 +116,7 @@ export const CartDrawer = () => {
                 </button>
               </p>
             )}
+            <TotalWeight items={items} />
             <OrderTotal total={total} />
             <button
               onClick={goToCheckout}

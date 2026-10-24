@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCart } from '../hooks/useCart.js'
 import { getErrorMessage } from '../lib/errors.js'
+import { getChargeableQuantity } from '../lib/addons.js'
 import { QuantityStepper } from './QuantityStepper.jsx'
 import { TrashIcon } from './icons.jsx'
 
@@ -44,7 +45,14 @@ export const CartItemsList = ({ onError, showImage = false }) => {
 
           <div className="min-w-0 flex-1">
             <p className="truncate font-medium text-text">{item.productName}</p>
-            <p className="text-sm text-text-muted">{t('product.priceUnit', { value: item.price })}</p>
+            <p className="text-sm text-text-muted">
+              {t('product.priceUnit', { value: item.price })}
+              {item.addonType && item.freeQuantity > 0 && (
+                <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-xs font-semibold text-primary-light">
+                  {t('product.freeBadge', { count: Math.min(item.freeQuantity, item.quantity) })}
+                </span>
+              )}
+            </p>
           </div>
 
           <QuantityStepper
@@ -66,7 +74,7 @@ export const CartItemsList = ({ onError, showImage = false }) => {
           />
 
           <div className="w-16 shrink-0 text-right font-semibold text-text">
-            {item.price * item.quantity} {t('common.currency')}
+            {item.price * getChargeableQuantity(item)} {t('common.currency')}
           </div>
 
           <button

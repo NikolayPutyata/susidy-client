@@ -4,7 +4,9 @@ import { Link, useParams } from 'react-router-dom'
 import { fetchProductsByCategory } from '../api/products.js'
 import { CATEGORIES } from '../lib/constants.js'
 import { ProductGrid } from '../components/ProductGrid.jsx'
+import { RollFilters } from '../components/RollFilters.jsx'
 import { getErrorMessage } from '../lib/errors.js'
+import { applyRollFilters } from '../lib/rollFilters.js'
 import { CloseIcon } from '../components/icons.jsx'
 
 // A dedicated page per category (/category/:categoryValue) instead of the
@@ -19,10 +21,24 @@ export const CategoryPage = () => {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [activeFilterIds, setActiveFilterIds] = useState([])
+  const isRollsCategory = categoryValue === 'rolls'
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
+    setActiveFilterIds([])
   }, [categoryValue])
+
+  const toggleFilter = (id) =>
+    setActiveFilterIds((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
+    )
+  const resetFilters = () => setActiveFilterIds([])
+
+  const filteredProducts =
+    isRollsCategory && activeFilterIds.length > 0
+      ? applyRollFilters(products, activeFilterIds)
+      : products
 
   useEffect(() => {
     if (!category) return
@@ -70,11 +86,35 @@ export const CategoryPage = () => {
         </Link>
       </div>
 
+      {isRollsCategory && (
+        <RollFilters
+          activeFilterIds={activeFilterIds}
+          onToggle={toggleFilter}
+          onReset={resetFilters}
+          resultCount={filteredProducts.length}
+        />
+      )}
+
       <ProductGrid
-        products={products}
+        products={filteredProducts}
         loading={loading}
         error={error}
-        emptyMessage={t('filters.categoryEmpty')}
+        emptyMessage={
+          activeFilterIds.length > 0 ? (
+            <>
+              {t('filters.noResults')}{' '}
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="text-primary-light underline underline-offset-2"
+              >
+                {t('filters.reset')}
+              </button>
+            </>
+          ) : (
+            t('filters.categoryEmpty')
+          )
+        }
       />
     </div>
   )
