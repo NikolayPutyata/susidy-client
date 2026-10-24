@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../hooks/useAuth.js'
 import { applyDiscount } from '../lib/pricing.js'
 
@@ -9,12 +10,13 @@ export const useDiscountedTotal = (total) => {
 }
 
 export const OrderTotal = ({ total, size = 'md' }) => {
+  const { t } = useTranslation()
   const { discount, discounted } = useDiscountedTotal(total)
   const valueClass = size === 'lg' ? 'text-2xl' : 'text-xl'
 
   return (
     <div className="flex items-start justify-between gap-2">
-      <span className="pt-1 text-text-muted">Разом до сплати:</span>
+      <span className="pt-1 text-text-muted">{t('cart.total')}</span>
       <div className="flex flex-col items-end gap-1">
         {discount > 0 && (
           <span className="flex items-center gap-1.5">

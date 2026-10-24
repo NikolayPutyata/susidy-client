@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useCart } from '../hooks/useCart.js'
 import { getErrorMessage } from '../lib/errors.js'
 import { QuantityStepper } from './QuantityStepper.jsx'
 import { TrashIcon } from './icons.jsx'
 
 export const CartItemsList = ({ onError, showImage = false }) => {
+  const { t } = useTranslation()
   const { items, updateItem, removeItem } = useCart()
   const [busyId, setBusyId] = useState(null)
 
@@ -42,7 +44,7 @@ export const CartItemsList = ({ onError, showImage = false }) => {
 
           <div className="min-w-0 flex-1">
             <p className="truncate font-medium text-text">{item.productName}</p>
-            <p className="text-sm text-text-muted">{item.price} грн / шт</p>
+            <p className="text-sm text-text-muted">{t('product.priceUnit', { value: item.price })}</p>
           </div>
 
           <QuantityStepper
@@ -64,14 +66,14 @@ export const CartItemsList = ({ onError, showImage = false }) => {
           />
 
           <div className="w-16 shrink-0 text-right font-semibold text-text">
-            {item.price * item.quantity} ₴
+            {item.price * item.quantity} {t('common.currency')}
           </div>
 
           <button
             type="button"
             disabled={busyId === item.product_id}
             onClick={() => run(item.product_id, () => removeItem(item.product_id))}
-            aria-label="Прибрати товар"
+            aria-label={t('cart.remove')}
             className="shrink-0 text-text-subtle transition hover:text-accent disabled:opacity-50"
           >
             <TrashIcon className="h-4 w-4" />

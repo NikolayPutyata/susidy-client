@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { MinusIcon, PlusIcon } from './icons.jsx'
 
 export const QuantityStepper = ({
@@ -7,6 +8,7 @@ export const QuantityStepper = ({
   disabled = false,
   size = 'md',
 }) => {
+  const { t } = useTranslation()
   const isSmall = size === 'sm'
   const buttonSize = isSmall ? 'h-6 w-6' : 'h-8 w-8'
   const iconSize = isSmall ? 'h-3 w-3' : 'h-3.5 w-3.5'
@@ -21,7 +23,7 @@ export const QuantityStepper = ({
         type="button"
         onClick={onDecrease}
         disabled={disabled}
-        aria-label="Зменшити кількість"
+        aria-label={t('cart.decrease')}
         className={`flex ${buttonSize} items-center justify-center rounded-full text-text transition hover:bg-surface-hover disabled:cursor-not-allowed`}
       >
         <MinusIcon className={iconSize} />
@@ -37,7 +39,7 @@ export const QuantityStepper = ({
         type="button"
         onClick={onIncrease}
         disabled={disabled}
-        aria-label="Збільшити кількість"
+        aria-label={t('cart.increase')}
         className={`flex ${buttonSize} items-center justify-center rounded-full bg-accent text-black transition hover:bg-accent-light disabled:cursor-not-allowed`}
       >
         <PlusIcon className={iconSize} />

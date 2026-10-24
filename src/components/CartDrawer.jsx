@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart.js'
 import { useCity } from '../hooks/useCity.js'
@@ -12,6 +13,7 @@ import { OrderTotal } from './OrderTotal.jsx'
 const CLOSE_ANIMATION_MS = 200
 
 export const CartDrawer = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { items, loading, isDrawerOpen, closeDrawer, total, repriceError } = useCart()
   const { retryReprice } = useCity()
@@ -53,7 +55,7 @@ export const CartDrawer = () => {
   return (
     <div className="fixed inset-0 z-50">
       <button
-        aria-label="Закрити кошик"
+        aria-label={t('cart.closeCart')}
         onClick={closeDrawer}
         className={`absolute inset-0 bg-black/70 backdrop-blur-sm ${closing ? 'animate-fade-out' : 'animate-fade-in'}`}
       />
@@ -64,11 +66,11 @@ export const CartDrawer = () => {
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="flex items-center gap-2 text-lg font-bold">
             <CartIcon className="h-5 w-5 text-accent" />
-            Кошик
+            {t('cart.title')}
           </h2>
           <button
             onClick={closeDrawer}
-            aria-label="Закрити"
+            aria-label={t('cart.close')}
             className="flex h-9 w-9 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-hover hover:text-text"
           >
             <CloseIcon className="h-5 w-5" />
@@ -77,7 +79,7 @@ export const CartDrawer = () => {
 
         <div className="flex-1 overflow-y-auto px-5">
           {loading && (
-            <p className="py-8 text-center text-text-muted">Завантаження…</p>
+            <p className="py-8 text-center text-text-muted">{t('common.loading')}</p>
           )}
 
           {!loading && items.length === 0 && (
@@ -85,12 +87,12 @@ export const CartDrawer = () => {
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-raised">
                 <CartIcon className="h-7 w-7 text-text-subtle" />
               </div>
-              <p className="text-text-muted">Кошик поки порожній</p>
+              <p className="text-text-muted">{t('cart.empty')}</p>
               <button
                 onClick={closeDrawer}
                 className="text-sm text-primary-light underline underline-offset-4"
               >
-                Обрати щось смачненьке
+                {t('cart.emptyCta')}
               </button>
             </div>
           )}
@@ -103,14 +105,13 @@ export const CartDrawer = () => {
             {error && <p className="text-sm text-accent">{error}</p>}
             {repriceError && (
               <p className="text-sm text-accent">
-                Не вдалось оновити ціни під нове місто — показані ціни можуть
-                бути старими.{' '}
+                {t('cart.repriceError')}{' '}
                 <button
                   type="button"
                   onClick={retryReprice}
                   className="underline underline-offset-2"
                 >
-                  Спробувати ще раз
+                  {t('common.tryAgain')}
                 </button>
               </p>
             )}
@@ -119,7 +120,7 @@ export const CartDrawer = () => {
               onClick={goToCheckout}
               className="w-full rounded-full bg-accent py-3 text-center font-semibold text-black transition hover:bg-accent-light"
             >
-              Оформити замовлення
+              {t('cart.checkout')}
             </button>
           </div>
         )}

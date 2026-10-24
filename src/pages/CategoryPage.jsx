@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 import { fetchProductsByCategory } from '../api/products.js'
 import { CATEGORIES } from '../lib/constants.js'
@@ -12,6 +13,7 @@ import { CloseIcon } from '../components/icons.jsx'
 // history entry, and keeps the homepage sections from disappearing
 // whenever someone is just browsing a category.
 export const CategoryPage = () => {
+  const { t } = useTranslation()
   const { categoryValue } = useParams()
   const category = CATEGORIES.find((c) => c.value === categoryValue)
   const [products, setProducts] = useState([])
@@ -46,9 +48,9 @@ export const CategoryPage = () => {
     return (
       <div className="mx-auto w-full max-w-6xl px-4">
         <p className="py-12 text-center text-text-muted">
-          Такої категорії не існує.{' '}
+          {t('errors.categoryNotFound')}{' '}
           <Link to="/" className="text-primary-light underline underline-offset-2">
-            На головну
+            {t('header.home')}
           </Link>
         </p>
       </div>
@@ -58,13 +60,13 @@ export const CategoryPage = () => {
   return (
     <div className="mx-auto w-full max-w-6xl px-4">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h1 className="text-lg font-bold">{category.label}</h1>
+        <h1 className="text-lg font-bold">{t(`categories.${category.value}`)}</h1>
         <Link
           to="/"
           className="flex items-center gap-1 text-sm text-text-muted underline underline-offset-2 hover:text-text"
         >
           <CloseIcon className="h-3.5 w-3.5" />
-          Все меню
+          {t('header.allMenu')}
         </Link>
       </div>
 
@@ -72,7 +74,7 @@ export const CategoryPage = () => {
         products={products}
         loading={loading}
         error={error}
-        emptyMessage="У цій категорії поки нічого немає."
+        emptyMessage={t('filters.categoryEmpty')}
       />
     </div>
   )
