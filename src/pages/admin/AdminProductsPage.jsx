@@ -8,6 +8,7 @@ import {
 } from '../../api/admin.js'
 import { CATEGORIES, CITY_LABELS, LOCATIONS } from '../../lib/constants.js'
 import { getErrorMessage } from '../../lib/errors.js'
+import { INGREDIENTS } from '../../lib/ingredients.js'
 import { SpinnerIcon, TrashIcon, UploadIcon } from '../../components/icons.jsx'
 
 const pointById = Object.fromEntries(LOCATIONS.map((point) => [point.id, point]))
@@ -34,7 +35,7 @@ const emptyForm = {
   descriptionEn: '',
   weight: '',
   composition: '',
-  ingredients: '',
+  ingredients: [],
   allergens: '',
   posterProductId: '',
   featured: false,
@@ -84,7 +85,7 @@ export const AdminProductsPage = () => {
       descriptionEn: product.descriptionEn || '',
       weight: product.weight || '',
       composition: product.composition || '',
-      ingredients: (product.ingredients || []).join(', '),
+      ingredients: product.ingredients || [],
       allergens: product.allergens || '',
       posterProductId: product.posterProductId || '',
       featured: product.featured || false,
@@ -105,6 +106,14 @@ export const AdminProductsPage = () => {
     setFiles([])
   }
 
+  const toggleIngredient = (id) =>
+    setForm((prev) => ({
+      ...prev,
+      ingredients: prev.ingredients.includes(id)
+        ? prev.ingredients.filter((i) => i !== id)
+        : [...prev.ingredients, id],
+    }))
+
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
@@ -116,7 +125,9 @@ export const AdminProductsPage = () => {
     setError('')
 
     const formData = new FormData()
-    Object.entries(form).forEach(([key, value]) => formData.append(key, value))
+    Object.entries(form).forEach(([key, value]) =>
+      formData.append(key, Array.isArray(value) ? value.join(',') : value),
+    )
     files.forEach((file) => formData.append('images', file))
 
     try {
@@ -320,13 +331,33 @@ export const AdminProductsPage = () => {
           rows={2}
           className={inputClass}
         />
-        <input
-          name="ingredients"
-          value={form.ingredients}
-          onChange={handleChange}
-          placeholder="Інгредієнти для фільтрів, через кому (напр. сир, креветка, лосось)"
-          className={inputClass}
-        />
+        {!form.addonType && form.category !== 'drinks' && (
+          <fieldset className="rounded-xl border border-border bg-surface-raised px-3 py-2.5">
+            <legend className="px-1 text-xs text-text-muted">
+              Інгредієнти для фільтрів ролів
+            </legend>
+            <div className="flex flex-wrap gap-1.5">
+              {INGREDIENTS.map(({ id, label }) => {
+                const active = form.ingredients.includes(id)
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => toggleIngredient(id)}
+                    aria-pressed={active}
+                    className={`rounded-full border px-3 py-1 text-sm transition ${
+                      active
+                        ? 'border-primary bg-primary text-black'
+                        : 'border-border bg-surface text-text-muted hover:text-text'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+          </fieldset>
+        )}
         <textarea
           name="allergens"
           value={form.allergens}
