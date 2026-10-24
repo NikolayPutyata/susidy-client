@@ -14,6 +14,9 @@ import { DeliveryAddressFields } from '../components/DeliveryAddressFields.jsx'
 import { QuantityStepper } from '../components/QuantityStepper.jsx'
 import { PaymentMethodModal } from '../components/PaymentMethodModal.jsx'
 import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
+import { TotalWeight } from '../components/TotalWeight.jsx'
+import { getAmountToFreeDelivery, getDeliveryFee } from '../lib/pricing.js'
+import { getChargeableQuantity } from '../lib/addons.js'
 
 const addressExtrasLabel = (addr) =>
   addr.isPrivateHouse
@@ -81,12 +84,19 @@ export const CheckoutPage = () => {
   const { items, total, checkout, repriceError } = useCart()
   const { user, isAuthenticated } = useAuth()
   const { city, cityLabel, retryReprice } = useCity()
-  const { discounted } = useDiscountedTotal(total)
+  const { discount, discounted } = useDiscountedTotal(total)
   const [form, setForm] = useState(() => initialForm(user))
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [orderResult, setOrderResult] = useState(null)
+  const [cashAmount, setCashAmount] = useState('')
+
+  const deliveryFee = getDeliveryFee(items, form.fulfillment, discount)
+  const amountToFreeDelivery = getAmountToFreeDelivery(items, form.fulfillment, discount)
+  const finalTotal = discounted + deliveryFee
+  const cashAmountNumber = cashAmount === '' ? null : Number(cashAmount)
+  const cashAmountTooLow = cashAmountNumber !== null && cashAmountNumber < finalTotal
   const mapsLoaded = useApiLoadingStatus() === APILoadingStatus.LOADED
   const [availableTimeSlots] = useState(getAvailableTimeSlots)
   const [selectedSavedAddressId, setSelectedSavedAddressId] = useState(null)
@@ -213,6 +223,11 @@ export const CheckoutPage = () => {
       return
     }
 
+    if (cashAmountTooLow) {
+      setError(`Сума готівки менша за суму замовлення (${finalTotal} ₴).`)
+      return
+    }
+
     setSubmitting(true)
     setError('')
     try {
@@ -221,6 +236,7 @@ export const CheckoutPage = () => {
         ...form,
         city,
         paymentMethod: 'cod',
+        cashAmount: cashAmountNumber ?? undefined,
         pickupAddress: pickupPoint?.address || '',
       })
       setOrderResult(order)
@@ -300,16 +316,30 @@ export const CheckoutPage = () => {
                         {item.productName} × {item.quantity}
                       </span>
                       <span className="text-text">
-                        {item.price * item.quantity} ₴
+                        {item.price * getChargeableQuantity(item)} ₴
                       </span>
                     </li>
                   ))}
                 </ul>
-                <div className="flex items-center justify-between border-t border-border pt-3">
-                  <span className="text-text-muted">Разом до сплати:</span>
-                  <span className="text-xl font-extrabold text-accent">
-                    {orderResult.total} ₴
-                  </span>
+                <div className="space-y-1.5 border-t border-border pt-3">
+                  {orderResult.deliveryFee > 0 && (
+                    <div className="flex items-center justify-between text-sm text-text-muted">
+                      <span>Доставка</span>
+                      <span>{orderResult.deliveryFee} ₴</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-text-muted">Разом до сплати:</span>
+                    <span className="text-xl font-extrabold text-accent">
+                      {orderResult.total} ₴
+                    </span>
+                  </div>
+                  {orderResult.cashAmount > 0 && (
+                    <p className="text-sm text-text-muted">
+                      Готівкою: {orderResult.cashAmount} ₴ · решта{' '}
+                      {Math.round((orderResult.cashAmount - orderResult.total) * 100) / 100} ₴
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -346,15 +376,31 @@ export const CheckoutPage = () => {
                       </div>
                       <span className="min-w-0 flex-1 truncate">
                         {item.productName} × {item.quantity}
+                        {item.addonType && item.freeQuantity > 0 && (
+                          <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-xs font-semibold text-primary-light">
+                            {Math.min(item.freeQuantity, item.quantity)} безкоштовно
+                          </span>
+                        )}
                       </span>
                       <span className="shrink-0 text-text">
-                        {item.price * item.quantity} ₴
+                        {item.price * getChargeableQuantity(item)} ₴
                       </span>
                     </li>
                   ))}
                 </ul>
-                <div className="border-t border-border pt-3">
-                  <OrderTotal total={total} size="lg" />
+                <div className="border-t border-border pt-3 space-y-2">
+                  <TotalWeight items={items} />
+                  <OrderTotal
+                    total={total}
+                    size="lg"
+                    deliveryFee={form.fulfillment === 'delivery' ? deliveryFee : null}
+                  />
+                  {form.fulfillment === 'delivery' && amountToFreeDelivery > 0 && (
+                    <p className="text-xs text-text-subtle">
+                      Додайте товарів ще на {amountToFreeDelivery} грн — і доставка буде
+                      безкоштовною
+                    </p>
+                  )}
                 </div>
                 {repriceError && (
                   <p className="rounded-xl bg-accent/10 px-4 py-2.5 text-sm text-accent">
@@ -606,6 +652,39 @@ export const CheckoutPage = () => {
                   Не передзвонювати мені
                 </label>
 
+                <div className="space-y-2 rounded-xl border border-border bg-surface-raised px-4 py-3">
+                  <label className="block text-sm text-text-muted">
+                    Готівкою при доставці: підготувати решту з суми
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={0}
+                      step="1"
+                      value={cashAmount}
+                      onChange={(e) => setCashAmount(e.target.value)}
+                      placeholder={`напр. ${Math.ceil(finalTotal / 100) * 100} грн`}
+                      className={`${inputClass} flex-1`}
+                    />
+                    {cashAmount !== '' && (
+                      <button
+                        type="button"
+                        onClick={() => setCashAmount('')}
+                        className="shrink-0 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm text-text-muted underline underline-offset-2 hover:text-text"
+                      >
+                        Без решти
+                      </button>
+                    )}
+                  </div>
+                  {cashAmountNumber !== null && (
+                    <p className={`text-sm ${cashAmountTooLow ? 'text-accent' : 'text-text-muted'}`}>
+                      {cashAmountTooLow
+                        ? `Сума менша за суму замовлення (${finalTotal} ₴)`
+                        : `Решта: ${Math.round((cashAmountNumber - finalTotal) * 100) / 100} ₴`}
+                    </p>
+                  )}
+                </div>
+
                 {error && <p className="text-accent">{error}</p>}
 
                 <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
@@ -614,12 +693,12 @@ export const CheckoutPage = () => {
                     onClick={() => setPaymentModalOpen(true)}
                     className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light"
                   >
-                    Сплатити · {discounted} ₴
+                    Сплатити · {finalTotal} ₴
                   </button>
 
                   <button
                     type="submit"
-                    disabled={submitting}
+                    disabled={submitting || cashAmountTooLow}
                     className="flex items-center justify-center gap-2 rounded-full border border-border bg-surface-raised py-3 text-sm font-semibold text-text transition hover:bg-surface-hover disabled:opacity-40"
                   >
                     {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}

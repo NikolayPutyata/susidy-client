@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import { selectIsAuthenticated } from '../store/userSlice.js'
+import { selectAddonCatalog } from '../store/addonsSlice.js'
 import {
   addItemRemote,
   addLocalItem,
@@ -26,6 +27,7 @@ import {
 export const useCart = () => {
   const dispatch = useAppDispatch()
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
+  const addonCatalog = useAppSelector(selectAddonCatalog)
   const items = useAppSelector(selectCartItems)
   const loading = useAppSelector(selectCartLoading)
   const isDrawerOpen = useAppSelector(selectIsDrawerOpen)
@@ -38,10 +40,10 @@ export const useCart = () => {
       if (isAuthenticated) {
         return dispatch(addItemRemote({ product, quantity, price })).unwrap()
       }
-      dispatch(addLocalItem({ product, quantity, price }))
+      dispatch(addLocalItem({ product, quantity, price, addonCatalog }))
       return Promise.resolve()
     },
-    [dispatch, isAuthenticated],
+    [dispatch, isAuthenticated, addonCatalog],
   )
 
   const addItems = useCallback(
@@ -59,19 +61,23 @@ export const useCart = () => {
         )
       }
       dispatch(
-        addLocalItems(
-          products.map(({ product, quantity, price }) => ({
+        addLocalItems({
+          items: products.map(({ product, quantity, price }) => ({
             product_id: product._id,
             productName: product.name,
             price,
             image: product.images?.[0] || '',
             quantity,
+            weight: product.weight,
+            addonType: product.addonType || null,
+            category: product.category,
           })),
-        ),
+          addonCatalog,
+        }),
       )
       return Promise.resolve()
     },
-    [dispatch, isAuthenticated],
+    [dispatch, isAuthenticated, addonCatalog],
   )
 
   const updateItem = useCallback(
@@ -79,10 +85,10 @@ export const useCart = () => {
       if (isAuthenticated) {
         return dispatch(updateItemRemote({ productId, quantity })).unwrap()
       }
-      dispatch(updateLocalItem({ productId, quantity }))
+      dispatch(updateLocalItem({ productId, quantity, addonCatalog }))
       return Promise.resolve()
     },
-    [dispatch, isAuthenticated],
+    [dispatch, isAuthenticated, addonCatalog],
   )
 
   const removeItem = useCallback(
@@ -90,10 +96,10 @@ export const useCart = () => {
       if (isAuthenticated) {
         return dispatch(removeItemRemote(productId)).unwrap()
       }
-      dispatch(removeLocalItem(productId))
+      dispatch(removeLocalItem({ productId, addonCatalog }))
       return Promise.resolve()
     },
-    [dispatch, isAuthenticated],
+    [dispatch, isAuthenticated, addonCatalog],
   )
 
   const checkout = useCallback(
