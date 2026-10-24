@@ -336,7 +336,7 @@ export const Header = () => {
           </Link>
 
           <div className="flex items-center justify-end gap-1.5">
-            <LanguageSwitcher className="hidden h-10 sm:inline-flex" />
+            <LanguageSwitcher className="hidden h-8 lg:h-10 sm:inline-flex" />
 
             <div className="hidden sm:block">
               <SearchBox />

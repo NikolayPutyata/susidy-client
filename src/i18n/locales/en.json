@@ -44,7 +44,7 @@
     "favorites": "Favorites"
   },
   "product": {
-    "addToCart": "Add to cart",
+    "addToCart": "Add",
     "weight": "{{value}} g",
     "priceUnit": "{{value}} UAH / pc",
     "freeBadge": "{{count}} free",

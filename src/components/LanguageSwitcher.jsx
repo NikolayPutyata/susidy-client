@@ -18,7 +18,7 @@ export const LanguageSwitcher = ({ className = '' }) => {
 
   return (
     <div
-      className={`inline-flex items-center gap-0.5 rounded-full border border-border bg-surface-raised p-0.5 ${className}`}
+      className={`inline-flex items-center gap-0.5 rounded-full border border-border px-1 lg:px-2 bg-surface-raised p-0.5 ${className}`}
     >
       <button type="button" onClick={() => i18n.changeLanguage('uk')} className={buttonClass('uk')}>
         UA
