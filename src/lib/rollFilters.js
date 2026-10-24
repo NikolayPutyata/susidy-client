@@ -1,5 +1,3 @@
-import { toIngredientIds } from './ingredients.js'
-
 // Only the filters explicitly confirmed by the spec. Each `ingredient` is an
 // id from the fixed dictionary in ./ingredients.js — the same ids the admin
 // picks with chips in the product form — so matching is exact, never
@@ -26,7 +24,7 @@ export const applyRollFilters = (products, activeFilterIds) => {
   const activeFilters = activeFilterIds.map((id) => filterById[id]).filter(Boolean)
 
   return products.filter((product) => {
-    const ids = toIngredientIds(product.ingredients)
+    const ids = product.ingredients || []
     if (ids.length === 0) return false
     return activeFilters.every(({ type, ingredient }) => {
       const has = ids.includes(ingredient)

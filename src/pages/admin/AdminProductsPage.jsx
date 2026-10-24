@@ -8,7 +8,7 @@ import {
 } from '../../api/admin.js'
 import { CATEGORIES, CITY_LABELS, LOCATIONS } from '../../lib/constants.js'
 import { getErrorMessage } from '../../lib/errors.js'
-import { INGREDIENTS, toIngredientId, toIngredientIds } from '../../lib/ingredients.js'
+import { INGREDIENTS } from '../../lib/ingredients.js'
 import { SpinnerIcon, TrashIcon, UploadIcon } from '../../components/icons.jsx'
 
 const pointById = Object.fromEntries(LOCATIONS.map((point) => [point.id, point]))
@@ -61,9 +61,6 @@ export const AdminProductsPage = () => {
   const [deletingId, setDeletingId] = useState(null)
   const [pointFilter, setPointFilter] = useState('')
   const [stopBusyId, setStopBusyId] = useState(null)
-  // Hand-typed tags from before the ingredient dictionary that match none of
-  // its entries — shown so the admin knows they'll be dropped on save.
-  const [unknownIngredients, setUnknownIngredients] = useState([])
 
   const load = () => {
     setLoading(true)
@@ -88,7 +85,7 @@ export const AdminProductsPage = () => {
       descriptionEn: product.descriptionEn || '',
       weight: product.weight || '',
       composition: product.composition || '',
-      ingredients: toIngredientIds(product.ingredients),
+      ingredients: product.ingredients || [],
       allergens: product.allergens || '',
       posterProductId: product.posterProductId || '',
       featured: product.featured || false,
@@ -99,7 +96,6 @@ export const AdminProductsPage = () => {
       fats: product.fats ?? '',
       carbs: product.carbs ?? '',
     })
-    setUnknownIngredients((product.ingredients || []).filter((tag) => !toIngredientId(tag)))
     setFiles([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -107,7 +103,6 @@ export const AdminProductsPage = () => {
   const resetForm = () => {
     setEditingId(null)
     setForm(emptyForm)
-    setUnknownIngredients([])
     setFiles([])
   }
 
@@ -361,12 +356,6 @@ export const AdminProductsPage = () => {
                 )
               })}
             </div>
-            {unknownIngredients.length > 0 && (
-              <p className="mt-2 text-xs text-accent">
-                Старі інгредієнти не з довідника будуть прибрані при збереженні:{' '}
-                {unknownIngredients.join(', ')}
-              </p>
-            )}
           </fieldset>
         )}
         <textarea
