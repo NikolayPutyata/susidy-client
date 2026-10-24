@@ -16,6 +16,7 @@ import { PaymentMethodModal } from '../components/PaymentMethodModal.jsx'
 import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
 import { TotalWeight } from '../components/TotalWeight.jsx'
 import { getAmountToFreeDelivery, getDeliveryFee } from '../lib/pricing.js'
+import { getChargeableQuantity } from '../lib/addons.js'
 
 const addressExtrasLabel = (addr) =>
   addr.isPrivateHouse
@@ -315,7 +316,7 @@ export const CheckoutPage = () => {
                         {item.productName} × {item.quantity}
                       </span>
                       <span className="text-text">
-                        {item.price * item.quantity} ₴
+                        {item.price * getChargeableQuantity(item)} ₴
                       </span>
                     </li>
                   ))}
@@ -375,9 +376,14 @@ export const CheckoutPage = () => {
                       </div>
                       <span className="min-w-0 flex-1 truncate">
                         {item.productName} × {item.quantity}
+                        {item.addonType && item.freeQuantity > 0 && (
+                          <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-xs font-semibold text-primary-light">
+                            {Math.min(item.freeQuantity, item.quantity)} безкоштовно
+                          </span>
+                        )}
                       </span>
                       <span className="shrink-0 text-text">
-                        {item.price * item.quantity} ₴
+                        {item.price * getChargeableQuantity(item)} ₴
                       </span>
                     </li>
                   ))}

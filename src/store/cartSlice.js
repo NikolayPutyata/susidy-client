@@ -9,6 +9,7 @@ import {
 } from '../api/cart.js'
 import { fetchAllProducts } from '../api/products.js'
 import { toSerializableError } from '../lib/errors.js'
+import { getChargeableQuantity, recomputeAddons } from '../lib/addons.js'
 import { logout } from './userSlice.js'
 
 // Гостьовий кошик живе виключно в localStorage — бекенд про нього нічого не
@@ -76,7 +77,7 @@ export const loadMyCart = createAsyncThunk('cart/loadMy', async () => {
 
 export const addItemRemote = createAsyncThunk(
   'cart/addItemRemote',
-  async ({ product, quantity, price }, { rejectWithValue }) => {
+  async ({ product, quantity, price }, { getState, rejectWithValue }) => {
     try {
       const cart = await addToCartRequest({
         product_id: product._id,
@@ -86,6 +87,8 @@ export const addItemRemote = createAsyncThunk(
         quantity,
         weight: product.weight,
         addonType: product.addonType || null,
+        category: product.category,
+        city: getState().city.city,
       })
       return cart.items || []
     } catch (err) {
@@ -96,9 +99,9 @@ export const addItemRemote = createAsyncThunk(
 
 export const updateItemRemote = createAsyncThunk(
   'cart/updateItemRemote',
-  async ({ productId, quantity }, { rejectWithValue }) => {
+  async ({ productId, quantity }, { getState, rejectWithValue }) => {
     try {
-      const cart = await updateCartItemRequest(productId, quantity)
+      const cart = await updateCartItemRequest(productId, quantity, getState().city.city)
       return cart.items || []
     } catch (err) {
       return rejectWithValue(toSerializableError(err))
@@ -108,9 +111,9 @@ export const updateItemRemote = createAsyncThunk(
 
 export const removeItemRemote = createAsyncThunk(
   'cart/removeItemRemote',
-  async (productId, { rejectWithValue }) => {
+  async (productId, { getState, rejectWithValue }) => {
     try {
-      const cart = await removeCartItemRequest(productId)
+      const cart = await removeCartItemRequest(productId, getState().city.city)
       return cart.items || []
     } catch (err) {
       return rejectWithValue(toSerializableError(err))
@@ -183,7 +186,7 @@ const cartSlice = createSlice({
   reducers: {
     // Гостьовий кошик — синхронні операції, все живе в localStorage.
     addLocalItem(state, action) {
-      const { product, quantity, price } = action.payload
+      const { product, quantity, price, addonCatalog } = action.payload
       const existing = state.items.find((item) => item.product_id === product._id)
       if (existing) {
         existing.quantity += quantity
@@ -196,24 +199,42 @@ const cartSlice = createSlice({
           quantity,
           weight: product.weight,
           addonType: product.addonType || null,
+          category: product.category,
         })
       }
+      // Adding/incrementing is never a removal, so this can only ever
+      // grant or top up free addon lines — see lib/addons.js. Runs even
+      // if the catalog hasn't loaded yet (addonCatalog null): an EXISTING
+      // addon line's quantity still shifts by the right delta either way,
+      // only creating a brand-new line needs the catalog.
+      state.items = recomputeAddons(state.items, addonCatalog)
       writeLocalCart(state.items)
     },
     updateLocalItem(state, action) {
-      const { productId, quantity } = action.payload
+      const { productId, quantity, addonCatalog } = action.payload
       const item = state.items.find((i) => i.product_id === productId)
       if (item) item.quantity = quantity
+      // A quantity SET (never a full removal) is always safe to recompute.
+      state.items = recomputeAddons(state.items, addonCatalog)
       writeLocalCart(state.items)
     },
     removeLocalItem(state, action) {
-      state.items = state.items.filter((i) => i.product_id !== action.payload)
+      const { productId, addonCatalog } = action.payload
+      const removedItem = state.items.find((i) => i.product_id === productId)
+      state.items = state.items.filter((i) => i.product_id !== productId)
+      // Only a MAIN item's removal should shrink/clear its linked addons —
+      // a deliberate removal of an addon line itself must stick, never
+      // get silently re-granted by the next unrelated recompute.
+      if (removedItem && !removedItem.addonType) {
+        state.items = recomputeAddons(state.items, addonCatalog)
+      }
       writeLocalCart(state.items)
     },
     addLocalItems(state, action) {
       // Використовується для "Повторити замовлення" — додає одразу декілька
       // позицій до поточного (гостьового) кошика.
-      for (const incoming of action.payload) {
+      const { items, addonCatalog } = action.payload
+      for (const incoming of items) {
         const existing = state.items.find(
           (item) => item.product_id === incoming.product_id,
         )
@@ -223,6 +244,7 @@ const cartSlice = createSlice({
           state.items.push({ ...incoming })
         }
       }
+      state.items = recomputeAddons(state.items, addonCatalog)
       writeLocalCart(state.items)
     },
     // Скидає гостьовий кошик — використовується при логіні (перед
@@ -298,5 +320,10 @@ export const selectIsDrawerOpen = (state) => state.cart.isDrawerOpen
 export const selectRepriceError = (state) => state.cart.repriceError
 export const selectItemsCount = (state) =>
   state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
+// Free sauce/ginger/wasabi units within an addon line's own allowance
+// never get charged — see lib/addons.js::getChargeableQuantity.
 export const selectTotal = (state) =>
-  state.cart.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+  state.cart.items.reduce(
+    (sum, item) => sum + getChargeableQuantity(item) * item.price,
+    0,
+  )
