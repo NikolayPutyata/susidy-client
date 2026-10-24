@@ -27,11 +27,13 @@ const iconButtonClass =
   'flex h-10 w-10 items-center justify-center rounded-full text-text transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60'
 
 const menuLinkClass =
-  'rounded-xl px-3.5 py-2.5 text-sm font-medium text-text-muted transition hover:bg-surface-hover hover:text-text'
+  'rounded-xl px-3.5 py-2 text-sm font-medium text-text-muted transition hover:bg-surface-hover hover:text-text'
 
 // Замість миттєвого зникнення (яке виглядає як "мигання" сторінки під
 // меню) — програємо анімацію закриття і розмонтовуємо тільки після неї.
-const CLOSE_ANIMATION_MS = 200
+// Має збігатися з тривалістю .animate-slide-out-left/.animate-fade-out-fast
+// в index.css.
+const CLOSE_ANIMATION_MS = 120
 
 const MobileMenu = ({ open, onClose, onLoginClick }) => {
   const { t } = useTranslation()
@@ -78,7 +80,7 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
       <button
         aria-label={t('header.closeMenu')}
         onClick={onClose}
-        className={`absolute inset-0 bg-black/60 backdrop-blur-sm ${closing ? 'animate-fade-out' : 'animate-fade-in'}`}
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm ${closing ? 'animate-fade-out-fast' : 'animate-fade-in'}`}
       />
 
       <aside
@@ -111,7 +113,7 @@ const MobileMenu = ({ open, onClose, onLoginClick }) => {
           ))}
         </div>
 
-        <nav className="flex flex-col gap-1 px-3 py-3">
+        <nav className="flex flex-col gap-0.5 px-3 py-3">
           <button onClick={() => goToCategory('all')} className={`${menuLinkClass} text-left`}>
             {t('header.allMenu')}
           </button>

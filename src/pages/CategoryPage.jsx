@@ -91,7 +91,6 @@ export const CategoryPage = () => {
           activeFilterIds={activeFilterIds}
           onToggle={toggleFilter}
           onReset={resetFilters}
-          resultCount={filteredProducts.length}
         />
       )}
 

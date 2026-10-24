@@ -107,7 +107,7 @@
     "repriceErrorBlocking": "Cart prices weren't updated for the current city — try again below before placing the order.",
     "freeDeliveryHint": "Add {{value}} UAH more to get free delivery",
     "cashCheckbox": "Cash",
-    "cashLabel": "Cash on delivery: prepare change from",
+    "cashLabel": "Change from:",
     "cashPlaceholder": "e.g. {{value}} UAH",
     "cashNoChange": "No change needed",
     "cashTooLow": "Amount is less than the order total ({{value}} UAH)",
@@ -125,8 +125,7 @@
     "eel": "With eel",
     "salmon": "With salmon",
     "noMayo": "No mayo",
-    "reset": "Reset filters",
-    "found": "Found: {{count}}",
+    "reset": "Reset",
     "noResults": "No products match the selected filters.",
     "categoryEmpty": "Nothing in this category yet."
   },

@@ -16,6 +16,7 @@ import { QuantityStepper } from '../components/QuantityStepper.jsx'
 import { PaymentMethodModal } from '../components/PaymentMethodModal.jsx'
 import { OrderTotal, useDiscountedTotal } from '../components/OrderTotal.jsx'
 import { TotalWeight } from '../components/TotalWeight.jsx'
+import { ContentLoader } from '../components/ContentLoader.jsx'
 import { getAmountToFreeDelivery, getDeliveryFee } from '../lib/pricing.js'
 import { getChargeableQuantity } from '../lib/addons.js'
 
@@ -83,7 +84,7 @@ export const CheckoutPage = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { items, total, checkout, repriceError } = useCart()
+  const { items, loading, total, checkout, repriceError } = useCart()
   const { user, isAuthenticated } = useAuth()
   const { city, cityLabel, retryReprice } = useCity()
   const { discount, discounted } = useDiscountedTotal(total)
@@ -100,6 +101,7 @@ export const CheckoutPage = () => {
   const finalTotal = discounted + deliveryFee
   const cashAmountNumber = cashAmount === '' ? null : Number(cashAmount)
   const cashAmountTooLow = cashAmountNumber !== null && cashAmountNumber < finalTotal
+  const showPayOnReceipt = form.fulfillment === 'pickup' || cashSelected
 
   // The cash-for-change option only makes sense for delivery (section 11
   // of the refinement round) — switching to pickup drops it so it can't
@@ -241,15 +243,6 @@ export const CheckoutPage = () => {
       return
     }
 
-    // Delivery's single submit button doubles as both actions: with
-    // "Готівка" checked it places the real cash-on-delivery order below;
-    // otherwise online payment isn't wired up yet, so it just opens the
-    // "coming soon" chooser instead of creating an order.
-    if (form.fulfillment === 'delivery' && !cashSelected) {
-      setPaymentModalOpen(true)
-      return
-    }
-
     setSubmitting(true)
     setError('')
     try {
@@ -372,6 +365,8 @@ export const CheckoutPage = () => {
                 {t('checkout.backToMenu')}
               </button>
             </div>
+          ) : loading ? (
+            <ContentLoader />
           ) : items.length === 0 ? (
             <p className="py-16 text-center text-text-muted">{t('checkout.emptyCart')}</p>
           ) : (
@@ -723,16 +718,22 @@ export const CheckoutPage = () => {
 
                 {error && <p className="text-accent">{error}</p>}
 
-                {form.fulfillment === 'pickup' ? (
-                  <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentModalOpen(true)}
-                      className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light"
-                    >
-                      {t('checkout.payOnline', { value: finalTotal })}
-                    </button>
+                {/* "Сплатити" always means paying online right away. "Сплачу
+                    при отриманні" (the actual cash-on-delivery submit) is
+                    offered for pickup, and for delivery only once the
+                    customer ticks "Готівка". */}
+                <div
+                  className={`grid grid-cols-1 gap-3 pt-1 ${showPayOnReceipt ? 'sm:grid-cols-2' : ''}`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setPaymentModalOpen(true)}
+                    className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light"
+                  >
+                    {t('checkout.payOnline', { value: finalTotal })}
+                  </button>
 
+                  {showPayOnReceipt && (
                     <button
                       type="submit"
                       disabled={submitting || cashAmountTooLow}
@@ -741,19 +742,8 @@ export const CheckoutPage = () => {
                       {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
                       {submitting ? t('checkout.submitting') : t('checkout.payCod')}
                     </button>
-                  </div>
-                ) : (
-                  <div className="pt-1">
-                    <button
-                      type="submit"
-                      disabled={submitting || cashAmountTooLow}
-                      className="flex w-full items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light disabled:opacity-40"
-                    >
-                      {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
-                      {submitting ? t('checkout.submitting') : t('checkout.payOnline', { value: finalTotal })}
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </form>
             </>
           )}
