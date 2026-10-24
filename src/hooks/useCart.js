@@ -66,6 +66,8 @@ export const useCart = () => {
             price,
             image: product.images?.[0] || '',
             quantity,
+            weight: product.weight,
+            addonType: product.addonType || null,
           })),
         ),
       )

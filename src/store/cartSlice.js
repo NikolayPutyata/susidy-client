@@ -84,6 +84,8 @@ export const addItemRemote = createAsyncThunk(
         price,
         image: product.images?.[0] || '',
         quantity,
+        weight: product.weight,
+        addonType: product.addonType || null,
       })
       return cart.items || []
     } catch (err) {
@@ -192,6 +194,8 @@ const cartSlice = createSlice({
           price,
           image: product.images?.[0] || '',
           quantity,
+          weight: product.weight,
+          addonType: product.addonType || null,
         })
       }
       writeLocalCart(state.items)
