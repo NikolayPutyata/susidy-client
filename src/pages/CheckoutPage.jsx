@@ -92,6 +92,7 @@ export const CheckoutPage = () => {
   const [error, setError] = useState('')
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [orderResult, setOrderResult] = useState(null)
+  const [cashSelected, setCashSelected] = useState(false)
   const [cashAmount, setCashAmount] = useState('')
 
   const deliveryFee = getDeliveryFee(items, form.fulfillment, discount)
@@ -99,6 +100,16 @@ export const CheckoutPage = () => {
   const finalTotal = discounted + deliveryFee
   const cashAmountNumber = cashAmount === '' ? null : Number(cashAmount)
   const cashAmountTooLow = cashAmountNumber !== null && cashAmountNumber < finalTotal
+
+  // The cash-for-change option only makes sense for delivery (section 11
+  // of the refinement round) — switching to pickup drops it so it can't
+  // silently carry over if the customer switches back to delivery later.
+  useEffect(() => {
+    if (form.fulfillment !== 'delivery') {
+      setCashSelected(false)
+      setCashAmount('')
+    }
+  }, [form.fulfillment])
   const mapsLoaded = useApiLoadingStatus() === APILoadingStatus.LOADED
   const [availableTimeSlots] = useState(getAvailableTimeSlots)
   const [selectedSavedAddressId, setSelectedSavedAddressId] = useState(null)
@@ -227,6 +238,15 @@ export const CheckoutPage = () => {
 
     if (cashAmountTooLow) {
       setError(t('checkout.cashTooLowSubmit', { value: finalTotal }))
+      return
+    }
+
+    // Delivery's single submit button doubles as both actions: with
+    // "Готівка" checked it places the real cash-on-delivery order below;
+    // otherwise online payment isn't wired up yet, so it just opens the
+    // "coming soon" chooser instead of creating an order.
+    if (form.fulfillment === 'delivery' && !cashSelected) {
+      setPaymentModalOpen(true)
       return
     }
 
@@ -397,12 +417,12 @@ export const CheckoutPage = () => {
                     size="lg"
                     deliveryFee={form.fulfillment === 'delivery' ? deliveryFee : null}
                   />
-                  {form.fulfillment === 'delivery' && amountToFreeDelivery > 0 && (
-                    <p className="text-xs text-text-subtle">
-                      {t('checkout.freeDeliveryHint', { value: amountToFreeDelivery })}
-                    </p>
-                  )}
                 </div>
+                {form.fulfillment === 'delivery' && amountToFreeDelivery > 0 && (
+                  <p className="mt-3 rounded-xl bg-primary/10 px-4 py-2.5 text-sm text-primary-light">
+                    {t('checkout.freeDeliveryHint', { value: amountToFreeDelivery })}
+                  </p>
+                )}
                 {repriceError && (
                   <p className="rounded-xl bg-accent/10 px-4 py-2.5 text-sm text-accent">
                     {t('cart.repriceError')}{' '}
@@ -652,59 +672,88 @@ export const CheckoutPage = () => {
                   {t('checkout.noCallback')}
                 </label>
 
-                <div className="space-y-2 rounded-xl border border-border bg-surface-raised px-4 py-3">
-                  <label className="block text-sm text-text-muted">
-                    {t('checkout.cashLabel')}
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min={0}
-                      step="1"
-                      value={cashAmount}
-                      onChange={(e) => setCashAmount(e.target.value)}
-                      placeholder={t('checkout.cashPlaceholder', { value: Math.ceil(finalTotal / 100) * 100 })}
-                      className={`${inputClass} flex-1`}
-                    />
-                    {cashAmount !== '' && (
-                      <button
-                        type="button"
-                        onClick={() => setCashAmount('')}
-                        className="shrink-0 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm text-text-muted underline underline-offset-2 hover:text-text"
-                      >
-                        {t('checkout.cashNoChange')}
-                      </button>
+                {form.fulfillment === 'delivery' && (
+                  <>
+                    <label className="flex items-center gap-2 text-sm text-text-muted">
+                      <input
+                        type="checkbox"
+                        checked={cashSelected}
+                        onChange={(e) => setCashSelected(e.target.checked)}
+                        className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
+                      />
+                      {t('checkout.cashCheckbox')}
+                    </label>
+
+                    {cashSelected && (
+                      <div className="space-y-2 rounded-xl border border-border bg-surface-raised px-4 py-3">
+                        <label className="block text-sm text-text-muted">
+                          {t('checkout.cashLabel')}
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min={0}
+                            step="1"
+                            value={cashAmount}
+                            onChange={(e) => setCashAmount(e.target.value)}
+                            placeholder={t('checkout.cashPlaceholder', { value: Math.ceil(finalTotal / 100) * 100 })}
+                            className={`${inputClass} flex-1`}
+                          />
+                          {cashAmount !== '' && (
+                            <button
+                              type="button"
+                              onClick={() => setCashAmount('')}
+                              className="shrink-0 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm text-text-muted underline underline-offset-2 hover:text-text"
+                            >
+                              {t('checkout.cashNoChange')}
+                            </button>
+                          )}
+                        </div>
+                        {cashAmountNumber !== null && (
+                          <p className={`text-sm ${cashAmountTooLow ? 'text-accent' : 'text-text-muted'}`}>
+                            {cashAmountTooLow
+                              ? t('checkout.cashTooLow', { value: finalTotal })
+                              : t('checkout.change', { value: Math.round((cashAmountNumber - finalTotal) * 100) / 100 })}
+                          </p>
+                        )}
+                      </div>
                     )}
-                  </div>
-                  {cashAmountNumber !== null && (
-                    <p className={`text-sm ${cashAmountTooLow ? 'text-accent' : 'text-text-muted'}`}>
-                      {cashAmountTooLow
-                        ? t('checkout.cashTooLow', { value: finalTotal })
-                        : t('checkout.change', { value: Math.round((cashAmountNumber - finalTotal) * 100) / 100 })}
-                    </p>
-                  )}
-                </div>
+                  </>
+                )}
 
                 {error && <p className="text-accent">{error}</p>}
 
-                <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentModalOpen(true)}
-                    className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light"
-                  >
-                    {t('checkout.payOnline', { value: finalTotal })}
-                  </button>
+                {form.fulfillment === 'pickup' ? (
+                  <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentModalOpen(true)}
+                      className="flex items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light"
+                    >
+                      {t('checkout.payOnline', { value: finalTotal })}
+                    </button>
 
-                  <button
-                    type="submit"
-                    disabled={submitting || cashAmountTooLow}
-                    className="flex items-center justify-center gap-2 rounded-full border border-border bg-surface-raised py-3 text-sm font-semibold text-text transition hover:bg-surface-hover disabled:opacity-40"
-                  >
-                    {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
-                    {submitting ? t('checkout.submitting') : t('checkout.payCod')}
-                  </button>
-                </div>
+                    <button
+                      type="submit"
+                      disabled={submitting || cashAmountTooLow}
+                      className="flex items-center justify-center gap-2 rounded-full border border-border bg-surface-raised py-3 text-sm font-semibold text-text transition hover:bg-surface-hover disabled:opacity-40"
+                    >
+                      {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
+                      {submitting ? t('checkout.submitting') : t('checkout.payCod')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="pt-1">
+                    <button
+                      type="submit"
+                      disabled={submitting || cashAmountTooLow}
+                      className="flex w-full items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-black transition hover:bg-accent-light disabled:opacity-40"
+                    >
+                      {submitting && <SpinnerIcon className="h-4 w-4 animate-spin" />}
+                      {submitting ? t('checkout.submitting') : t('checkout.payOnline', { value: finalTotal })}
+                    </button>
+                  </div>
+                )}
               </form>
             </>
           )}

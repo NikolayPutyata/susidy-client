@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
 import 'swiper/css'
@@ -8,10 +9,10 @@ import { ChevronIcon } from '../icons.jsx'
 
 // Generic manually-curated product carousel — used both for "Обирають
 // найчастіше" (products.featured) and "Роли від шефа" (products.chefsPick),
-// same mechanics, just a different heading and source list. Manual
-// navigation only (no autoplay). Reuses ProductCard as-is, same card as
-// the regular grid.
-export const ProductCarousel = ({ title, subtitle, fetchProducts }) => {
+// same mechanics, just a different heading, source list, and link to the
+// collection's own page. Manual navigation only (no autoplay). Reuses
+// ProductCard as-is, same card as the regular grid.
+export const ProductCarousel = ({ title, linkTo, fetchProducts }) => {
   const { t } = useTranslation()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -48,10 +49,12 @@ export const ProductCarousel = ({ title, subtitle, fetchProducts }) => {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-extrabold sm:text-xl">{title}</h2>
-          <p className="text-sm text-text-muted">{subtitle}</p>
-        </div>
+        <Link to={linkTo} className="group flex items-center gap-1.5">
+          <h2 className="text-lg font-extrabold transition group-hover:text-primary-light sm:text-xl">
+            {title}
+          </h2>
+          <ChevronIcon className="h-4 w-4 rotate-180 text-text-muted transition group-hover:text-primary-light" />
+        </Link>
 
         <div className="flex items-center gap-2.5 text-sm text-text-muted">
           <button
@@ -62,9 +65,6 @@ export const ProductCarousel = ({ title, subtitle, fetchProducts }) => {
           >
             <ChevronIcon className="h-4 w-4" />
           </button>
-          <span className="tabular-nums">
-            {String(currentPage).padStart(2, '0')} / {String(pageCount).padStart(2, '0')}
-          </span>
           <button
             onClick={() => swiper?.slideNext()}
             aria-label={t('catalog.next')}

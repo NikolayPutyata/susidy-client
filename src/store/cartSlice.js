@@ -318,8 +318,13 @@ export const selectCartItems = (state) => state.cart.items
 export const selectCartLoading = (state) => state.cart.loading
 export const selectIsDrawerOpen = (state) => state.cart.isDrawerOpen
 export const selectRepriceError = (state) => state.cart.repriceError
+// Cart icon badge — main items only, so one set (8 free addons on top)
+// doesn't jump the count to 9 and two sets to 18.
 export const selectItemsCount = (state) =>
-  state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
+  state.cart.items.reduce(
+    (sum, item) => sum + (item.addonType ? 0 : item.quantity),
+    0,
+  )
 // Free sauce/ginger/wasabi units within an addon line's own allowance
 // never get charged — see lib/addons.js::getChargeableQuantity.
 export const selectTotal = (state) =>

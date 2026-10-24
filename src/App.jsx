@@ -22,6 +22,8 @@ import { ProfileModal } from './components/ProfileModal.jsx'
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute.jsx'
 import { CatalogPage } from './pages/CatalogPage.jsx'
 import { CategoryPage } from './pages/CategoryPage.jsx'
+import { FeaturedPage } from './pages/FeaturedPage.jsx'
+import { ChefsPickPage } from './pages/ChefsPickPage.jsx'
 import { CheckoutPage } from './pages/CheckoutPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { AdminLayout } from './pages/admin/AdminLayout.jsx'
@@ -77,6 +79,8 @@ function App() {
           <Routes>
             <Route path="/" element={<CatalogPage />} />
             <Route path="/category/:categoryValue" element={<CategoryPage />} />
+            <Route path="/featured" element={<FeaturedPage />} />
+            <Route path="/chefs-picks" element={<ChefsPickPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
 
             <Route element={<ProtectedAdminRoute />}>
