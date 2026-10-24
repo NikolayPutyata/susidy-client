@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation, Pagination } from 'swiper/modules'
@@ -15,6 +16,7 @@ import { ChevronIcon } from '../icons.jsx'
 // rendering nothing when there are no active banners is the correct empty
 // state, not an error.
 export const PromoCarousel = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [banners, setBanners] = useState([])
   const [loading, setLoading] = useState(true)
@@ -128,13 +130,13 @@ export const PromoCarousel = () => {
       {banners.length > 1 && (
         <>
           <button
-            aria-label="Попередній банер"
+            aria-label={t('catalog.prevBanner')}
             className="promo-prev absolute left-1 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-sm transition hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 sm:flex"
           >
             <ChevronIcon className="h-5 w-5" />
           </button>
           <button
-            aria-label="Наступний банер"
+            aria-label={t('catalog.nextBanner')}
             className="promo-next absolute right-1 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-sm transition hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 sm:flex"
           >
             <ChevronIcon className="h-5 w-5 rotate-180" />

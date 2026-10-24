@@ -49,7 +49,14 @@
     "priceUnit": "{{value}} грн / шт",
     "freeBadge": "{{count}} безкоштовно",
     "addToFavorites": "Додати в улюблені",
-    "removeFromFavorites": "Прибрати з улюблених"
+    "removeFromFavorites": "Прибрати з улюблених",
+    "nutritionPer100g": "БЖУ на 100г",
+    "proteins": "Білки",
+    "fats": "Жири",
+    "carbs": "Вуглеводи",
+    "description": "Опис",
+    "composition": "Склад",
+    "allergens": "Алергени"
   },
   "cart": {
     "title": "Кошик",
@@ -125,5 +132,87 @@
   "errors": {
     "generic": "Щось пішло не так. Спробуйте ще раз.",
     "categoryNotFound": "Такої категорії не існує."
+  },
+  "auth": {
+    "loginTitle": "Вхід в акаунт",
+    "registerTitle": "Реєстрація",
+    "password": "Пароль",
+    "name": "Ім'я",
+    "cityOptional": "Місто (необов'язково)",
+    "loggingIn": "Входимо…",
+    "login": "Увійти",
+    "registering": "Реєструємо…",
+    "register": "Зареєструватися",
+    "noAccount": "Немає акаунта?",
+    "haveAccount": "Вже є акаунт?",
+    "registeredLoginFailed": "Акаунт створено, але увійти автоматично не вдалось. Натисніть \"Увійти\" нижче і спробуйте ще раз.",
+    "cityKyiv": "Київ",
+    "cityKharkiv": "Харків"
+  },
+  "profile": {
+    "title": "Мій профіль",
+    "discount": "Ваша знижка:",
+    "birthday": "День народження:",
+    "birthdayOptional": "День народження (необов'язково, вказати можна лише раз)",
+    "myOrdersLink": "Мої замовлення →",
+    "savedAddresses": "Збережені адреси",
+    "makeDefault": "Зробити основною",
+    "removeAddress": "Видалити адресу",
+    "saveAddress": "Зберегти адресу",
+    "addAddress": "Додати адресу",
+    "maxAddresses": "Можна зберегти не більше 3 адрес.",
+    "noFavorites": "У вас поки немає улюблених позицій.",
+    "addressRequired": "Вкажіть адресу з номером будинку."
+  },
+  "orders": {
+    "title": "Мої замовлення",
+    "none": "У вас поки немає замовлень.",
+    "noItemsAvailable": "Жодного товару з цього замовлення більше немає в меню.",
+    "repeat": "Повторити"
+  },
+  "payment": {
+    "title": "Спосіб оплати",
+    "comingSoon": "Незабаром",
+    "onlineComingSoon": "Онлайн-оплата — незабаром"
+  },
+  "address": {
+    "street": "Вулиця",
+    "building": "Будинок",
+    "apartment": "Квартира",
+    "entrance": "Під'їзд",
+    "floor": "Поверх",
+    "privateHouse": "Приватний будинок",
+    "chooseCity": "Оберіть місто",
+    "deliveryAddress": "Адреса доставки",
+    "openMap": "Відкрити карту",
+    "pickOnMap": "Обрати адресу на карті",
+    "pickOnMapTitle": "Оберіть адресу на карті",
+    "nearestPickup": "Ваше замовлення приїде з адреси:",
+    "determiningAddress": "Визначаємо адресу…",
+    "mapInstructions": "Торкніться карти або перетягніть позначку, щоб обрати адресу.",
+    "geocodeFailed": "Не вдалось визначити адресу за цією точкою — спробуйте іншу.",
+    "geocodeNoBuilding": "Ця точка не відповідає конкретній будівлі з номером — спробуйте точніше.",
+    "confirmAddress": "Підтвердити адресу"
+  },
+  "pagination": {
+    "showPerPage": "Показувати:"
+  },
+  "notFound": {
+    "message": "Такої сторінки не існує."
+  },
+  "catalog": {
+    "searchResults": "Результати пошуку:",
+    "cancelSearch": "Скасувати пошук",
+    "cancel": "Скасувати",
+    "noSearchResults": "Нічого не знайдено.",
+    "featuredTitle": "Обирають найчастіше",
+    "featuredSubtitle": "Тут зібрані справжні хіти меню",
+    "chefsPickTitle": "Роли від шефа",
+    "chefsPickSubtitle": "Авторські рецепти нашого шеф-кухаря",
+    "ourMenu": "Наше меню",
+    "prev": "Назад",
+    "next": "Вперед",
+    "prevBanner": "Попередній банер",
+    "nextBanner": "Наступний банер"
   }
 }

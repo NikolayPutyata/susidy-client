@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import { useModals } from '../hooks/useModals.js'
 import { SpinnerIcon } from './icons.jsx'
 
 export const ProtectedAdminRoute = () => {
+  const { t } = useTranslation()
   const { isAdmin, isAuthenticated, initializing } = useAuth()
   const { openLogin } = useModals()
 
@@ -18,7 +20,7 @@ export const ProtectedAdminRoute = () => {
     return (
       <div className="flex items-center justify-center gap-2 py-16 text-text-muted">
         <SpinnerIcon className="h-5 w-5 animate-spin" />
-        Завантаження…
+        {t('common.loading')}
       </div>
     )
   }

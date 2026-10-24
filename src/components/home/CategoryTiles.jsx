@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { fetchAllProducts } from '../../api/products.js'
 import { CATEGORIES } from '../../lib/constants.js'
@@ -8,6 +9,7 @@ import { CATEGORIES } from '../../lib/constants.js'
 // there's nothing for the admin to keep in sync (a new category just
 // starts showing a tile the moment its first product gets a photo).
 export const CategoryTiles = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
 
@@ -37,7 +39,7 @@ export const CategoryTiles = () => {
   return (
     <div>
       <h2 className="mb-4 flex items-center justify-center gap-2 text-center text-lg font-extrabold sm:text-xl">
-        <span className="text-primary">✦</span> Наше меню{' '}
+        <span className="text-primary">✦</span> {t('catalog.ourMenu')}{' '}
         <span className="text-primary">✦</span>
       </h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -50,13 +52,13 @@ export const CategoryTiles = () => {
           >
             <img
               src={tile.image}
-              alt={tile.label}
+              alt={t(`categories.${tile.value}`)}
               loading="lazy"
               className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             <span className="absolute bottom-2 left-2 right-2 truncate rounded-xl bg-black/50 px-2.5 py-1.5 text-sm font-semibold text-text backdrop-blur-sm">
-              {tile.label}
+              {t(`categories.${tile.value}`)}
             </span>
           </button>
         ))}

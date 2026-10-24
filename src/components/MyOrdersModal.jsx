@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { fetchMyOrders } from '../api/orders.js'
 import { fetchAllProducts } from '../api/products.js'
@@ -10,6 +11,7 @@ import { getErrorMessage } from '../lib/errors.js'
 import { CloseIcon, ReceiptIcon, SpinnerIcon } from './icons.jsx'
 
 export const MyOrdersModal = () => {
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { addItems } = useCart()
   const { getPrice } = useCity()
@@ -51,7 +53,7 @@ export const MyOrdersModal = () => {
         .filter(Boolean)
 
       if (toAdd.length === 0) {
-        setError('Жодного товару з цього замовлення більше немає в меню.')
+        setError(t('orders.noItemsAvailable'))
         return
       }
 
@@ -69,10 +71,10 @@ export const MyOrdersModal = () => {
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 animate-fade-in">
       <div className="relative flex max-h-[85vh] w-full max-w-lg flex-col rounded-3xl border border-border bg-surface p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">Мої замовлення</h2>
+          <h2 className="text-xl font-bold">{t('orders.title')}</h2>
           <button
             onClick={closeMyOrders}
-            aria-label="Закрити"
+            aria-label={t('cart.close')}
             className="flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-hover hover:text-text"
           >
             <CloseIcon className="h-4.5 w-4.5" />
@@ -87,13 +89,13 @@ export const MyOrdersModal = () => {
           )}
 
           {loading ? (
-            <p className="py-16 text-center text-text-muted">Завантаження…</p>
+            <p className="py-16 text-center text-text-muted">{t('common.loading')}</p>
           ) : orders.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-16 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-raised">
                 <ReceiptIcon className="h-7 w-7 text-text-subtle" />
               </div>
-              <p className="text-text-muted">У вас поки немає замовлень.</p>
+              <p className="text-text-muted">{t('orders.none')}</p>
             </div>
           ) : (
             <ul className="space-y-4">
@@ -104,10 +106,12 @@ export const MyOrdersModal = () => {
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <p className="font-semibold">
-                      Замовлення №{order._id.slice(-6).toUpperCase()}
+                      {t('checkout.orderNumber', { number: order._id.slice(-6).toUpperCase() })}
                     </p>
                     <p className="text-sm text-text-muted">
-                      {new Date(order.createdAt).toLocaleDateString('uk-UA')}
+                      {new Date(order.createdAt).toLocaleDateString(
+                        i18n.language === 'en' ? 'en-US' : 'uk-UA',
+                      )}
                     </p>
                   </div>
 
@@ -137,7 +141,7 @@ export const MyOrdersModal = () => {
                       {repeatingId === order._id && (
                         <SpinnerIcon className="h-3.5 w-3.5 animate-spin" />
                       )}
-                      Повторити
+                      {t('orders.repeat')}
                     </button>
                   </div>
                 </li>

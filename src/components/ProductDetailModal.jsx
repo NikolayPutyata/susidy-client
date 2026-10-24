@@ -1,5 +1,7 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
+import { getProductDescription, getProductName } from '../lib/productI18n.js'
 import { CloseIcon, SpinnerIcon } from './icons.jsx'
 import { QuantityStepper } from './QuantityStepper.jsx'
 
@@ -26,9 +28,12 @@ export const ProductDetailModal = ({
   onIncrease,
   onDecrease,
 }) => {
+  const { t, i18n } = useTranslation()
   useBodyScrollLock(open)
 
   if (!open) return null
+
+  const description = getProductDescription(product, i18n.language)
 
   // Portalled to <body> — ProductCard (and this modal with it) can be
   // rendered inside a Swiper slide (e.g. the "Обирають найчастіше"
@@ -47,7 +52,7 @@ export const ProductDetailModal = ({
       >
         <button
           onClick={onClose}
-          aria-label="Закрити"
+          aria-label={t('cart.close')}
           className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-text backdrop-blur-sm transition hover:bg-black/70"
         >
           <CloseIcon className="h-4.5 w-4.5" />
@@ -57,7 +62,7 @@ export const ProductDetailModal = ({
           {product.images?.[0] ? (
             <img
               src={product.images[0]}
-              alt={product.name}
+              alt={getProductName(product, i18n.language)}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -67,37 +72,41 @@ export const ProductDetailModal = ({
           )}
         </div>
 
-        <h2 className="mb-1 text-xl font-bold">{product.name}</h2>
+        <h2 className="mb-1 text-xl font-bold">{getProductName(product, i18n.language)}</h2>
         {product.weight > 0 && (
-          <p className="mb-3 text-sm text-text-subtle">{product.weight} г</p>
+          <p className="mb-3 text-sm text-text-subtle">{t('product.weight', { value: product.weight })}</p>
         )}
 
         {(product.proteins || product.fats || product.carbs) && (
           <div className="mb-3">
             <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-text-subtle">
-              БЖУ на 100г
+              {t('product.nutritionPer100g')}
             </h3>
             <div className="flex gap-4 rounded-xl border border-border bg-surface-raised px-3.5 py-2.5 text-sm">
               <span>
-                <span className="text-text-subtle">Білки </span>
-                {product.proteins ?? '—'} г
+                <span className="text-text-subtle">{t('product.proteins')} </span>
+                {t('product.weight', { value: product.proteins ?? '—' })}
               </span>
               <span>
-                <span className="text-text-subtle">Жири </span>
-                {product.fats ?? '—'} г
+                <span className="text-text-subtle">{t('product.fats')} </span>
+                {t('product.weight', { value: product.fats ?? '—' })}
               </span>
               <span>
-                <span className="text-text-subtle">Вуглеводи </span>
-                {product.carbs ?? '—'} г
+                <span className="text-text-subtle">{t('product.carbs')} </span>
+                {t('product.weight', { value: product.carbs ?? '—' })}
               </span>
             </div>
           </div>
         )}
 
         <div className="space-y-3">
-          {product.description && <DetailRow label="Опис">{product.description}</DetailRow>}
-          {product.composition && <DetailRow label="Склад">{product.composition}</DetailRow>}
-          {product.allergens && <DetailRow label="Алергени">{product.allergens}</DetailRow>}
+          {description && <DetailRow label={t('product.description')}>{description}</DetailRow>}
+          {product.composition && (
+            <DetailRow label={t('product.composition')}>{product.composition}</DetailRow>
+          )}
+          {product.allergens && (
+            <DetailRow label={t('product.allergens')}>{product.allergens}</DetailRow>
+          )}
         </div>
 
         <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
@@ -110,7 +119,7 @@ export const ProductDetailModal = ({
               className="flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-primary-light disabled:opacity-60"
             >
               {busy && <SpinnerIcon className="h-4 w-4 animate-spin" />}
-              В кошик
+              {t('product.addToCart')}
             </button>
           ) : (
             <QuantityStepper

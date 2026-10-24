@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import {
   fetchAllProducts,
@@ -32,6 +33,7 @@ const Contained = ({ children }) => (
 )
 
 export const CatalogPage = () => {
+  const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const search = searchParams.get('search') || ''
   const [products, setProducts] = useState([])
@@ -76,15 +78,15 @@ export const CatalogPage = () => {
       <Contained>
         <div className="mb-4 flex items-center justify-between gap-2">
           <h1 className="text-lg font-bold">
-            Результати пошуку: <span className="text-primary-light">{search}</span>
+            {t('catalog.searchResults')} <span className="text-primary-light">{search}</span>
           </h1>
           <button
             onClick={clearSearch}
-            aria-label="Скасувати пошук"
+            aria-label={t('catalog.cancelSearch')}
             className="flex items-center gap-1 text-sm text-text-muted underline underline-offset-2 hover:text-text"
           >
             <CloseIcon className="h-3.5 w-3.5" />
-            Скасувати
+            {t('catalog.cancel')}
           </button>
         </div>
 
@@ -92,7 +94,7 @@ export const CatalogPage = () => {
           products={products}
           loading={loading}
           error={error}
-          emptyMessage="Нічого не знайдено."
+          emptyMessage={t('catalog.noSearchResults')}
         />
       </Contained>
     )
@@ -105,8 +107,8 @@ export const CatalogPage = () => {
 
       <Contained>
         <ProductCarousel
-          title="Обирають найчастіше"
-          subtitle="Тут зібрані справжні хіти меню"
+          title={t('catalog.featuredTitle')}
+          subtitle={t('catalog.featuredSubtitle')}
           fetchProducts={fetchFeaturedProducts}
         />
       </Contained>
@@ -119,8 +121,8 @@ export const CatalogPage = () => {
 
       <Contained>
         <ProductCarousel
-          title="Роли від шефа"
-          subtitle="Авторські рецепти нашого шеф-кухаря"
+          title={t('catalog.chefsPickTitle')}
+          subtitle={t('catalog.chefsPickSubtitle')}
           fetchProducts={fetchChefsPickProducts}
         />
       </Contained>
