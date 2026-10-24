@@ -6,6 +6,7 @@ import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import { fetchActiveBanners } from '../../api/banners.js'
+import { ContentLoader } from '../ContentLoader.jsx'
 import { ChevronIcon } from '../icons.jsx'
 
 // Big autoplay promo carousel at the top of the homepage — news, price
@@ -48,7 +49,11 @@ export const PromoCarousel = () => {
     }
   }
 
-  if (loading || banners.length === 0) return null
+  // Placeholder matches the active square slide's size (≈1/1.1 of the
+  // viewport on mobile, a fixed 500px on sm+) so the page below doesn't
+  // jump once banners arrive.
+  if (loading) return <ContentLoader className="h-[88vw] sm:h-[500px]" />
+  if (banners.length === 0) return null
 
   // Swiper's loop mode needs a real slide count well above slidesPerView
   // (confirmed down to 8+ real slides at slidesPerView:2 — below that it

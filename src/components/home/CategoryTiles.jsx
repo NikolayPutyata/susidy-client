@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { fetchAllProducts } from '../../api/products.js'
 import { CATEGORIES } from '../../lib/constants.js'
+import { ContentLoader } from '../ContentLoader.jsx'
 
 // Each tile's background is the first product's own photo from that
 // category — no separate "category image" field anywhere to manage, so
@@ -12,6 +13,7 @@ export const CategoryTiles = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
@@ -21,6 +23,9 @@ export const CategoryTiles = () => {
       })
       .catch(() => {
         // Non-critical section — fail silently, just don't render it.
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
       })
     return () => {
       cancelled = true
@@ -34,14 +39,29 @@ export const CategoryTiles = () => {
     return { ...category, image: representative?.images?.[0] }
   }).filter((tile) => tile.image)
 
-  if (tiles.length === 0) return null
+  if (!loading && tiles.length === 0) return null
+
+  const heading = (
+    <h2 className="mb-4 flex items-center justify-center gap-2 text-center text-lg font-extrabold sm:text-xl">
+      <span className="text-primary">✦</span> {t('catalog.ourMenu')}{' '}
+      <span className="text-primary">✦</span>
+    </h2>
+  )
+
+  // Heading stays put; the spinner holds roughly the tile grid's height
+  // (2 square columns on mobile, 6 on lg) until the photos are known.
+  if (loading) {
+    return (
+      <div>
+        {heading}
+        <ContentLoader className="min-h-[60vw] sm:min-h-[40vw] lg:min-h-[24rem]" />
+      </div>
+    )
+  }
 
   return (
     <div>
-      <h2 className="mb-4 flex items-center justify-center gap-2 text-center text-lg font-extrabold sm:text-xl">
-        <span className="text-primary">✦</span> {t('catalog.ourMenu')}{' '}
-        <span className="text-primary">✦</span>
-      </h2>
+      {heading}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {tiles.map((tile) => (
           <button

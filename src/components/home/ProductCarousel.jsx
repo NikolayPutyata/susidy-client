@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 import { ProductCard } from '../ProductCard.jsx'
+import { ContentLoader } from '../ContentLoader.jsx'
 import { ChevronIcon } from '../icons.jsx'
 
 // Generic manually-curated product carousel — used both for "Обирають
@@ -38,7 +39,9 @@ export const ProductCarousel = ({ title, linkTo, fetchProducts }) => {
     }
   }, [fetchProducts])
 
-  if (loading || products.length === 0) return null
+  // An empty collection hides the whole section; while loading, the title
+  // stays put and a spinner holds the cards' space instead.
+  if (!loading && products.length === 0) return null
 
   const pageCount = Math.max(1, Math.ceil(products.length / slidesPerView))
   const currentPage = Math.min(
@@ -56,47 +59,55 @@ export const ProductCarousel = ({ title, linkTo, fetchProducts }) => {
           <ChevronIcon className="h-4 w-4 rotate-180 text-text-muted transition group-hover:text-primary-light" />
         </Link>
 
-        <div className="flex items-center gap-2.5 text-sm text-text-muted">
-          <button
-            onClick={() => swiper?.slidePrev()}
-            aria-label={t('catalog.prev')}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-text transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-40"
-            disabled={currentPage <= 1}
-          >
-            <ChevronIcon className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => swiper?.slideNext()}
-            aria-label={t('catalog.next')}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-text transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-40"
-            disabled={currentPage >= pageCount}
-          >
-            <ChevronIcon className="h-4 w-4 rotate-180" />
-          </button>
+        <div className="flex h-8 items-center gap-2.5 text-sm text-text-muted">
+          {!loading && (
+            <>
+              <button
+                onClick={() => swiper?.slidePrev()}
+                aria-label={t('catalog.prev')}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-text transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-40"
+                disabled={currentPage <= 1}
+              >
+                <ChevronIcon className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => swiper?.slideNext()}
+                aria-label={t('catalog.next')}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-text transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-40"
+                disabled={currentPage >= pageCount}
+              >
+                <ChevronIcon className="h-4 w-4 rotate-180" />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      <Swiper
-        modules={[Navigation]}
-        onSwiper={setSwiper}
-        onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-        onBreakpoint={(s) =>
-          setSlidesPerView(
-            typeof s.params.slidesPerView === 'number' ? s.params.slidesPerView : 1,
-          )
-        }
-        slidesPerView={2}
-        spaceBetween={12}
-        breakpoints={{
-          640: { slidesPerView: 3, spaceBetween: 16 },
-        }}
-      >
-        {products.map((product) => (
-          <SwiperSlide key={product._id}>
-            <ProductCard product={product} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
+      {loading ? (
+        <ContentLoader className="min-h-[18rem] lg:min-h-[26rem]" />
+      ) : (
+        <Swiper
+          modules={[Navigation]}
+          onSwiper={setSwiper}
+          onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+          onBreakpoint={(s) =>
+            setSlidesPerView(
+              typeof s.params.slidesPerView === 'number' ? s.params.slidesPerView : 1,
+            )
+          }
+          slidesPerView={2}
+          spaceBetween={12}
+          breakpoints={{
+            640: { slidesPerView: 3, spaceBetween: 16 },
+          }}
+        >
+          {products.map((product) => (
+            <SwiperSlide key={product._id}>
+              <ProductCard product={product} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      )}
     </div>
   )
 }

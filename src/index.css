@@ -114,6 +114,12 @@ body {
   animation: fade-out 0.2s ease-in forwards;
 }
 
+/* Side menu closes faster than the cart drawer — keep in sync with
+   CLOSE_ANIMATION_MS in Header.jsx. */
+.animate-fade-out-fast {
+  animation: fade-out 0.12s ease-in forwards;
+}
+
 @keyframes slide-out-left {
   from {
     transform: translateX(0);
@@ -124,7 +130,7 @@ body {
 }
 
 .animate-slide-out-left {
-  animation: slide-out-left 0.2s ease-in forwards;
+  animation: slide-out-left 0.12s ease-in forwards;
 }
 
 @keyframes slide-out-right {

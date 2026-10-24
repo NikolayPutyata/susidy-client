@@ -8,6 +8,7 @@ import { CartItemsList } from './CartItemsList.jsx'
 import { CartIcon, CloseIcon } from './icons.jsx'
 import { OrderTotal } from './OrderTotal.jsx'
 import { TotalWeight } from './TotalWeight.jsx'
+import { ContentLoader } from './ContentLoader.jsx'
 
 // Замість миттєвого зникнення (яке виглядає як "мигання" сторінки під
 // кошиком) — програємо анімацію закриття і розмонтовуємо тільки після неї.
@@ -79,9 +80,7 @@ export const CartDrawer = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto px-5">
-          {loading && (
-            <p className="py-8 text-center text-text-muted">{t('common.loading')}</p>
-          )}
+          {loading && <ContentLoader className="h-full min-h-[12rem]" />}
 
           {!loading && items.length === 0 && (
             <div className="flex h-full flex-col items-center justify-center gap-3 py-16 text-center">
