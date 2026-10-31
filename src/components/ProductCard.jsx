@@ -11,6 +11,7 @@ import { selectIsAuthenticated, selectUser, setUser } from '../store/userSlice.j
 import { QuantityStepper } from './QuantityStepper.jsx'
 import { ProductDetailModal } from './ProductDetailModal.jsx'
 import { HeartIcon, SpinnerIcon } from './icons.jsx'
+import { responsiveImage } from '../lib/images.js'
 
 export const ProductCard = ({ product }) => {
   const { t, i18n } = useTranslation()
@@ -89,9 +90,13 @@ export const ProductCard = ({ product }) => {
           </button>
           {product.images?.[0] ? (
             <img
-              src={product.images[0]}
+              {...responsiveImage(product.images[0], {
+                widths: [240, 360, 480, 720],
+                sizes: '(min-width: 1152px) 370px, (min-width: 640px) 33vw, 50vw',
+              })}
               alt={getProductName(product, i18n.language)}
               loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
             />
           ) : (

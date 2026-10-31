@@ -8,6 +8,7 @@ import 'swiper/css/pagination'
 import { fetchActiveBanners } from '../../api/banners.js'
 import { ContentLoader } from '../ContentLoader.jsx'
 import { ChevronIcon } from '../icons.jsx'
+import { responsiveImage } from '../../lib/images.js'
 
 // Big autoplay promo carousel at the top of the homepage — news, price
 // changes, promos, manually curated by the admin (AdminBannersPage).
@@ -109,7 +110,10 @@ export const PromoCarousel = () => {
               }`}
             >
               <img
-                src={banner.image}
+                {...responsiveImage(banner.image, {
+                  widths: [480, 720, 1000],
+                  sizes: '(min-width: 640px) 500px, 92vw',
+                })}
                 alt={banner.title || ''}
                 className="h-full w-full object-cover"
               />

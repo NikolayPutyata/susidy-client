@@ -5,6 +5,7 @@ import { getErrorMessage } from '../lib/errors.js'
 import { getChargeableQuantity } from '../lib/addons.js'
 import { QuantityStepper } from './QuantityStepper.jsx'
 import { TrashIcon } from './icons.jsx'
+import { cloudinaryUrl } from '../lib/images.js'
 
 export const CartItemsList = ({ onError, showImage = false }) => {
   const { t } = useTranslation()
@@ -31,8 +32,10 @@ export const CartItemsList = ({ onError, showImage = false }) => {
             <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-black">
               {item.image ? (
                 <img
-                  src={item.image}
+                  src={cloudinaryUrl(item.image, 160)}
                   alt={item.productName}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-contain"
                 />
               ) : (

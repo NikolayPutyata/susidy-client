@@ -4,6 +4,7 @@ import { useBodyScrollLock } from '../hooks/useBodyScrollLock.js'
 import { getProductDescription, getProductName } from '../lib/productI18n.js'
 import { CloseIcon, SpinnerIcon } from './icons.jsx'
 import { QuantityStepper } from './QuantityStepper.jsx'
+import { responsiveImage } from '../lib/images.js'
 
 const DetailRow = ({ label, children }) => (
   <div>
@@ -61,7 +62,10 @@ export const ProductDetailModal = ({
         <div className="-mx-5 -mt-5 mb-4 aspect-[4/3] shrink-0 bg-black">
           {product.images?.[0] ? (
             <img
-              src={product.images[0]}
+              {...responsiveImage(product.images[0], {
+                widths: [480, 768, 1024],
+                sizes: '(min-width: 560px) 512px, 100vw',
+              })}
               alt={getProductName(product, i18n.language)}
               className="h-full w-full object-cover"
             />

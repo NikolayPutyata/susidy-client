@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { fetchAllProducts } from '../../api/products.js'
 import { CATEGORIES } from '../../lib/constants.js'
 import { ContentLoader } from '../ContentLoader.jsx'
+import { responsiveImage } from '../../lib/images.js'
 
 // Each tile's background is the first product's own photo from that
 // category — no separate "category image" field anywhere to manage, so
@@ -71,9 +72,13 @@ export const CategoryTiles = () => {
             className="group relative aspect-square overflow-hidden rounded-2xl bg-surface text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
           >
             <img
-              src={tile.image}
+              {...responsiveImage(tile.image, {
+                widths: [240, 360, 480],
+                sizes: '(min-width: 1024px) 180px, (min-width: 640px) 33vw, 50vw',
+              })}
               alt={t(`categories.${tile.value}`)}
               loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
