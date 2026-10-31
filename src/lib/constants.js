@@ -39,6 +39,19 @@ export const WORKING_HOURS = '11:00 – 22:00'
 const WORKING_HOURS_START = 11
 const WORKING_HOURS_END = 22
 
+// Open from 11:00 up to (not including) 22:00, Kyiv time — checked in
+// Europe/Kyiv explicitly, not the visitor's own clock, so someone browsing
+// from another time zone still sees the restaurant's real hours.
+export const isWorkingHoursNow = (now = new Date()) => {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Kyiv',
+    hour: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(now)
+  const hour = Number(parts.find((part) => part.type === 'hour').value)
+  return hour >= WORKING_HOURS_START && hour < WORKING_HOURS_END
+}
+
 export const TIME_SLOTS = Array.from(
   { length: (WORKING_HOURS_END - WORKING_HOURS_START) * 2 + 1 },
   (_, i) => {
