@@ -266,3 +266,20 @@ export const FlagGBIcon = (props) => (
     <path d="M30 0v30M0 15h60" stroke="#C8102E" strokeWidth="6" />
   </svg>
 )
+
+export const SadFaceIcon = (props) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <circle cx="12" cy="12" r="9.5" />
+    <path d="M8.6 16.6c.9-1 2-1.5 3.4-1.5s2.5.5 3.4 1.5" />
+    <circle cx="9" cy="10.2" r="1" fill="currentColor" stroke="none" />
+    <circle cx="15" cy="10.2" r="1" fill="currentColor" stroke="none" />
+  </svg>
+)

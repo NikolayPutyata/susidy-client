@@ -97,6 +97,7 @@
     "defaultAddress": "Default",
     "saveThisAddress": "Save this address",
     "cutlery": "Cutlery count",
+    "trainingChopsticks": "Training chopsticks",
     "comment": "Order comment",
     "commentPlaceholder": "special requests, allergies, etc.",
     "noCallback": "Don't call me back",
@@ -212,5 +213,10 @@
     "next": "Next",
     "prevBanner": "Previous banner",
     "nextBanner": "Next banner"
+  },
+  "closedHours": {
+    "title": "We're closed right now",
+    "message": "We're open daily {{hours}}. You can still place your order now — we'll handle it as soon as we open.",
+    "ok": "Got it"
   }
 }

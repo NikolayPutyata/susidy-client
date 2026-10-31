@@ -16,6 +16,7 @@ import { Header } from './components/Header.jsx'
 import { Footer } from './components/Footer.jsx'
 import { CartDrawer } from './components/CartDrawer.jsx'
 import { CityModal } from './components/CityModal.jsx'
+import { ClosedHoursModal } from './components/ClosedHoursModal.jsx'
 import { AuthModal } from './components/AuthModal.jsx'
 import { MyOrdersModal } from './components/MyOrdersModal.jsx'
 import { ProfileModal } from './components/ProfileModal.jsx'
@@ -99,6 +100,7 @@ function App() {
         <Footer />
         <CartDrawer />
         <CityModal />
+        <ClosedHoursModal />
         <AuthModal />
         <MyOrdersModal />
         <ProfileModal />

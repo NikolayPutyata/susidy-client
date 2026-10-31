@@ -63,7 +63,8 @@ const initialForm = (user) => ({
   isPrivateHouse: false,
   pickupPointId: '',
   requestedTime: 'asap',
-  cutlery: 1,
+  cutlery: 0,
+  trainingChopsticks: false,
   details: '',
   noCallback: false,
 })
@@ -634,15 +635,27 @@ export const CheckoutPage = () => {
                   <label className="mb-1.5 block text-sm text-text-muted">
                     {t('checkout.cutlery')}
                   </label>
-                  <QuantityStepper
-                    quantity={form.cutlery}
-                    onDecrease={() =>
-                      setForm((prev) => ({ ...prev, cutlery: Math.max(1, prev.cutlery - 1) }))
-                    }
-                    onIncrease={() =>
-                      setForm((prev) => ({ ...prev, cutlery: Math.min(20, prev.cutlery + 1) }))
-                    }
-                  />
+                  <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                    <QuantityStepper
+                      quantity={form.cutlery}
+                      onDecrease={() =>
+                        setForm((prev) => ({ ...prev, cutlery: Math.max(0, prev.cutlery - 1) }))
+                      }
+                      onIncrease={() =>
+                        setForm((prev) => ({ ...prev, cutlery: Math.min(20, prev.cutlery + 1) }))
+                      }
+                    />
+                    <label className="flex items-center gap-2 text-sm text-text-muted">
+                      <input
+                        type="checkbox"
+                        name="trainingChopsticks"
+                        checked={form.trainingChopsticks}
+                        onChange={handleChange}
+                        className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
+                      />
+                      {t('checkout.trainingChopsticks')}
+                    </label>
+                  </div>
                 </div>
 
                 <Field label={t('checkout.comment')}>

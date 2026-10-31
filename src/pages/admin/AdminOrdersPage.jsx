@@ -123,13 +123,22 @@ const OrdersTable = ({ orders }) => {
                             {requestedTime || '—'}
                           </p>
                           <p>
-                            <span className="text-text-subtle">Приборів: </span>
-                            {order.cutlery ?? 1}
+                            <span className="text-text-subtle">Прибори: </span>
+                            {order.cutlery ?? 0}
+                            {order.trainingChopsticks && ' + навчальні палички'}
                           </p>
                           <p>
                             <span className="text-text-subtle">Оплата: </span>
                             {order.paymentMethod === 'online' ? 'Онлайн' : 'При отриманні'}
+                            {order.cashAmount > 0 &&
+                              `, готівка ${order.cashAmount} ₴ — решта ${order.cashAmount - order.total} ₴`}
                           </p>
+                          {order.deliveryFee > 0 && (
+                            <p>
+                              <span className="text-text-subtle">Доставка: </span>
+                              {order.deliveryFee} ₴
+                            </p>
+                          )}
                           {order.details && (
                             <p>
                               <span className="text-text-subtle">Коментар: </span>
