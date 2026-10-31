@@ -253,6 +253,7 @@ export const CheckoutPage = () => {
         city,
         paymentMethod: 'cod',
         cashAmount: cashAmountNumber ?? undefined,
+        noCallback: Boolean(user?.phoneVerified && form.noCallback),
         pickupAddress: pickupPoint?.address || '',
       })
       setOrderResult(order)
@@ -669,16 +670,21 @@ export const CheckoutPage = () => {
                   />
                 </Field>
 
-                <label className="flex items-center gap-2 text-sm text-text-muted">
-                  <input
-                    type="checkbox"
-                    name="noCallback"
-                    checked={form.noCallback}
-                    onChange={handleChange}
-                    className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
-                  />
-                  {t('checkout.noCallback')}
-                </label>
+                {/* Only for registered users with an SMS-confirmed phone —
+                    a guest's number is unverified, so staff must be able
+                    to call it (the server ignores the flag otherwise). */}
+                {user?.phoneVerified && (
+                  <label className="flex items-center gap-2 text-sm text-text-muted">
+                    <input
+                      type="checkbox"
+                      name="noCallback"
+                      checked={form.noCallback}
+                      onChange={handleChange}
+                      className="h-4 w-4 rounded border-border bg-surface-raised accent-primary"
+                    />
+                    {t('checkout.noCallback')}
+                  </label>
+                )}
 
                 {form.fulfillment === 'delivery' && (
                   <>
