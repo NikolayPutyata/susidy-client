@@ -20,6 +20,7 @@ import { selectUser, setUser } from '../store/userSlice.js'
 import { getProductName } from '../lib/productI18n.js'
 import { DeliveryAddressFields } from './DeliveryAddressFields.jsx'
 import { CloseIcon, HeartIcon, MapPinIcon, PlusIcon, SpinnerIcon, TrashIcon } from './icons.jsx'
+import { cloudinaryUrl } from '../lib/images.js'
 
 const inputClass =
   'w-full rounded-xl border border-border bg-surface-raised px-4 py-2.5 text-text placeholder:text-text-subtle outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30'
@@ -451,8 +452,10 @@ export const ProfileModal = () => {
                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-black">
                       {product.images?.[0] ? (
                         <img
-                          src={product.images[0]}
+                          src={cloudinaryUrl(product.images[0], 120)}
                           alt={getProductName(product, i18n.language)}
+                          loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-contain"
                         />
                       ) : (

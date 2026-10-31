@@ -7,6 +7,7 @@ import {
 } from '../../api/admin.js'
 import { getErrorMessage } from '../../lib/errors.js'
 import { SpinnerIcon, TrashIcon, UploadIcon } from '../../components/icons.jsx'
+import { cloudinaryUrl } from '../../lib/images.js'
 
 const emptyForm = {
   title: '',
@@ -224,8 +225,9 @@ export const AdminBannersPage = () => {
               }`}
             >
               <img
-                src={banner.image}
+                src={cloudinaryUrl(banner.image, 640)}
                 alt={banner.title || ''}
+                loading="lazy"
                 className="h-28 w-full object-cover"
               />
               <div className="space-y-1 p-3">

@@ -19,6 +19,7 @@ import { TotalWeight } from '../components/TotalWeight.jsx'
 import { ContentLoader } from '../components/ContentLoader.jsx'
 import { getAmountToFreeDelivery, getDeliveryFee } from '../lib/pricing.js'
 import { getChargeableQuantity } from '../lib/addons.js'
+import { cloudinaryUrl } from '../lib/images.js'
 
 const addressExtrasLabel = (addr, t) =>
   addr.isPrivateHouse
@@ -383,8 +384,10 @@ export const CheckoutPage = () => {
                       <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-black">
                         {item.image ? (
                           <img
-                            src={item.image}
+                            src={cloudinaryUrl(item.image, 120)}
                             alt={item.productName}
+                            loading="lazy"
+                            decoding="async"
                             className="h-full w-full object-contain"
                           />
                         ) : (
