@@ -148,7 +148,21 @@
     "haveAccount": "Вже є акаунт?",
     "registeredLoginFailed": "Акаунт створено, але увійти автоматично не вдалось. Натисніть \"Увійти\" нижче і спробуйте ще раз.",
     "cityKyiv": "Київ",
-    "cityKharkiv": "Харків"
+    "cityKharkiv": "Харків",
+    "forgotPassword": "Забули пароль?",
+    "resetTitle": "Відновлення пароля",
+    "sendCode": "Надіслати код",
+    "sendingCode": "Надсилаємо код…",
+    "codeSentTo": "Ми надіслали SMS з кодом на {{phone}}",
+    "codePlaceholder": "Код з SMS",
+    "resendCode": "Надіслати ще раз",
+    "resendIn": "Надіслати ще раз через {{seconds}} с",
+    "changeNumber": "Змінити номер",
+    "confirm": "Підтвердити",
+    "newPassword": "Новий пароль",
+    "savePassword": "Зберегти пароль",
+    "saving": "Зберігаємо…",
+    "backToLogin": "Повернутись до входу"
   },
   "profile": {
     "title": "Мій профіль",

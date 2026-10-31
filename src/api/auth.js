@@ -33,3 +33,9 @@ export const removeMySavedAddress = (addressId) =>
 
 export const setMyDefaultSavedAddress = (addressId) =>
   apiClient.patch(`/auth/me/addresses/${addressId}/default`).then((r) => r.data.data)
+
+// purpose: 'register' | 'reset' — sends a 6-digit code by SMS
+export const requestSmsCodeRequest = (phoneNumber, purpose) =>
+  apiClient.post('/auth/sms/send', { phoneNumber, purpose }).then((r) => r.data.data)
+
+export const resetPasswordRequest = (payload) => apiClient.post('/auth/password/reset', payload)

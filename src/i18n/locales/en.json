@@ -148,7 +148,21 @@
     "haveAccount": "Already have an account?",
     "registeredLoginFailed": "Account created, but automatic login failed. Click \"Log in\" below and try again.",
     "cityKyiv": "Kyiv",
-    "cityKharkiv": "Kharkiv"
+    "cityKharkiv": "Kharkiv",
+    "forgotPassword": "Forgot password?",
+    "resetTitle": "Reset password",
+    "sendCode": "Send code",
+    "sendingCode": "Sending code…",
+    "codeSentTo": "We've sent an SMS code to {{phone}}",
+    "codePlaceholder": "SMS code",
+    "resendCode": "Resend",
+    "resendIn": "Resend in {{seconds}} s",
+    "changeNumber": "Change number",
+    "confirm": "Confirm",
+    "newPassword": "New password",
+    "savePassword": "Save password",
+    "saving": "Saving…",
+    "backToLogin": "Back to login"
   },
   "profile": {
     "title": "My profile",
