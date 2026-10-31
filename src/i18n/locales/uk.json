@@ -99,7 +99,7 @@
     "cutlery": "Кількість приборів",
     "trainingChopsticks": "Навчальні палички",
     "comment": "Коментар до замовлення",
-    "commentPlaceholder": "побажання, уточнення, алергії",
+    "commentPlaceholder": "побажання та уточнення",
     "noCallback": "Не передзвонювати мені",
     "payOnline": "Сплатити · {{value}} ₴",
     "payCod": "Сплачу при отриманні",

@@ -99,7 +99,7 @@
     "cutlery": "Cutlery count",
     "trainingChopsticks": "Training chopsticks",
     "comment": "Order comment",
-    "commentPlaceholder": "special requests, allergies, etc.",
+    "commentPlaceholder": "special requests and details",
     "noCallback": "Don't call me back",
     "payOnline": "Pay · {{value}} UAH",
     "payCod": "Pay on delivery",
